@@ -1,7 +1,6 @@
 package lt.rieske.accounts.domain;
 
 import lt.rieske.accounts.eventsourcing.AggregateNotFoundException;
-import lt.rieske.accounts.eventsourcing.EventStream;
 import lt.rieske.accounts.eventsourcing.InMemoryEventStore;
 import org.junit.Test;
 
@@ -13,14 +12,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class AccountTest {
 
     private final InMemoryEventStore<Account> eventStore = new InMemoryEventStore<>();
-    private final EventStream<Account> accountEventStream = new EventStream<>(eventStore);
+
+    private final AccountRepository accountRepository = new AccountRepository(eventStore);
 
     @Test
     public void shouldOpenAnAccount() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
-        var account = new Account(accountEventStream);
+        var account = accountRepository.newAccount(accountId);
         account.open(accountId, ownerId);
 
         assertThat(account.id()).isEqualTo(accountId);
@@ -35,7 +35,7 @@ public class AccountTest {
         var ownerId = UUID.randomUUID();
         eventStore.append(new AccountOpenedEvent(accountId, ownerId));
 
-        var account = new Account(accountEventStream, accountId);
+        var account = accountRepository.loadAccount(accountId);
 
         assertThat(account.id()).isEqualTo(accountId);
         assertThat(account.ownerId()).isEqualTo(ownerId);
@@ -49,8 +49,8 @@ public class AccountTest {
         eventStore.append(new AccountOpenedEvent(account1Id, ownerId));
         eventStore.append(new AccountOpenedEvent(account2Id, ownerId));
 
-        var account1 = new Account(accountEventStream, account1Id);
-        var account2 = new Account(accountEventStream, account2Id);
+        var account1 = accountRepository.loadAccount(account1Id);
+        var account2 = accountRepository.loadAccount(account2Id);
 
         assertThat(account1.id()).isEqualTo(account1Id);
         assertThat(account1.ownerId()).isEqualTo(ownerId);
@@ -61,7 +61,7 @@ public class AccountTest {
 
     @Test
     public void shouldThrowWhenAccountIsNotFound() {
-        assertThatThrownBy(() -> new Account(accountEventStream, UUID.randomUUID()))
+        assertThatThrownBy(() -> accountRepository.loadAccount(UUID.randomUUID()))
                 .isInstanceOf(AggregateNotFoundException.class);
     }
 
@@ -71,7 +71,7 @@ public class AccountTest {
         var ownerId = UUID.randomUUID();
         eventStore.append(new AccountOpenedEvent(accountId, ownerId));
 
-        var account = new Account(accountEventStream, accountId);
+        var account = accountRepository.loadAccount(accountId);
 
         account.deposit(42);
 

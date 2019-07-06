@@ -11,13 +11,8 @@ public class Account {
     private UUID ownerId;
     private int balance;
 
-    public Account(EventStream<Account> eventStream) {
+    Account(EventStream<Account> eventStream) {
         this.eventStream = eventStream;
-    }
-
-    public Account(EventStream<Account> eventStream, UUID accountId) {
-        this(eventStream);
-        eventStream.replay(this, accountId);
     }
 
     public void open(UUID accountId, UUID ownerId) {
