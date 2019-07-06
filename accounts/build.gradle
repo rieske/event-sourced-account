@@ -3,13 +3,19 @@ plugins {
     id 'application'
 }
 
+sourceCompatibility = 11
+targetCompatibility = 11
+
 repositories {
     jcenter()
 }
 
 dependencies {
+    annotationProcessor 'org.projectlombok:lombok:1.18.8'
 
     testImplementation 'junit:junit:4.12'
+    testImplementation 'org.assertj:assertj-core:3.11.1'
+    testImplementation 'com.tngtech.archunit:archunit:0.10.2'
 }
 
 mainClassName = 'lt.rieske.accounts.App'
