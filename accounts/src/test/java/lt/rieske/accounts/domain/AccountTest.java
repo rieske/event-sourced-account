@@ -82,6 +82,24 @@ public class AccountTest {
     }
 
     @Test
+    public void multipleDepositsShouldAccumulateBalance() {
+        var accountId = UUID.randomUUID();
+        var ownerId = UUID.randomUUID();
+        eventStore.append(new AccountOpenedEvent(accountId, ownerId));
+
+        var account = accountRepository.loadAccount(accountId);
+        account.deposit(1);
+        account.deposit(1);
+
+        assertThat(account.balance()).isEqualTo(2);
+        assertThat(eventStore.getEvents(accountId)).containsExactly(
+                new AccountOpenedEvent(accountId, ownerId),
+                new MoneyDepositedEvent(accountId, 1),
+                new MoneyDepositedEvent(accountId, 1)
+        );
+    }
+
+    @Test
     public void shouldNotDepositZeroToAccount() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
