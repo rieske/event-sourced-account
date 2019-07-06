@@ -72,13 +72,41 @@ public class AccountTest {
         eventStore.append(new AccountOpenedEvent(accountId, ownerId));
 
         var account = accountRepository.loadAccount(accountId);
-
         account.deposit(42);
 
         assertThat(account.balance()).isEqualTo(42);
         assertThat(eventStore.getEvents(accountId)).containsExactly(
                 new AccountOpenedEvent(accountId, ownerId),
                 new MoneyDepositedEvent(accountId, 42)
+        );
+    }
+
+    @Test
+    public void shouldNotDepositZeroToAccount() {
+        var accountId = UUID.randomUUID();
+        var ownerId = UUID.randomUUID();
+        eventStore.append(new AccountOpenedEvent(accountId, ownerId));
+
+        var account = accountRepository.loadAccount(accountId);
+        account.deposit(0);
+
+        assertThat(account.balance()).isZero();
+        assertThat(eventStore.getEvents(accountId)).containsExactly(
+                new AccountOpenedEvent(accountId, ownerId)
+        );
+    }
+
+    @Test
+    public void shouldThrowWhenDepositingNegativeAmount() {
+        var accountId = UUID.randomUUID();
+        var ownerId = UUID.randomUUID();
+        eventStore.append(new AccountOpenedEvent(accountId, ownerId));
+
+        var account = accountRepository.loadAccount(accountId);
+        assertThatThrownBy(() -> account.deposit(-42)).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Can not deposit negative amount");
+        assertThat(eventStore.getEvents(accountId)).containsExactly(
+                new AccountOpenedEvent(accountId, ownerId)
         );
     }
 }

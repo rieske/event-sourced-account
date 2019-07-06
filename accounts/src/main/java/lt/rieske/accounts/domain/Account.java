@@ -20,7 +20,12 @@ public class Account {
     }
 
     public void deposit(int amount) {
-        eventStream.append(new MoneyDepositedEvent(accountId, amount), this);
+        if (amount < 0) {
+            throw new IllegalArgumentException("Can not deposit negative amount: " + amount);
+        }
+        if (amount != 0) {
+            eventStream.append(new MoneyDepositedEvent(accountId, amount), this);
+        }
     }
 
     public UUID id() {
