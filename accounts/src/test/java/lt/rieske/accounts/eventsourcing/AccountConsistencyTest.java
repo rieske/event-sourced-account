@@ -14,8 +14,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AccountConsistencyTest {
 
     private final InMemoryEventStore<Account> eventStore = new InMemoryEventStore<>();
-    private final AggregateRepository<Account> accountRepository = new AggregateRepository<>(eventStore, Account::new);
-    private final AggregateRepository<Account> snapshottingAccountRepository = new AggregateRepository<>(eventStore, Account::new, new AccountSnapshotter());
+    private final AggregateRepository<Account> accountRepository =
+            new AggregateRepository<>(eventStore, Account::new);
+    private final AggregateRepository<Account> snapshottingAccountRepository =
+            new AggregateRepository<>(eventStore, Account::new, new AccountSnapshotter());
 
     @Test
     public void accountRemainsConsistentWithConcurrentModifications_noSnapshots() throws InterruptedException {
@@ -27,7 +29,8 @@ public class AccountConsistencyTest {
         accountRemainsConsistentWithConcurrentModifications(snapshottingAccountRepository);
     }
 
-    private void accountRemainsConsistentWithConcurrentModifications(AggregateRepository<Account> repository) throws InterruptedException {
+    private void accountRemainsConsistentWithConcurrentModifications(AggregateRepository<Account> repository)
+            throws InterruptedException {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
