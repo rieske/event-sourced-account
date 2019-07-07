@@ -30,7 +30,7 @@ public class AggregateRepository<T> {
         return aggregateFactory.makeAggregate(eventStream(accountId));
     }
 
-    private EventStream<T> eventStream(UUID aggregateId) {
+    private EventSourcedEventStream<T> eventStream(UUID aggregateId) {
         return new EventSourcedEventStream<>(eventStore, snapshotter, aggregateId);
     }
 }

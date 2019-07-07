@@ -33,8 +33,7 @@ public class EventSourcedEventStream<T> implements EventStream<T> {
         }
     }
 
-    @Override
-    public void replay(T aggregate) {
+    void replay(T aggregate) {
         Snapshot<T> snapshot = eventStore.loadSnapshot(aggregateId);
         if (snapshot != null) {
             snapshot.apply(aggregate);
