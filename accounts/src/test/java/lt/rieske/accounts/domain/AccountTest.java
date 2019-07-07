@@ -12,7 +12,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class AccountTest {
 
     private final InMemoryEventStore<Account> eventStore = new InMemoryEventStore<>();
-
     private final AccountRepository accountRepository = new AccountRepository(eventStore);
 
     @Test
@@ -33,7 +32,7 @@ public class AccountTest {
     public void shouldLoadAnAccount() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
-        eventStore.append(new AccountOpenedEvent(accountId, ownerId));
+        eventStore.append(new AccountOpenedEvent(accountId, ownerId), 1);
 
         var account = accountRepository.loadAccount(accountId);
 
@@ -46,8 +45,8 @@ public class AccountTest {
         var account1Id = UUID.randomUUID();
         var account2Id = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
-        eventStore.append(new AccountOpenedEvent(account1Id, ownerId));
-        eventStore.append(new AccountOpenedEvent(account2Id, ownerId));
+        eventStore.append(new AccountOpenedEvent(account1Id, ownerId), 1);
+        eventStore.append(new AccountOpenedEvent(account2Id, ownerId), 2);
 
         var account1 = accountRepository.loadAccount(account1Id);
         var account2 = accountRepository.loadAccount(account2Id);
@@ -69,7 +68,7 @@ public class AccountTest {
     public void shouldDepositMoneyToAccount() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
-        eventStore.append(new AccountOpenedEvent(accountId, ownerId));
+        eventStore.append(new AccountOpenedEvent(accountId, ownerId), 1);
 
         var account = accountRepository.loadAccount(accountId);
         account.deposit(42);
@@ -85,7 +84,7 @@ public class AccountTest {
     public void multipleDepositsShouldAccumulateBalance() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
-        eventStore.append(new AccountOpenedEvent(accountId, ownerId));
+        eventStore.append(new AccountOpenedEvent(accountId, ownerId), 1);
 
         var account = accountRepository.loadAccount(accountId);
         account.deposit(1);
@@ -103,7 +102,7 @@ public class AccountTest {
     public void shouldNotDepositZeroToAccount() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
-        eventStore.append(new AccountOpenedEvent(accountId, ownerId));
+        eventStore.append(new AccountOpenedEvent(accountId, ownerId), 1);
 
         var account = accountRepository.loadAccount(accountId);
         account.deposit(0);
@@ -118,7 +117,7 @@ public class AccountTest {
     public void shouldThrowWhenDepositingNegativeAmount() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
-        eventStore.append(new AccountOpenedEvent(accountId, ownerId));
+        eventStore.append(new AccountOpenedEvent(accountId, ownerId), 1);
 
         var account = accountRepository.loadAccount(accountId);
         assertThatThrownBy(() -> account.deposit(-42)).isInstanceOf(IllegalArgumentException.class)
@@ -126,5 +125,50 @@ public class AccountTest {
         assertThat(eventStore.getEvents(accountId)).containsExactly(
                 new AccountOpenedEvent(accountId, ownerId)
         );
+    }
+
+    @Test
+    public void shouldWithdrawMoney() {
+        var accountId = UUID.randomUUID();
+        var ownerId = UUID.randomUUID();
+        eventStore.append(new AccountOpenedEvent(accountId, ownerId),1 );
+        eventStore.append(new MoneyDepositedEvent(accountId, 10), 2);
+
+        var account = accountRepository.loadAccount(accountId);
+        account.withdraw(5);
+
+        assertThat(account.balance()).isEqualTo(5);
+        assertThat(eventStore.getEvents(accountId)).containsExactly(
+                new AccountOpenedEvent(accountId, ownerId),
+                new MoneyDepositedEvent(accountId, 10),
+                new MoneyWithdrawnEvent(accountId, 5)
+        );
+    }
+
+    @Test
+    public void shouldNotWithdrawZero() {
+        var accountId = UUID.randomUUID();
+        var ownerId = UUID.randomUUID();
+        eventStore.append(new AccountOpenedEvent(accountId, ownerId), 1);
+
+        var account = accountRepository.loadAccount(accountId);
+        account.withdraw(0);
+
+        assertThat(account.balance()).isEqualTo(0);
+        assertThat(eventStore.getEvents(accountId)).containsExactly(
+                new AccountOpenedEvent(accountId, ownerId)
+        );
+    }
+
+    @Test
+    public void shouldNotWithdrawMoneyWhenBalanceInsufficient() {
+        var accountId = UUID.randomUUID();
+        var ownerId = UUID.randomUUID();
+        eventStore.append(new AccountOpenedEvent(accountId, ownerId), 1);
+        eventStore.append(new MoneyDepositedEvent(accountId, 10), 2);
+
+        var account = accountRepository.loadAccount(accountId);
+        assertThatThrownBy(() -> account.withdraw(11)).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Insufficient balance");
     }
 }

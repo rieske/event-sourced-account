@@ -7,6 +7,8 @@ public class EventStream<T> {
     private final EventStore<T> eventStore;
     private final UUID aggregateId;
 
+    private long version;
+
     public EventStream(EventStore<T> eventStore, UUID aggregateId) {
         this.eventStore = eventStore;
         this.aggregateId = aggregateId;
@@ -16,8 +18,14 @@ public class EventStream<T> {
         if (event.aggregateId() != aggregateId) {
             throw aggregateMismatch(event.aggregateId());
         }
-        eventStore.append(event);
+        long nextSequence = version + 1;
+        eventStore.append(event, nextSequence);
         event.apply(aggregate);
+        version = nextSequence;
+    }
+
+    public long version() {
+        return version;
     }
 
     public void replay(T aggregate) {
@@ -26,6 +34,7 @@ public class EventStream<T> {
             throw new AggregateNotFoundException(aggregateId);
         }
         events.forEach(event -> event.apply(aggregate));
+        version = events.size();
     }
 
     private IllegalArgumentException aggregateMismatch(UUID eventAggregateId) {
