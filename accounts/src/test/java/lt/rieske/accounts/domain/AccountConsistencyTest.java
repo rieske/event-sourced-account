@@ -14,8 +14,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AccountConsistencyTest {
 
     private final InMemoryEventStore<Account> eventStore = new InMemoryEventStore<>();
-    private final AccountRepository accountRepository = new AccountRepository(eventStore);
-    private final SnapshottingAccountRepository snapshottingAccountRepository = new SnapshottingAccountRepository(eventStore);
+    private final AggregateRepository<Account> accountRepository = new AggregateRepository<>(eventStore, Account::new);
+    private final AggregateRepository<Account> snapshottingAccountRepository = new AggregateRepository<>(eventStore, Account::new, new AccountSnapshotter());
 
     @Test
     public void accountRemainsConsistentWithConcurrentModifications_noSnapshots() throws InterruptedException {

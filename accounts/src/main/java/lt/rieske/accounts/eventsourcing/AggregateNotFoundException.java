@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public class AggregateNotFoundException extends RuntimeException {
 
-    AggregateNotFoundException(UUID aggregateId) {
+    public AggregateNotFoundException(UUID aggregateId) {
         super("Aggregate not found, aggregateId: " + aggregateId);
     }
 }

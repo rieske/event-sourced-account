@@ -1,6 +1,6 @@
 package lt.rieske.accounts.domain;
 
-import lt.rieske.accounts.eventsourcing.EventStream;
+import lt.rieske.accounts.eventsourcing.EventSourcedEventStream;
 
 import java.util.UUID;
 
@@ -11,7 +11,7 @@ public class Account {
     private UUID ownerId;
     private int balance;
 
-    Account(EventStream<Account> eventStream) {
+    public Account(EventStream<Account> eventStream) {
         this.eventStream = eventStream;
     }
 

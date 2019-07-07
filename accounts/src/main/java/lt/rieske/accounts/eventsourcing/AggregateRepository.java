@@ -1,34 +1,38 @@
 package lt.rieske.accounts.eventsourcing;
 
+import lt.rieske.accounts.domain.EventStream;
+
 import java.util.UUID;
 
-public abstract class AggregateRepository<T> {
+public class AggregateRepository<T> {
     private final EventStore<T> eventStore;
+    private final AggregateFactory<T> aggregateFactory;
     private final Snapshotter<T> snapshotter;
 
-    public AggregateRepository(EventStore<T> eventStore) {
-        this(eventStore, (aggregate, version) -> null);
+    public AggregateRepository(EventStore<T> eventStore, AggregateFactory<T> aggregateFactory) {
+        this(eventStore, aggregateFactory, (aggregate, version) -> null);
     }
 
-    public AggregateRepository(EventStore<T> eventStore, Snapshotter<T> snapshotter) {
+    public AggregateRepository(EventStore<T> eventStore, AggregateFactory<T> aggregateFactory, Snapshotter<T> snapshotter) {
         this.eventStore = eventStore;
+        this.aggregateFactory = aggregateFactory;
         this.snapshotter = snapshotter;
     }
 
-    public T load(UUID accountId) {
-        var eventStream = eventStream(accountId);
-        var account = makeAggregate(eventStream);
-        eventStream.replay(account);
-        return account;
+    public T load(UUID aggregateId) {
+        var eventStream = eventStream(aggregateId);
+        var aggregate = aggregateFactory.makeAggregate(eventStream);
+        eventStream.replay(aggregate);
+        return aggregate;
     }
 
     public T create(UUID accountId) {
-        return makeAggregate(eventStream(accountId));
+        return aggregateFactory.makeAggregate(eventStream(accountId));
     }
-
-    protected abstract T makeAggregate(EventStream<T> eventStream);
 
     private EventStream<T> eventStream(UUID aggregateId) {
-        return new EventStream<>(eventStore, snapshotter, aggregateId);
+        return new EventSourcedEventStream<>(eventStore, snapshotter, aggregateId);
     }
 }
+
+

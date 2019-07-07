@@ -1,6 +1,7 @@
 package lt.rieske.accounts.domain;
 
 import lt.rieske.accounts.eventsourcing.AggregateNotFoundException;
+import lt.rieske.accounts.eventsourcing.AggregateRepository;
 import lt.rieske.accounts.eventsourcing.Event;
 import lt.rieske.accounts.eventsourcing.InMemoryEventStore;
 import org.junit.Test;
@@ -13,8 +14,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class AccountTest {
 
     private final InMemoryEventStore<Account> eventStore = new InMemoryEventStore<>();
-    private final AccountRepository accountRepository = new AccountRepository(eventStore);
-    private final SnapshottingAccountRepository snapshottingAccountRepository = new SnapshottingAccountRepository(eventStore);
+    private final AggregateRepository<Account> accountRepository = new AggregateRepository<>(eventStore, Account::new);
+    private final AggregateRepository<Account> snapshottingAccountRepository = new AggregateRepository<>(eventStore, Account::new, new AccountSnapshotter());
 
     @SafeVarargs
     private void givenEvents(Event<Account>... events) {
@@ -218,8 +219,8 @@ public class AccountTest {
         var ownerId = UUID.randomUUID();
 
         eventStore.append(new MoneyDepositedEvent(accountId, 10, 11), 10);
-        eventStore.append(new MoneyDepositedEvent(accountId, 1, 43), 11);
         eventStore.storeSnapshot(new AccountSnapshot(10, accountId, ownerId, 42));
+        eventStore.append(new MoneyDepositedEvent(accountId, 1, 43), 11);
 
         var account = snapshottingAccountRepository.load(accountId);
         assertThat(account.balance()).isEqualTo(43);
