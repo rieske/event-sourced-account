@@ -76,7 +76,7 @@ public class AccountTest {
         assertThat(account.balance()).isEqualTo(42);
         assertThat(eventStore.getEvents(accountId)).containsExactly(
                 new AccountOpenedEvent(accountId, ownerId),
-                new MoneyDepositedEvent(accountId, 42)
+                new MoneyDepositedEvent(accountId, 42, 42)
         );
     }
 
@@ -93,8 +93,8 @@ public class AccountTest {
         assertThat(account.balance()).isEqualTo(2);
         assertThat(eventStore.getEvents(accountId)).containsExactly(
                 new AccountOpenedEvent(accountId, ownerId),
-                new MoneyDepositedEvent(accountId, 1),
-                new MoneyDepositedEvent(accountId, 1)
+                new MoneyDepositedEvent(accountId, 1, 1),
+                new MoneyDepositedEvent(accountId, 1, 2)
         );
     }
 
@@ -132,7 +132,7 @@ public class AccountTest {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
         eventStore.append(new AccountOpenedEvent(accountId, ownerId),1 );
-        eventStore.append(new MoneyDepositedEvent(accountId, 10), 2);
+        eventStore.append(new MoneyDepositedEvent(accountId, 10, 10), 2);
 
         var account = accountRepository.loadAccount(accountId);
         account.withdraw(5);
@@ -140,8 +140,8 @@ public class AccountTest {
         assertThat(account.balance()).isEqualTo(5);
         assertThat(eventStore.getEvents(accountId)).containsExactly(
                 new AccountOpenedEvent(accountId, ownerId),
-                new MoneyDepositedEvent(accountId, 10),
-                new MoneyWithdrawnEvent(accountId, 5)
+                new MoneyDepositedEvent(accountId, 10, 10),
+                new MoneyWithdrawnEvent(accountId, 5, 5)
         );
     }
 
@@ -165,7 +165,7 @@ public class AccountTest {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
         eventStore.append(new AccountOpenedEvent(accountId, ownerId), 1);
-        eventStore.append(new MoneyDepositedEvent(accountId, 10), 2);
+        eventStore.append(new MoneyDepositedEvent(accountId, 10, 10), 2);
 
         var account = accountRepository.loadAccount(accountId);
         assertThatThrownBy(() -> account.withdraw(11)).isInstanceOf(IllegalArgumentException.class)
