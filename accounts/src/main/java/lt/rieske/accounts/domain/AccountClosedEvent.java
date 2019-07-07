@@ -11,11 +11,6 @@ class AccountClosedEvent implements Event<Account> {
     private final UUID accountId;
 
     @Override
-    public UUID aggregateId() {
-        return accountId;
-    }
-
-    @Override
     public void apply(Account aggregate) {
         aggregate.apply(this);
     }

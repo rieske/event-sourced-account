@@ -16,9 +16,4 @@ class MoneyDepositedEvent implements Event<Account> {
     public void apply(Account aggregate) {
         aggregate.apply(this);
     }
-
-    @Override
-    public UUID aggregateId() {
-        return accountId;
-    }
 }

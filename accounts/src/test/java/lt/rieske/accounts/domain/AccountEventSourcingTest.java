@@ -18,9 +18,9 @@ public class AccountEventSourcingTest {
     private final AggregateRepository<Account> snapshottingAccountRepository = new AggregateRepository<>(eventStore, Account::new, new AccountSnapshotter());
 
     @SafeVarargs
-    private void givenEvents(Event<Account>... events) {
+    private void givenEvents(UUID accountId, Event<Account>... events) {
         for (int i = 0; i < events.length; i++) {
-            eventStore.append(events[i], i + 1);
+            eventStore.append(accountId, events[i], i + 1);
         }
     }
 
@@ -42,7 +42,7 @@ public class AccountEventSourcingTest {
     public void shouldLoadAnAccount() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
-        givenEvents(new AccountOpenedEvent(accountId, ownerId));
+        givenEvents(accountId, new AccountOpenedEvent(accountId, ownerId));
 
         var account = accountRepository.load(accountId);
 
@@ -55,8 +55,8 @@ public class AccountEventSourcingTest {
         var account1Id = UUID.randomUUID();
         var account2Id = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
-        givenEvents(new AccountOpenedEvent(account1Id, ownerId));
-        givenEvents(new AccountOpenedEvent(account2Id, ownerId));
+        givenEvents(account1Id, new AccountOpenedEvent(account1Id, ownerId));
+        givenEvents(account2Id, new AccountOpenedEvent(account2Id, ownerId));
 
         var account1 = accountRepository.load(account1Id);
         var account2 = accountRepository.load(account2Id);
@@ -78,7 +78,7 @@ public class AccountEventSourcingTest {
     public void shouldDepositMoneyToAccount() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
-        givenEvents(new AccountOpenedEvent(accountId, ownerId));
+        givenEvents(accountId, new AccountOpenedEvent(accountId, ownerId));
 
         var account = accountRepository.load(accountId);
         account.deposit(42);
@@ -94,7 +94,7 @@ public class AccountEventSourcingTest {
     public void multipleDepositsShouldAccumulateBalance() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
-        givenEvents(new AccountOpenedEvent(accountId, ownerId));
+        givenEvents(accountId, new AccountOpenedEvent(accountId, ownerId));
 
         var account = accountRepository.load(accountId);
         account.deposit(1);
@@ -112,7 +112,7 @@ public class AccountEventSourcingTest {
     public void shouldNotDepositZeroToAccount() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
-        givenEvents(new AccountOpenedEvent(accountId, ownerId));
+        givenEvents(accountId, new AccountOpenedEvent(accountId, ownerId));
 
         var account = accountRepository.load(accountId);
         account.deposit(0);
@@ -127,7 +127,7 @@ public class AccountEventSourcingTest {
     public void shouldThrowWhenDepositingNegativeAmount() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
-        givenEvents(new AccountOpenedEvent(accountId, ownerId));
+        givenEvents(accountId, new AccountOpenedEvent(accountId, ownerId));
 
         var account = accountRepository.load(accountId);
         assertThatThrownBy(() -> account.deposit(-42)).isInstanceOf(IllegalArgumentException.class)
@@ -141,7 +141,7 @@ public class AccountEventSourcingTest {
     public void shouldWithdrawMoney() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
-        givenEvents(
+        givenEvents(accountId,
                 new AccountOpenedEvent(accountId, ownerId),
                 new MoneyDepositedEvent(accountId, 10, 10)
         );
@@ -161,7 +161,7 @@ public class AccountEventSourcingTest {
     public void shouldNotWithdrawZero() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
-        givenEvents(new AccountOpenedEvent(accountId, ownerId));
+        givenEvents(accountId,new AccountOpenedEvent(accountId, ownerId));
 
         var account = accountRepository.load(accountId);
         account.withdraw(0);
@@ -176,7 +176,7 @@ public class AccountEventSourcingTest {
     public void shouldNotWithdrawMoneyWhenBalanceInsufficient() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
-        givenEvents(
+        givenEvents(accountId,
                 new AccountOpenedEvent(accountId, ownerId),
                 new MoneyDepositedEvent(accountId, 10, 10)
         );
@@ -191,7 +191,7 @@ public class AccountEventSourcingTest {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
-        eventStore.storeSnapshot(new AccountSnapshot(accountId, ownerId, 42, true), 10);
+        eventStore.storeSnapshot(accountId, new AccountSnapshot(accountId, ownerId, 42, true), 10);
 
         var account = snapshottingAccountRepository.load(accountId);
         assertThat(account.balance()).isEqualTo(42);
@@ -204,8 +204,8 @@ public class AccountEventSourcingTest {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
-        eventStore.append(new MoneyDepositedEvent(accountId, 10, 11), 10);
-        eventStore.storeSnapshot(new AccountSnapshot(accountId, ownerId, 42, true), 10);
+        eventStore.append(accountId, new MoneyDepositedEvent(accountId, 10, 11), 10);
+        eventStore.storeSnapshot(accountId, new AccountSnapshot(accountId, ownerId, 42, true), 10);
 
         var account = snapshottingAccountRepository.load(accountId);
         assertThat(account.balance()).isEqualTo(42);
@@ -218,9 +218,9 @@ public class AccountEventSourcingTest {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
-        eventStore.append(new MoneyDepositedEvent(accountId, 10, 11), 10);
-        eventStore.storeSnapshot(new AccountSnapshot(accountId, ownerId, 42, true), 10);
-        eventStore.append(new MoneyDepositedEvent(accountId, 1, 43), 11);
+        eventStore.append(accountId, new MoneyDepositedEvent(accountId, 10, 11), 10);
+        eventStore.storeSnapshot(accountId, new AccountSnapshot(accountId, ownerId, 42, true), 10);
+        eventStore.append(accountId, new MoneyDepositedEvent(accountId, 1, 43), 11);
 
         var account = snapshottingAccountRepository.load(accountId);
         assertThat(account.balance()).isEqualTo(43);

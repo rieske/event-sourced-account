@@ -14,11 +14,6 @@ class AccountSnapshot implements Event<Account> {
     private final boolean open;
 
     @Override
-    public UUID aggregateId() {
-        return accountId;
-    }
-
-    @Override
     public void apply(Account aggregate) {
         aggregate.applySnapshot(this);
     }

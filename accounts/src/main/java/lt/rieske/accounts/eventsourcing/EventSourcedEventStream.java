@@ -21,12 +21,12 @@ public class EventSourcedEventStream<T> implements EventStream<T> {
     @Override
     public void append(Event<T> event, T aggregate) {
         long nextSequence = version + 1;
-        eventStore.append(event, nextSequence);
+        eventStore.append(aggregateId, event, nextSequence);
         event.apply(aggregate);
         version = nextSequence;
         Event<T> snapshotEvent = snapshotter.takeSnapshot(aggregate, version);
         if (snapshotEvent != null) {
-            eventStore.storeSnapshot(snapshotEvent, version);
+            eventStore.storeSnapshot(aggregateId, snapshotEvent, version);
         }
     }
 
