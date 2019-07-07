@@ -26,7 +26,7 @@ public class Account {
         if (amount < 0) {
             throw new IllegalArgumentException("Can not deposit negative amount: " + amount);
         }
-        eventStream.append(new MoneyDepositedEvent(accountId, amount, balance + amount), this);
+        eventStream.append(new MoneyDepositedEvent(amount, balance + amount), this);
     }
 
     public void withdraw(int amount) {
@@ -37,14 +37,14 @@ public class Account {
         if (balance < amount) {
             throw new IllegalArgumentException("Insufficient balance");
         }
-        eventStream.append(new MoneyWithdrawnEvent(accountId, amount, balance - amount), this);
+        eventStream.append(new MoneyWithdrawnEvent(amount, balance - amount), this);
     }
 
     public void close() {
         if (balance != 0) {
             throw new IllegalStateException("Balance outstanding");
         }
-        eventStream.append(new AccountClosedEvent(accountId), this);
+        eventStream.append(new AccountClosedEvent(), this);
     }
 
     public UUID id() {

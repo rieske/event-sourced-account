@@ -86,7 +86,7 @@ public class AccountEventSourcingTest {
         assertThat(account.balance()).isEqualTo(42);
         assertThat(eventStore.getEvents(accountId)).containsExactly(
                 new AccountOpenedEvent(accountId, ownerId),
-                new MoneyDepositedEvent(accountId, 42, 42)
+                new MoneyDepositedEvent(42, 42)
         );
     }
 
@@ -103,8 +103,8 @@ public class AccountEventSourcingTest {
         assertThat(account.balance()).isEqualTo(2);
         assertThat(eventStore.getEvents(accountId)).containsExactly(
                 new AccountOpenedEvent(accountId, ownerId),
-                new MoneyDepositedEvent(accountId, 1, 1),
-                new MoneyDepositedEvent(accountId, 1, 2)
+                new MoneyDepositedEvent(1, 1),
+                new MoneyDepositedEvent(1, 2)
         );
     }
 
@@ -143,7 +143,7 @@ public class AccountEventSourcingTest {
         var ownerId = UUID.randomUUID();
         givenEvents(accountId,
                 new AccountOpenedEvent(accountId, ownerId),
-                new MoneyDepositedEvent(accountId, 10, 10)
+                new MoneyDepositedEvent(10, 10)
         );
 
         var account = accountRepository.load(accountId);
@@ -152,8 +152,8 @@ public class AccountEventSourcingTest {
         assertThat(account.balance()).isEqualTo(5);
         assertThat(eventStore.getEvents(accountId)).containsExactly(
                 new AccountOpenedEvent(accountId, ownerId),
-                new MoneyDepositedEvent(accountId, 10, 10),
-                new MoneyWithdrawnEvent(accountId, 5, 5)
+                new MoneyDepositedEvent(10, 10),
+                new MoneyWithdrawnEvent(5, 5)
         );
     }
 
@@ -161,7 +161,7 @@ public class AccountEventSourcingTest {
     public void shouldNotWithdrawZero() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
-        givenEvents(accountId,new AccountOpenedEvent(accountId, ownerId));
+        givenEvents(accountId, new AccountOpenedEvent(accountId, ownerId));
 
         var account = accountRepository.load(accountId);
         account.withdraw(0);
@@ -178,7 +178,7 @@ public class AccountEventSourcingTest {
         var ownerId = UUID.randomUUID();
         givenEvents(accountId,
                 new AccountOpenedEvent(accountId, ownerId),
-                new MoneyDepositedEvent(accountId, 10, 10)
+                new MoneyDepositedEvent(10, 10)
         );
 
         var account = accountRepository.load(accountId);
@@ -204,7 +204,7 @@ public class AccountEventSourcingTest {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
-        eventStore.append(accountId, new MoneyDepositedEvent(accountId, 10, 11), 10);
+        eventStore.append(accountId, new MoneyDepositedEvent(10, 11), 10);
         eventStore.storeSnapshot(accountId, new AccountSnapshot(accountId, ownerId, 42, true), 10);
 
         var account = snapshottingAccountRepository.load(accountId);
@@ -218,9 +218,9 @@ public class AccountEventSourcingTest {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
-        eventStore.append(accountId, new MoneyDepositedEvent(accountId, 10, 11), 10);
+        eventStore.append(accountId, new MoneyDepositedEvent(10, 11), 10);
         eventStore.storeSnapshot(accountId, new AccountSnapshot(accountId, ownerId, 42, true), 10);
-        eventStore.append(accountId, new MoneyDepositedEvent(accountId, 1, 43), 11);
+        eventStore.append(accountId, new MoneyDepositedEvent(1, 43), 11);
 
         var account = snapshottingAccountRepository.load(accountId);
         assertThat(account.balance()).isEqualTo(43);
