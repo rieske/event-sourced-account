@@ -191,7 +191,7 @@ public class AccountEventSourcingTest {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
-        eventStore.storeSnapshot(new AccountSnapshot(10, accountId, ownerId, 42, true));
+        eventStore.storeSnapshot(new AccountSnapshot(accountId, ownerId, 42, true), 10);
 
         var account = snapshottingAccountRepository.load(accountId);
         assertThat(account.balance()).isEqualTo(42);
@@ -205,7 +205,7 @@ public class AccountEventSourcingTest {
         var ownerId = UUID.randomUUID();
 
         eventStore.append(new MoneyDepositedEvent(accountId, 10, 11), 10);
-        eventStore.storeSnapshot(new AccountSnapshot(10, accountId, ownerId, 42, true));
+        eventStore.storeSnapshot(new AccountSnapshot(accountId, ownerId, 42, true), 10);
 
         var account = snapshottingAccountRepository.load(accountId);
         assertThat(account.balance()).isEqualTo(42);
@@ -219,7 +219,7 @@ public class AccountEventSourcingTest {
         var ownerId = UUID.randomUUID();
 
         eventStore.append(new MoneyDepositedEvent(accountId, 10, 11), 10);
-        eventStore.storeSnapshot(new AccountSnapshot(10, accountId, ownerId, 42, true));
+        eventStore.storeSnapshot(new AccountSnapshot(accountId, ownerId, 42, true), 10);
         eventStore.append(new MoneyDepositedEvent(accountId, 1, 43), 11);
 
         var account = snapshottingAccountRepository.load(accountId);

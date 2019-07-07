@@ -8,6 +8,6 @@ public interface EventStore<T> {
     List<Event<T>> getEvents(UUID aggregateId);
     List<Event<T>> getEvents(UUID aggregateId, long fromVersion);
 
-    void storeSnapshot(Snapshot<T> snapshot);
+    void storeSnapshot(Event<T> snapshot, long version);
     Snapshot<T> loadSnapshot(UUID aggregateId);
 }

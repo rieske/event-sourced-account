@@ -27,9 +27,9 @@ public class EventSourcedEventStream<T> implements EventStream<T> {
         eventStore.append(event, nextSequence);
         event.apply(aggregate);
         version = nextSequence;
-        Snapshot<T> snapshot = snapshotter.takeSnapshot(aggregate, version);
-        if (snapshot != null) {
-            eventStore.storeSnapshot(snapshot);
+        Event<T> snapshotEvent = snapshotter.takeSnapshot(aggregate, version);
+        if (snapshotEvent != null) {
+            eventStore.storeSnapshot(snapshotEvent, version);
         }
     }
 
@@ -37,7 +37,7 @@ public class EventSourcedEventStream<T> implements EventStream<T> {
         Snapshot<T> snapshot = eventStore.loadSnapshot(aggregateId);
         if (snapshot != null) {
             snapshot.apply(aggregate);
-            version = snapshot.version();
+            version = snapshot.getVersion();
         }
         var events = eventStore.getEvents(aggregateId, version);
         if (events.isEmpty() && snapshot == null) {

@@ -1,5 +1,20 @@
 package lt.rieske.accounts.eventsourcing;
 
-public interface Snapshot<T> extends Event<T> {
-    long version();
+
+import lombok.Value;
+
+import java.util.UUID;
+
+@Value
+class Snapshot<T> {
+    private final Event<T> snapshotEvent;
+    private final long version;
+
+    public void apply(T aggregate) {
+        snapshotEvent.apply(aggregate);
+    }
+
+    public UUID aggregateId() {
+        return snapshotEvent.aggregateId();
+    }
 }

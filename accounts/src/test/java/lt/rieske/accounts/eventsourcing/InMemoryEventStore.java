@@ -51,8 +51,8 @@ public class InMemoryEventStore<T> implements EventStore<T> {
     }
 
     @Override
-    public void storeSnapshot(Snapshot<T> snapshot) {
-        snapshots.put(snapshot.aggregateId(), snapshot);
+    public void storeSnapshot(Event<T> snapshot, long version) {
+        snapshots.put(snapshot.aggregateId(), new Snapshot<>(snapshot, version));
     }
 
     @Override
