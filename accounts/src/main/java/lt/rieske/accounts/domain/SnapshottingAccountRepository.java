@@ -4,10 +4,10 @@ import lt.rieske.accounts.eventsourcing.AggregateRepository;
 import lt.rieske.accounts.eventsourcing.EventStore;
 import lt.rieske.accounts.eventsourcing.EventStream;
 
-public class AccountRepository extends AggregateRepository<Account> {
+public class SnapshottingAccountRepository extends AggregateRepository<Account> {
 
-    public AccountRepository(EventStore<Account> eventStore) {
-        super(eventStore);
+    public SnapshottingAccountRepository(EventStore<Account> eventStore) {
+        super(eventStore, new AccountSnapshotter());
     }
 
     @Override

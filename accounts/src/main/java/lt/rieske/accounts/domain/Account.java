@@ -51,6 +51,12 @@ public class Account {
         return balance;
     }
 
+    void applySnapshot(AccountSnapshot snapshot) {
+        this.accountId = snapshot.getAccountId();
+        this.ownerId = snapshot.getOwnerId();
+        this.balance = snapshot.getBalance();
+    }
+
     void apply(AccountOpenedEvent event) {
         this.accountId = event.getAccountId();
         this.ownerId = event.getOwnerId();

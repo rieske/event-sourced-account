@@ -11,6 +11,7 @@ import static java.util.stream.Collectors.toList;
 
 public class InMemoryEventStore<T> implements EventStore<T> {
     private final Map<UUID, List<SequencedEvent<T>>> aggregateEvents = new HashMap<>();
+    private final Map<UUID, Snapshot<T>> snapshots = new HashMap<>();
 
     // Synchronized block here simulates what a persistence engine of choice should do - ensure consistency
     // Events can only be written in sequence.
@@ -36,7 +37,26 @@ public class InMemoryEventStore<T> implements EventStore<T> {
                 .collect(toList());
     }
 
+    @Override
+    public List<Event<T>> getEvents(UUID aggregateId, long fromVersion) {
+        return aggregateEvents.getOrDefault(aggregateId, List.of())
+                .stream()
+                .filter(e -> e.getSequenceNumber() > fromVersion)
+                .map(SequencedEvent::getEvent)
+                .collect(toList());
+    }
+
     public List<SequencedEvent<T>> getSequencedEvents(UUID aggregateId) {
         return aggregateEvents.getOrDefault(aggregateId, List.of());
+    }
+
+    @Override
+    public void storeSnapshot(Snapshot<T> snapshot) {
+        snapshots.put(snapshot.aggregateId(), snapshot);
+    }
+
+    @Override
+    public Snapshot<T> loadSnapshot(UUID aggregateId) {
+        return snapshots.get(aggregateId);
     }
 }

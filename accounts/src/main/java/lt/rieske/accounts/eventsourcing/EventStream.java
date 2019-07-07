@@ -5,12 +5,14 @@ import java.util.UUID;
 public class EventStream<T> {
 
     private final EventStore<T> eventStore;
+    private final Snapshotter<T> snapshotter;
     private final UUID aggregateId;
 
     private long version;
 
-    public EventStream(EventStore<T> eventStore, UUID aggregateId) {
+    EventStream(EventStore<T> eventStore, Snapshotter<T> snapshotter, UUID aggregateId) {
         this.eventStore = eventStore;
+        this.snapshotter = snapshotter;
         this.aggregateId = aggregateId;
     }
 
@@ -22,19 +24,24 @@ public class EventStream<T> {
         eventStore.append(event, nextSequence);
         event.apply(aggregate);
         version = nextSequence;
+        Snapshot<T> snapshot = snapshotter.takeSnapshot(aggregate, version);
+        if (snapshot != null) {
+            eventStore.storeSnapshot(snapshot);
+        }
     }
 
-    public long version() {
-        return version;
-    }
-
-    public void replay(T aggregate) {
-        var events = eventStore.getEvents(aggregateId);
-        if (events.isEmpty()) {
+    void replay(T aggregate) {
+        Snapshot<T> snapshot = eventStore.loadSnapshot(aggregateId);
+        if (snapshot != null) {
+            snapshot.apply(aggregate);
+            version = snapshot.version();
+        }
+        var events = eventStore.getEvents(aggregateId, version);
+        if (events.isEmpty() && snapshot == null) {
             throw new AggregateNotFoundException(aggregateId);
         }
         events.forEach(event -> event.apply(aggregate));
-        version = events.size();
+        version += events.size();
     }
 
     private IllegalArgumentException aggregateMismatch(UUID eventAggregateId) {
