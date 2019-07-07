@@ -18,4 +18,5 @@ public class ArchitectureTest {
     public static final ArchRule domainShouldNotDependOnInfrastructure =
             noClasses().that().resideInAPackage("lt.rieske.accounts.domain")
                     .should().accessClassesThat().resideInAPackage("lt.rieske.accounts.eventsourcing");
+
 }

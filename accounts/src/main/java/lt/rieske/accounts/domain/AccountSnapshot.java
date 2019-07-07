@@ -6,12 +6,13 @@ import lt.rieske.accounts.eventsourcing.Snapshot;
 import java.util.UUID;
 
 @Value
-public class AccountSnapshot implements Snapshot<Account> {
+class AccountSnapshot implements Snapshot<Account> {
 
     private final long version;
     private final UUID accountId;
     private final UUID ownerId;
     private final int balance;
+    private final boolean open;
 
     @Override
     public long version() {

@@ -1,7 +1,5 @@
 package lt.rieske.accounts.domain;
 
-import lt.rieske.accounts.eventsourcing.EventSourcedEventStream;
-
 import java.util.UUID;
 
 public class Account {
@@ -10,6 +8,7 @@ public class Account {
     private UUID accountId;
     private UUID ownerId;
     private int balance;
+    private boolean open;
 
     public Account(EventStream<Account> eventStream) {
         this.eventStream = eventStream;
@@ -23,6 +22,7 @@ public class Account {
         if (amount == 0) {
             return;
         }
+        requireOpenAccount();
         if (amount < 0) {
             throw new IllegalArgumentException("Can not deposit negative amount: " + amount);
         }
@@ -33,10 +33,18 @@ public class Account {
         if (amount == 0) {
             return;
         }
+        requireOpenAccount();
         if (balance < amount) {
             throw new IllegalArgumentException("Insufficient balance");
         }
         eventStream.append(new MoneyWithdrawnEvent(accountId, amount, balance - amount), this);
+    }
+
+    public void close() {
+        if (balance != 0) {
+            throw new IllegalStateException("Balance outstanding");
+        }
+        eventStream.append(new AccountClosedEvent(accountId), this);
     }
 
     public UUID id() {
@@ -51,16 +59,22 @@ public class Account {
         return balance;
     }
 
+    boolean isOpen() {
+        return open;
+    }
+
     void applySnapshot(AccountSnapshot snapshot) {
         this.accountId = snapshot.getAccountId();
         this.ownerId = snapshot.getOwnerId();
         this.balance = snapshot.getBalance();
+        this.open = snapshot.isOpen();
     }
 
     void apply(AccountOpenedEvent event) {
         this.accountId = event.getAccountId();
         this.ownerId = event.getOwnerId();
         this.balance = 0;
+        this.open = true;
     }
 
     void apply(MoneyDepositedEvent event) {
@@ -70,4 +84,15 @@ public class Account {
     void apply(MoneyWithdrawnEvent event) {
         this.balance = event.getBalance();
     }
+
+    void apply(AccountClosedEvent event) {
+        this.open = false;
+    }
+
+    private void requireOpenAccount() {
+        if (!open) {
+            throw new IllegalStateException("Account not open");
+        }
+    }
+
 }

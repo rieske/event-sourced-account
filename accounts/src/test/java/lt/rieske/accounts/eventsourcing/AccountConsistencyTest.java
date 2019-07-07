@@ -1,7 +1,7 @@
-package lt.rieske.accounts.domain;
+package lt.rieske.accounts.eventsourcing;
 
-import lt.rieske.accounts.eventsourcing.AggregateRepository;
-import lt.rieske.accounts.eventsourcing.InMemoryEventStore;
+import lt.rieske.accounts.domain.Account;
+import lt.rieske.accounts.domain.AccountSnapshotter;
 import org.junit.Test;
 
 import java.util.ConcurrentModificationException;
@@ -27,7 +27,7 @@ public class AccountConsistencyTest {
         accountRemainsConsistentWithConcurrentModifications(snapshottingAccountRepository);
     }
 
-    public void accountRemainsConsistentWithConcurrentModifications(AggregateRepository<Account> repository) throws InterruptedException {
+    private void accountRemainsConsistentWithConcurrentModifications(AggregateRepository<Account> repository) throws InterruptedException {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 

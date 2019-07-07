@@ -10,7 +10,7 @@ public class AccountSnapshotter implements Snapshotter<Account> {
     @Override
     public Snapshot<Account> takeSnapshot(Account account, long version) {
         if (version % SNAPSHOT_FREQUENCY_EVENTS == 0) {
-            return new AccountSnapshot(version, account.id(), account.ownerId(), account.balance());
+            return new AccountSnapshot(version, account.id(), account.ownerId(), account.balance(), account.isOpen());
         }
         return null;
     }
