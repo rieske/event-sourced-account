@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 public interface BlobEventStore {
-    void append(UUID aggregateId, byte[] eventPayload, long sequenceNumber);
+    void append(UUID aggregateId, long sequenceNumber, byte[] eventPayload);
     List<byte[]> getEvents(UUID aggregateId, long fromVersion);
-    void storeSnapshot(UUID aggregateId, long version, byte[] serializedSnapshot);
+    void storeSnapshot(UUID aggregateId, long version, byte[] snapshotPayload);
     SnapshotBlob loadLatestSnapshot(UUID aggregateId);
 }

@@ -21,7 +21,7 @@ public class SerializingEventStore implements EventStore {
     @Override
     public void append(UUID aggregateId, Event event, long sequenceNumber) {
         var serializedEvent = serializer.serialize(event);
-        blobStore.append(aggregateId, serializedEvent, sequenceNumber);
+        blobStore.append(aggregateId, sequenceNumber, serializedEvent);
     }
 
     @Override

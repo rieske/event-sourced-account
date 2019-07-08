@@ -12,8 +12,15 @@ import java.util.UUID;
 
 class MySqlEventStore implements BlobEventStore {
 
-    private static final String APPEND_EVENT_SQL = "INSERT INTO event_store.Event(aggregateId, sequenceNumber, payload) VALUES(?, ?, ?)";
-    private static final String SELECT_EVENTS_SQL = "SELECT payload FROM event_store.Event WHERE aggregateId = ? AND sequenceNumber > ?";
+    private static final String APPEND_EVENT_SQL =
+            "INSERT INTO event_store.Event(aggregateId, sequenceNumber, payload) VALUES(?, ?, ?)";
+    private static final String SELECT_EVENTS_SQL =
+            "SELECT payload FROM event_store.Event WHERE aggregateId = ? AND sequenceNumber > ? ORDER BY sequenceNumber ASC";
+
+    private static final String STORE_SNAPSHOT_SQL =
+            "INSERT INTO event_store.Snapshot(aggregateId, sequenceNumber, payload) VALUES(?, ?, ?)";
+    private static final String SELECT_LATEST_SNAPSHOT_SQL =
+            "SELECT payload, sequenceNumber FROM event_store.Snapshot WHERE aggregateId = ? ORDER BY sequenceNumber DESC LIMIT 1";
 
     private final DataSource dataSource;
 
@@ -22,16 +29,8 @@ class MySqlEventStore implements BlobEventStore {
     }
 
     @Override
-    public void append(UUID aggregateId, byte[] eventPayload, long sequenceNumber) {
-        try (var connection = dataSource.getConnection();
-             var statement = connection.prepareStatement(APPEND_EVENT_SQL)) {
-            statement.setBytes(1, uuidToBytes(aggregateId));
-            statement.setLong(2, sequenceNumber);
-            statement.setBytes(3, eventPayload);
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            throw new UncheckedIOException(new IOException(e));
-        }
+    public void append(UUID aggregateId, long sequenceNumber, byte[] eventPayload) {
+        insertPayload(APPEND_EVENT_SQL, aggregateId, sequenceNumber, eventPayload);
     }
 
     @Override
@@ -53,16 +52,40 @@ class MySqlEventStore implements BlobEventStore {
     }
 
     @Override
-    public void storeSnapshot(UUID aggregateId, long version, byte[] serializedSnapshot) {
-
+    public void storeSnapshot(UUID aggregateId, long version, byte[] snapshotPayload) {
+        insertPayload(STORE_SNAPSHOT_SQL, aggregateId, version, snapshotPayload);
     }
 
     @Override
     public SnapshotBlob loadLatestSnapshot(UUID aggregateId) {
-        return null;
+        try (var connection = dataSource.getConnection();
+             var statement = connection.prepareStatement(SELECT_LATEST_SNAPSHOT_SQL)) {
+            statement.setBytes(1, uuidToBytes(aggregateId));
+            try (var resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return new SnapshotBlob(resultSet.getBytes(1), resultSet.getLong(2));
+                } else {
+                    return null;
+                }
+            }
+        } catch (SQLException e) {
+            throw new UncheckedIOException(new IOException(e));
+        }
     }
 
-    private static byte[] uuidToBytes(UUID uuid) {
+    private void insertPayload(String sql, UUID aggregateId, long sequenceNumber, byte[] payload) {
+        try (var connection = dataSource.getConnection();
+             var statement = connection.prepareStatement(sql)) {
+            statement.setBytes(1, uuidToBytes(aggregateId));
+            statement.setLong(2, sequenceNumber);
+            statement.setBytes(3, payload);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new UncheckedIOException(new IOException(e));
+        }
+    }
+
+    static byte[] uuidToBytes(UUID uuid) {
         byte[] uuidBytes = new byte[16];
         ByteBuffer.wrap(uuidBytes)
                 .order(ByteOrder.BIG_ENDIAN)
