@@ -29,7 +29,6 @@ public class InMemoryEventStore<T> implements EventStore<T> {
         currentEvents.add(new SequencedEvent<>(event, sequenceNumber));
     }
 
-    @Override
     public List<Event<T>> getEvents(UUID aggregateId) {
         return aggregateEvents.getOrDefault(aggregateId, List.of())
                 .stream()

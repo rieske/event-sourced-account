@@ -4,7 +4,8 @@ package lt.rieske.accounts.eventsourcing;
 import lombok.Value;
 
 @Value
-class Snapshot<T> {
+public class Snapshot<T> {
+
     private final Event<T> snapshotEvent;
     private final long version;
 

@@ -13,11 +13,15 @@ repositories {
 dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.8'
 
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
+
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.assertj:assertj-core:3.11.1'
     testImplementation 'com.tngtech.archunit:archunit-junit4:0.10.2'
     testImplementation 'org.slf4j:slf4j-simple:1.7.26'
+    testImplementation 'org.reflections:reflections:0.9.11'
+
 }
 
 mainClassName = 'lt.rieske.accounts.App'

@@ -5,7 +5,7 @@ import lt.rieske.accounts.eventsourcing.Event;
 
 
 @Value
-class MoneyWithdrawnEvent implements Event<Account> {
+public class MoneyWithdrawnEvent implements Event<Account> {
     private final int amountWithdrawn;
     private final int balance;
 

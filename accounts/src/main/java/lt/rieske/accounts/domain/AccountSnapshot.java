@@ -6,7 +6,7 @@ import lt.rieske.accounts.eventsourcing.Event;
 import java.util.UUID;
 
 @Value
-class AccountSnapshot implements Event<Account> {
+public class AccountSnapshot implements Event<Account> {
 
     private final UUID accountId;
     private final UUID ownerId;

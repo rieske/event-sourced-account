@@ -24,14 +24,14 @@ public class EventSourcedEventStream<T> implements EventStream<T> {
         eventStore.append(aggregateId, event, nextSequence);
         event.apply(aggregate);
         version = nextSequence;
-        Event<T> snapshotEvent = snapshotter.takeSnapshot(aggregate, version);
+        var snapshotEvent = snapshotter.takeSnapshot(aggregate, version);
         if (snapshotEvent != null) {
             eventStore.storeSnapshot(aggregateId, snapshotEvent, version);
         }
     }
 
     void replay(T aggregate) {
-        Snapshot<T> snapshot = eventStore.loadSnapshot(aggregateId);
+        var snapshot = eventStore.loadSnapshot(aggregateId);
         if (snapshot != null) {
             snapshot.apply(aggregate);
             version = snapshot.getVersion();
