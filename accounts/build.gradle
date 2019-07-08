@@ -12,6 +12,7 @@ repositories {
 
 dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.8'
+    implementation 'org.projectlombok:lombok:1.18.8'
 
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
 
@@ -19,6 +20,7 @@ dependencies {
 
     implementation 'mysql:mysql-connector-java:8.0.16'
 
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.8'
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.assertj:assertj-core:3.11.1'
     testImplementation 'com.tngtech.archunit:archunit-junit4:0.10.2'
