@@ -15,6 +15,9 @@ dependencies {
 
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
 
+    implementation 'org.flywaydb:flyway-core:5.2.4'
+
+    implementation 'mysql:mysql-connector-java:8.0.16'
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.assertj:assertj-core:3.11.1'
@@ -22,6 +25,7 @@ dependencies {
     testImplementation 'org.slf4j:slf4j-simple:1.7.26'
     testImplementation 'org.reflections:reflections:0.9.11'
 
+    testImplementation "org.testcontainers:mysql:1.11.4"
 }
 
 mainClassName = 'lt.rieske.accounts.App'
