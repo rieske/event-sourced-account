@@ -1,9 +1,12 @@
-package lt.rieske.accounts.domain;
+package lt.rieske.accounts.eventsourcing;
 
-import lt.rieske.accounts.eventsourcing.AggregateNotFoundException;
-import lt.rieske.accounts.eventsourcing.AggregateRepository;
-import lt.rieske.accounts.eventsourcing.Event;
-import lt.rieske.accounts.eventsourcing.InMemoryEventStore;
+import lt.rieske.accounts.domain.Account;
+import lt.rieske.accounts.domain.AccountOpenedEvent;
+import lt.rieske.accounts.domain.AccountSnapshot;
+import lt.rieske.accounts.domain.AccountSnapshotter;
+import lt.rieske.accounts.domain.MoneyDepositedEvent;
+import lt.rieske.accounts.domain.MoneyWithdrawnEvent;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.UUID;
@@ -11,11 +14,20 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class AccountEventSourcingTest {
+public abstract class AccountEventSourcingTest {
 
-    private final InMemoryEventStore<Account> eventStore = new InMemoryEventStore<>();
-    private final AggregateRepository<Account> accountRepository = new AggregateRepository<>(eventStore, Account::new);
-    private final AggregateRepository<Account> snapshottingAccountRepository = new AggregateRepository<>(eventStore, Account::new, new AccountSnapshotter());
+    private EventStore<Account> eventStore;
+    private AggregateRepository<Account> accountRepository;
+    private AggregateRepository<Account> snapshottingAccountRepository;
+
+    protected abstract EventStore<Account> getEventStore();
+
+    @Before
+    public void init() {
+        eventStore = getEventStore();
+        accountRepository = new AggregateRepository<>(eventStore, Account::new);
+        snapshottingAccountRepository = new AggregateRepository<>(eventStore, Account::new, new AccountSnapshotter());
+    }
 
     @SafeVarargs
     private void givenEvents(UUID accountId, Event<Account>... events) {
@@ -35,7 +47,7 @@ public class AccountEventSourcingTest {
         assertThat(account.id()).isEqualTo(accountId);
         assertThat(account.ownerId()).isEqualTo(ownerId);
         assertThat(account.balance()).isZero();
-        assertThat(eventStore.getEvents(accountId)).containsExactly(new AccountOpenedEvent(accountId, ownerId));
+        assertThat(eventStore.getEvents(accountId, 0)).containsExactly(new AccountOpenedEvent(accountId, ownerId));
     }
 
     @Test
@@ -84,7 +96,7 @@ public class AccountEventSourcingTest {
         account.deposit(42);
 
         assertThat(account.balance()).isEqualTo(42);
-        assertThat(eventStore.getEvents(accountId)).containsExactly(
+        assertThat(eventStore.getEvents(accountId, 0)).containsExactly(
                 new AccountOpenedEvent(accountId, ownerId),
                 new MoneyDepositedEvent(42, 42)
         );
@@ -101,7 +113,7 @@ public class AccountEventSourcingTest {
         account.deposit(1);
 
         assertThat(account.balance()).isEqualTo(2);
-        assertThat(eventStore.getEvents(accountId)).containsExactly(
+        assertThat(eventStore.getEvents(accountId, 0)).containsExactly(
                 new AccountOpenedEvent(accountId, ownerId),
                 new MoneyDepositedEvent(1, 1),
                 new MoneyDepositedEvent(1, 2)
@@ -118,7 +130,7 @@ public class AccountEventSourcingTest {
         account.deposit(0);
 
         assertThat(account.balance()).isZero();
-        assertThat(eventStore.getEvents(accountId)).containsExactly(
+        assertThat(eventStore.getEvents(accountId, 0)).containsExactly(
                 new AccountOpenedEvent(accountId, ownerId)
         );
     }
@@ -132,7 +144,7 @@ public class AccountEventSourcingTest {
         var account = accountRepository.load(accountId);
         assertThatThrownBy(() -> account.deposit(-42)).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Can not deposit negative amount");
-        assertThat(eventStore.getEvents(accountId)).containsExactly(
+        assertThat(eventStore.getEvents(accountId, 0)).containsExactly(
                 new AccountOpenedEvent(accountId, ownerId)
         );
     }
@@ -150,7 +162,7 @@ public class AccountEventSourcingTest {
         account.withdraw(5);
 
         assertThat(account.balance()).isEqualTo(5);
-        assertThat(eventStore.getEvents(accountId)).containsExactly(
+        assertThat(eventStore.getEvents(accountId, 0)).containsExactly(
                 new AccountOpenedEvent(accountId, ownerId),
                 new MoneyDepositedEvent(10, 10),
                 new MoneyWithdrawnEvent(5, 5)
@@ -167,7 +179,7 @@ public class AccountEventSourcingTest {
         account.withdraw(0);
 
         assertThat(account.balance()).isEqualTo(0);
-        assertThat(eventStore.getEvents(accountId)).containsExactly(
+        assertThat(eventStore.getEvents(accountId, 0)).containsExactly(
                 new AccountOpenedEvent(accountId, ownerId)
         );
     }

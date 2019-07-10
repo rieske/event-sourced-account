@@ -1,11 +1,7 @@
 package lt.rieske.accounts.infrastructure;
 
-import com.mysql.cj.jdbc.MysqlDataSource;
-import org.flywaydb.core.Flyway;
-import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.AfterClass;
 import org.junit.Test;
-import org.testcontainers.containers.MySQLContainer;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -16,30 +12,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class MySqlEventStoreTest {
 
-    private static final String DATABASE = "event_store";
+    private static final MySql MYSQL = new MySql();
 
-    @ClassRule
-    public static MySQLContainer mysql = new MySQLContainer().withDatabaseName(DATABASE);
+    private final DataSource dataSource = MYSQL.dataSource();
+    private final SqlEventStore eventStore = new MySqlEventStore(MYSQL.dataSource());
 
-    private DataSource dataSource;
-
-    private BlobEventStore eventStore;
-
-    @Before
-    public void prepare() {
-        var dataSource = new MysqlDataSource();
-
-        dataSource.setUrl(mysql.getJdbcUrl());
-        dataSource.setUser(mysql.getUsername());
-        dataSource.setPassword(mysql.getPassword());
-        dataSource.setDatabaseName(DATABASE);
-
-        this.dataSource = dataSource;
-
-        var flyway = Flyway.configure().dataSource(dataSource).load();
-        flyway.migrate();
-
-        this.eventStore = new MySqlEventStore(dataSource);
+    @AfterClass
+    public static void stopDatabase() {
+        MYSQL.stop();
     }
 
     @Test

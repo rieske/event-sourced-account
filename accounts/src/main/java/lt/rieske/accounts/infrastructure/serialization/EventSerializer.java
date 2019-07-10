@@ -4,9 +4,9 @@ import lt.rieske.accounts.eventsourcing.Event;
 
 import java.util.List;
 
-public interface EventSerializer {
+public interface EventSerializer<T> {
     byte[] serialize(Event event);
 
-    Event deserialize(byte[] serializedEvent);
-    List<Event> deserialize(List<byte[]> serializedEvents);
+    Event<T> deserialize(byte[] serializedEvent);
+    List<Event<T>> deserialize(List<byte[]> serializedEvents);
 }

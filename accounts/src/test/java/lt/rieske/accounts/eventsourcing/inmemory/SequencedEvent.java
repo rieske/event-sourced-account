@@ -1,6 +1,7 @@
-package lt.rieske.accounts.eventsourcing;
+package lt.rieske.accounts.eventsourcing.inmemory;
 
 import lombok.Value;
+import lt.rieske.accounts.eventsourcing.Event;
 
 @Value
 class SequencedEvent<T> {

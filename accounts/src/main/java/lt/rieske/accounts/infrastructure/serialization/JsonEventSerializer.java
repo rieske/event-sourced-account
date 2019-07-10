@@ -14,8 +14,9 @@ import lt.rieske.accounts.eventsourcing.Event;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class JsonEventSerializer implements EventSerializer {
+public class JsonEventSerializer<T> implements EventSerializer<T> {
 
     private final ObjectMapper objectMapper = new ObjectMapper()
             .addMixIn(Event.class, PolymorphicEventMixIn.class);
@@ -30,16 +31,17 @@ public class JsonEventSerializer implements EventSerializer {
     }
 
     @Override
-    public Event deserialize(byte[] serializedEvent) {
+    public Event<T> deserialize(byte[] serializedEvent) {
         try {
             return objectMapper.readValue(serializedEvent, Event.class);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
+
     @Override
-    public List<Event> deserialize(List<byte[]> serializedEvents) {
-        return null;
+    public List<Event<T>> deserialize(List<byte[]> serializedEvents) {
+        return serializedEvents.stream().map(this::deserialize).collect(Collectors.toList());
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@t")

@@ -8,12 +8,12 @@ import lt.rieske.accounts.infrastructure.serialization.EventSerializer;
 import java.util.List;
 import java.util.UUID;
 
-public class SerializingEventStore implements EventStore {
+public class SerializingEventStore<T> implements EventStore<T> {
 
-    private final EventSerializer serializer;
-    private final BlobEventStore blobStore;
+    private final EventSerializer<T> serializer;
+    private final SqlEventStore blobStore;
 
-    public SerializingEventStore(EventSerializer serializer, BlobEventStore blobStore) {
+    public SerializingEventStore(EventSerializer<T> serializer, SqlEventStore blobStore) {
         this.serializer = serializer;
         this.blobStore = blobStore;
     }
@@ -25,7 +25,7 @@ public class SerializingEventStore implements EventStore {
     }
 
     @Override
-    public List<Event> getEvents(UUID aggregateId, long fromVersion) {
+    public List<Event<T>> getEvents(UUID aggregateId, long fromVersion) {
         var serializedEvents = blobStore.getEvents(aggregateId, fromVersion);
         return serializer.deserialize(serializedEvents);
     }
@@ -37,7 +37,7 @@ public class SerializingEventStore implements EventStore {
     }
 
     @Override
-    public Snapshot loadSnapshot(UUID aggregateId) {
+    public Snapshot<T> loadSnapshot(UUID aggregateId) {
         var serializedSnapshot = blobStore.loadLatestSnapshot(aggregateId);
         if (serializedSnapshot == null) {
             return null;
@@ -46,7 +46,7 @@ public class SerializingEventStore implements EventStore {
     }
 
     @SuppressWarnings("unchecked")
-    private static Snapshot snapshot(Event e, long version) {
-        return new Snapshot(e, version);
+    private static <T> Snapshot<T> snapshot(Event e, long version) {
+        return new Snapshot<>(e, version);
     }
 }

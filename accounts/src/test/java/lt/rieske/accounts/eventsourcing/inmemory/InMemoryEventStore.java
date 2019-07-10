@@ -1,4 +1,8 @@
-package lt.rieske.accounts.eventsourcing;
+package lt.rieske.accounts.eventsourcing.inmemory;
+
+import lt.rieske.accounts.eventsourcing.Event;
+import lt.rieske.accounts.eventsourcing.EventStore;
+import lt.rieske.accounts.eventsourcing.Snapshot;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -27,13 +31,6 @@ public class InMemoryEventStore<T> implements EventStore<T> {
             }
         }
         currentEvents.add(new SequencedEvent<>(event, sequenceNumber));
-    }
-
-    public List<Event<T>> getEvents(UUID aggregateId) {
-        return aggregateEvents.getOrDefault(aggregateId, List.of())
-                .stream()
-                .map(SequencedEvent::getEvent)
-                .collect(toList());
     }
 
     @Override

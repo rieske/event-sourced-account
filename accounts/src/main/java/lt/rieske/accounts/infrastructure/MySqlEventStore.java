@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-class MySqlEventStore implements BlobEventStore {
+public class MySqlEventStore implements SqlEventStore {
 
     private static final String APPEND_EVENT_SQL =
             "INSERT INTO event_store.Event(aggregateId, sequenceNumber, payload) VALUES(?, ?, ?)";
@@ -24,7 +24,7 @@ class MySqlEventStore implements BlobEventStore {
 
     private final DataSource dataSource;
 
-    MySqlEventStore(DataSource dataSource) {
+    public MySqlEventStore(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
