@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Value;
 import lt.rieske.accounts.domain.AccountClosedEvent;
 import lt.rieske.accounts.domain.AccountOpenedEvent;
 import lt.rieske.accounts.domain.AccountSnapshot;
@@ -15,7 +14,6 @@ import lt.rieske.accounts.eventsourcing.Event;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
-import java.util.UUID;
 
 public class JsonEventSerializer implements EventSerializer {
 
@@ -52,6 +50,6 @@ public class JsonEventSerializer implements EventSerializer {
             @JsonSubTypes.Type(value = AccountClosedEvent.class),
             @JsonSubTypes.Type(value = AccountSnapshot.class)
     })
-    interface PolymorphicEventMixIn {
+    private interface PolymorphicEventMixIn {
     }
 }
