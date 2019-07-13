@@ -15,8 +15,12 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 public class ArchitectureTest {
 
     @ArchTest
-    public static final ArchRule domainShouldNotDependOnInfrastructure =
+    public static final ArchRule domainShouldNotAccessClassesInEventSourcing =
             noClasses().that().resideInAPackage("lt.rieske.accounts.domain")
                     .should().accessClassesThat().resideInAPackage("lt.rieske.accounts.eventsourcing");
 
+    @ArchTest
+    public static final ArchRule domainShouldNotDependOnInfrastructure =
+            noClasses().that().resideInAPackage("lt.rieske.accounts.domain")
+                    .should().dependOnClassesThat().resideInAPackage("lt.rieske.accounts.infrastructure");
 }
