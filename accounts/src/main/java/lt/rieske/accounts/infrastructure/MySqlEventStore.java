@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +31,17 @@ public class MySqlEventStore implements SqlEventStore {
 
     @Override
     public void append(UUID aggregateId, List<SerializedEvent> serializedEvents, SerializedEvent serializedSnapshot) {
-        serializedEvents.forEach(e -> insertPayload(APPEND_EVENT_SQL, aggregateId, e.getSequenceNumber(), e.getPayload()));
-        if (serializedSnapshot != null) {
-            insertPayload(STORE_SNAPSHOT_SQL, aggregateId, serializedSnapshot.getSequenceNumber(), serializedSnapshot.getPayload());
+        try (var connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            for (var e : serializedEvents) {
+                insertPayload(connection, APPEND_EVENT_SQL, aggregateId, e.getSequenceNumber(), e.getPayload());
+            }
+            if (serializedSnapshot != null) {
+                insertPayload(connection, STORE_SNAPSHOT_SQL, aggregateId, serializedSnapshot.getSequenceNumber(), serializedSnapshot.getPayload());
+            }
+            connection.commit();
+        } catch (SQLException e) {
+            throw new UncheckedIOException(new IOException(e));
         }
     }
 
@@ -71,15 +80,13 @@ public class MySqlEventStore implements SqlEventStore {
         }
     }
 
-    private void insertPayload(String sql, UUID aggregateId, long sequenceNumber, byte[] payload) {
-        try (var connection = dataSource.getConnection();
-             var statement = connection.prepareStatement(sql)) {
+    private void insertPayload(Connection connection, String sql, UUID aggregateId, long sequenceNumber, byte[] payload)
+            throws SQLException {
+        try (var statement = connection.prepareStatement(sql)) {
             statement.setBytes(1, uuidToBytes(aggregateId));
             statement.setLong(2, sequenceNumber);
             statement.setBytes(3, payload);
             statement.executeUpdate();
-        } catch (SQLException e) {
-            throw new UncheckedIOException(new IOException(e));
         }
     }
 
