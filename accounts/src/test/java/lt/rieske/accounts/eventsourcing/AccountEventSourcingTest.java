@@ -62,7 +62,7 @@ public abstract class AccountEventSourcingTest {
 
         accountRepository.create(accountId, account -> account.open(accountId, ownerId));
 
-        assertThatThrownBy(() ->accountRepository.create(accountId, account -> account.open(accountId, UUID.randomUUID())))
+        assertThatThrownBy(() -> accountRepository.create(accountId, account -> account.open(accountId, UUID.randomUUID())))
                 .isInstanceOf(ConcurrentModificationException.class);
     }
 

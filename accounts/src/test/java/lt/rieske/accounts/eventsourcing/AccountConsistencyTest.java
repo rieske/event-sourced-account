@@ -1,6 +1,5 @@
 package lt.rieske.accounts.eventsourcing;
 
-import com.mysql.cj.jdbc.exceptions.MySQLQueryInterruptedException;
 import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.domain.AccountSnapshotter;
 import org.junit.Before;
