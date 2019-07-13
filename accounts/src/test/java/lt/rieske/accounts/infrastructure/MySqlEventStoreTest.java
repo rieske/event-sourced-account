@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.UUID;
 
 import static lt.rieske.accounts.infrastructure.MySqlEventStore.uuidToBytes;
@@ -25,7 +26,7 @@ public class MySqlEventStoreTest {
     @Test
     public void shouldStoreAnEvent() throws SQLException {
         var aggregateId = UUID.randomUUID();
-        eventStore.append(aggregateId, 42, "foobar".getBytes());
+        eventStore.append(aggregateId, List.of(new SerializedEvent(42, "foobar".getBytes())), null);
 
         try (var connection = dataSource.getConnection();
              var statement = connection.prepareStatement(
@@ -41,7 +42,7 @@ public class MySqlEventStoreTest {
     @Test
     public void shouldGetStoredEvent() {
         var aggregateId = UUID.randomUUID();
-        eventStore.append(aggregateId, 1, "foobar".getBytes());
+        eventStore.append(aggregateId, List.of(new SerializedEvent(1, "foobar".getBytes())), null);
 
         var events = eventStore.getEvents(aggregateId, 0);
 
@@ -51,10 +52,14 @@ public class MySqlEventStoreTest {
     @Test
     public void shouldGetStoredEventsFromSpecificVersion() {
         var aggregateId = UUID.randomUUID();
-        eventStore.append(aggregateId, 1, "1".getBytes());
-        eventStore.append(aggregateId, 2, "2".getBytes());
-        eventStore.append(aggregateId, 3, "3".getBytes());
-        eventStore.append(aggregateId, 4, "4".getBytes());
+
+        eventStore.append(aggregateId, List.of(
+                new SerializedEvent(1, "1".getBytes()),
+                new SerializedEvent(2, "2".getBytes()),
+                new SerializedEvent(3, "3".getBytes()),
+                new SerializedEvent(4, "4".getBytes())
+                ),
+                null);
 
         var events = eventStore.getEvents(aggregateId, 2);
 
@@ -71,7 +76,8 @@ public class MySqlEventStoreTest {
     @Test
     public void shouldStoreSnapshot() throws SQLException {
         var aggregateId = UUID.randomUUID();
-        eventStore.storeSnapshot(aggregateId, 42, "foobar".getBytes());
+
+        eventStore.append(aggregateId, List.of(), new SerializedEvent(42, "foobar".getBytes()));
 
         try (var connection = dataSource.getConnection();
              var statement = connection.prepareStatement(
@@ -87,9 +93,9 @@ public class MySqlEventStoreTest {
     @Test
     public void shouldLoadLatestSnapshot() {
         var aggregateId = UUID.randomUUID();
-        eventStore.storeSnapshot(aggregateId, 50, "1".getBytes());
-        eventStore.storeSnapshot(aggregateId, 100, "2".getBytes());
-        eventStore.storeSnapshot(aggregateId, 150, "3".getBytes());
+        eventStore.append(aggregateId, List.of(), new SerializedEvent(50, "1".getBytes()));
+        eventStore.append(aggregateId, List.of(), new SerializedEvent(100, "2".getBytes()));
+        eventStore.append(aggregateId, List.of(), new SerializedEvent(150, "3".getBytes()));
 
         var snapshot = eventStore.loadLatestSnapshot(aggregateId);
 

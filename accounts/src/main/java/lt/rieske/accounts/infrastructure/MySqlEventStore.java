@@ -29,8 +29,11 @@ public class MySqlEventStore implements SqlEventStore {
     }
 
     @Override
-    public void append(UUID aggregateId, long sequenceNumber, byte[] eventPayload) {
-        insertPayload(APPEND_EVENT_SQL, aggregateId, sequenceNumber, eventPayload);
+    public void append(UUID aggregateId, List<SerializedEvent> serializedEvents, SerializedEvent serializedSnapshot) {
+        serializedEvents.forEach(e -> insertPayload(APPEND_EVENT_SQL, aggregateId, e.getSequenceNumber(), e.getPayload()));
+        if (serializedSnapshot != null) {
+            insertPayload(STORE_SNAPSHOT_SQL, aggregateId, serializedSnapshot.getSequenceNumber(), serializedSnapshot.getPayload());
+        }
     }
 
     @Override
@@ -49,11 +52,6 @@ public class MySqlEventStore implements SqlEventStore {
         } catch (SQLException e) {
             throw new UncheckedIOException(new IOException(e));
         }
-    }
-
-    @Override
-    public void storeSnapshot(UUID aggregateId, long version, byte[] snapshotPayload) {
-        insertPayload(STORE_SNAPSHOT_SQL, aggregateId, version, snapshotPayload);
     }
 
     @Override

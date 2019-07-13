@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.UUID;
 
 public interface EventStore<T> {
-    void append(UUID aggregateId, Event<T> event, long sequenceNumber);
-    List<Event<T>> getEvents(UUID aggregateId, long fromVersion);
 
-    void storeSnapshot(UUID aggregateId, Event<T> snapshot, long version);
+    void append(UUID aggregateId, List<SequencedEvent<T>> uncomittedEvents, SequencedEvent<T> uncomittedSnapshot);
+
+    List<Event<T>> getEvents(UUID aggregateId, long fromVersion);
     Snapshot<T> loadSnapshot(UUID aggregateId);
 }

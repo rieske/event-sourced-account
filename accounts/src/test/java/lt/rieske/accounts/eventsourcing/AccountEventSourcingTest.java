@@ -9,6 +9,8 @@ import lt.rieske.accounts.domain.MoneyWithdrawnEvent;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,9 +33,11 @@ public abstract class AccountEventSourcingTest {
 
     @SafeVarargs
     private void givenEvents(UUID accountId, Event<Account>... events) {
+        List<SequencedEvent<Account>> sequencedEvents = new ArrayList<>();
         for (int i = 0; i < events.length; i++) {
-            eventStore.append(accountId, events[i], i + 1);
+            sequencedEvents.add(new SequencedEvent<>(i + 1, events[i]));
         }
+        eventStore.append(accountId, sequencedEvents, null);
     }
 
     @Test
@@ -230,7 +234,8 @@ public abstract class AccountEventSourcingTest {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
-        eventStore.storeSnapshot(accountId, new AccountSnapshot(accountId, ownerId, 42, true), 10);
+        eventStore.append(accountId, List.of(),
+                new SequencedEvent<>(10, new AccountSnapshot(accountId, ownerId, 42, true)));
 
         var account = snapshottingAccountRepository.load(accountId);
         assertThat(account.balance()).isEqualTo(42);
@@ -243,8 +248,9 @@ public abstract class AccountEventSourcingTest {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
-        eventStore.append(accountId, new MoneyDepositedEvent(10, 11), 10);
-        eventStore.storeSnapshot(accountId, new AccountSnapshot(accountId, ownerId, 42, true), 10);
+        eventStore.append(accountId,
+                List.of(new SequencedEvent<>(10, new MoneyDepositedEvent(10, 11))),
+                new SequencedEvent<>(10, new AccountSnapshot(accountId, ownerId, 42, true)));
 
         var account = snapshottingAccountRepository.load(accountId);
         assertThat(account.balance()).isEqualTo(42);
@@ -257,9 +263,10 @@ public abstract class AccountEventSourcingTest {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
-        eventStore.append(accountId, new MoneyDepositedEvent(10, 11), 10);
-        eventStore.storeSnapshot(accountId, new AccountSnapshot(accountId, ownerId, 42, true), 10);
-        eventStore.append(accountId, new MoneyDepositedEvent(1, 43), 11);
+        eventStore.append(accountId,
+                List.of(new SequencedEvent<>(10, new MoneyDepositedEvent(10, 11)),
+                        new SequencedEvent<>(11, new MoneyDepositedEvent(1, 43))),
+                new SequencedEvent<>(10, new AccountSnapshot(accountId, ownerId, 42, true)));
 
         var account = snapshottingAccountRepository.load(accountId);
         assertThat(account.balance()).isEqualTo(43);

@@ -60,11 +60,8 @@ public class EventSourcedEventStream<T> implements EventStream<T> {
     }
 
     void commit() {
-        uncomittedEvents.forEach(e -> eventStore.append(aggregateId, e.getPayload(), e.getSequenceNumber()));
+        eventStore.append(aggregateId, uncomittedEvents, uncomittedSnapshot);
         uncomittedEvents.clear();
-        if (uncomittedSnapshot != null) {
-            eventStore.storeSnapshot(aggregateId, uncomittedSnapshot.getPayload(), uncomittedSnapshot.getSequenceNumber());
-            uncomittedSnapshot = null;
-        }
+        uncomittedSnapshot = null;
     }
 }

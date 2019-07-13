@@ -2,11 +2,13 @@ package lt.rieske.accounts.infrastructure;
 
 import lt.rieske.accounts.eventsourcing.Event;
 import lt.rieske.accounts.eventsourcing.EventStore;
+import lt.rieske.accounts.eventsourcing.SequencedEvent;
 import lt.rieske.accounts.eventsourcing.Snapshot;
 import lt.rieske.accounts.infrastructure.serialization.EventSerializer;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class SerializingEventStore<T> implements EventStore<T> {
 
@@ -19,21 +21,24 @@ public class SerializingEventStore<T> implements EventStore<T> {
     }
 
     @Override
-    public void append(UUID aggregateId, Event event, long sequenceNumber) {
-        var serializedEvent = serializer.serialize(event);
-        blobStore.append(aggregateId, sequenceNumber, serializedEvent);
+    public void append(UUID aggregateId, List<SequencedEvent<T>> uncomittedEvents, SequencedEvent<T> uncomittedSnapshot) {
+        var serializedEvents = uncomittedEvents.stream()
+                .map(e -> new SerializedEvent(e.getSequenceNumber(), serializer.serialize(e.getPayload())))
+                .collect(Collectors.toList());
+        SerializedEvent serializedSnapshot = null;
+        if (uncomittedSnapshot != null) {
+            serializedSnapshot = new SerializedEvent(
+                    uncomittedSnapshot.getSequenceNumber(),
+                    serializer.serialize(uncomittedSnapshot.getPayload()));
+        }
+
+        blobStore.append(aggregateId, serializedEvents, serializedSnapshot);
     }
 
     @Override
     public List<Event<T>> getEvents(UUID aggregateId, long fromVersion) {
         var serializedEvents = blobStore.getEvents(aggregateId, fromVersion);
         return serializer.deserialize(serializedEvents);
-    }
-
-    @Override
-    public void storeSnapshot(UUID aggregateId, Event snapshot, long version) {
-        var serializedSnapshot = serializer.serialize(snapshot);
-        blobStore.storeSnapshot(aggregateId, version, serializedSnapshot);
     }
 
     @Override
