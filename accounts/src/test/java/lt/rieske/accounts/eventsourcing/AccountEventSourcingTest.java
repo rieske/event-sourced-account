@@ -200,11 +200,6 @@ public abstract class AccountEventSourcingTest {
 
     @Test
     public void shouldCreateSnapshotAfterFiveEvents() {
-
-    }
-
-    @Test
-    public void shouldInstantiateAccountFromSnapshot() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
@@ -228,6 +223,19 @@ public abstract class AccountEventSourcingTest {
 
         snapshot = eventStore.loadSnapshot(accountId);
         assertThat(snapshot).isEqualTo(new Snapshot<>(new AccountSnapshot(accountId, ownerId, 50, true), 10));
+    }
+
+    @Test
+    public void shouldInstantiateAccountFromSnapshot() {
+        var accountId = UUID.randomUUID();
+        var ownerId = UUID.randomUUID();
+
+        eventStore.storeSnapshot(accountId, new AccountSnapshot(accountId, ownerId, 42, true), 10);
+
+        var account = snapshottingAccountRepository.load(accountId);
+        assertThat(account.balance()).isEqualTo(42);
+        assertThat(account.id()).isEqualTo(accountId);
+        assertThat(account.ownerId()).isEqualTo(ownerId);
     }
 
     @Test
