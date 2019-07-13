@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.UUID;
 
@@ -45,8 +46,8 @@ public abstract class AccountEventSourcingTest {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
-        var account = accountRepository.create(accountId);
-        account.open(accountId, ownerId);
+        accountRepository.create(accountId, account -> account.open(accountId, ownerId));
+        var account = accountRepository.query(accountId);
 
         assertThat(account.id()).isEqualTo(accountId);
         assertThat(account.ownerId()).isEqualTo(ownerId);
@@ -55,12 +56,23 @@ public abstract class AccountEventSourcingTest {
     }
 
     @Test
+    public void shouldConflictIfAccountWithIdExists() {
+        var accountId = UUID.randomUUID();
+        var ownerId = UUID.randomUUID();
+
+        accountRepository.create(accountId, account -> account.open(accountId, ownerId));
+
+        assertThatThrownBy(() ->accountRepository.create(accountId, account -> account.open(accountId, UUID.randomUUID())))
+                .isInstanceOf(ConcurrentModificationException.class);
+    }
+
+    @Test
     public void shouldLoadAnAccount() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
         givenEvents(accountId, new AccountOpenedEvent(accountId, ownerId));
 
-        var account = accountRepository.load(accountId);
+        var account = accountRepository.query(accountId);
 
         assertThat(account.id()).isEqualTo(accountId);
         assertThat(account.ownerId()).isEqualTo(ownerId);
@@ -74,8 +86,8 @@ public abstract class AccountEventSourcingTest {
         givenEvents(account1Id, new AccountOpenedEvent(account1Id, ownerId));
         givenEvents(account2Id, new AccountOpenedEvent(account2Id, ownerId));
 
-        var account1 = accountRepository.load(account1Id);
-        var account2 = accountRepository.load(account2Id);
+        var account1 = accountRepository.query(account1Id);
+        var account2 = accountRepository.query(account2Id);
 
         assertThat(account1.id()).isEqualTo(account1Id);
         assertThat(account1.ownerId()).isEqualTo(ownerId);
@@ -86,7 +98,7 @@ public abstract class AccountEventSourcingTest {
 
     @Test
     public void shouldThrowWhenAccountIsNotFound() {
-        assertThatThrownBy(() -> accountRepository.load(UUID.randomUUID()))
+        assertThatThrownBy(() -> accountRepository.query(UUID.randomUUID()))
                 .isInstanceOf(AggregateNotFoundException.class);
     }
 
@@ -96,9 +108,9 @@ public abstract class AccountEventSourcingTest {
         var ownerId = UUID.randomUUID();
         givenEvents(accountId, new AccountOpenedEvent(accountId, ownerId));
 
-        var account = accountRepository.load(accountId);
-        account.deposit(42);
+        accountRepository.transact(accountId, account -> account.deposit(42));
 
+        var account = accountRepository.query(accountId);
         assertThat(account.balance()).isEqualTo(42);
         assertThat(eventStore.getEvents(accountId, 0)).containsExactly(
                 new AccountOpenedEvent(accountId, ownerId),
@@ -107,15 +119,37 @@ public abstract class AccountEventSourcingTest {
     }
 
     @Test
+    public void shouldConflictOnConcurrentModification() {
+        var accountId = UUID.randomUUID();
+        var ownerId = UUID.randomUUID();
+        givenEvents(accountId, new AccountOpenedEvent(accountId, ownerId));
+
+        var eventStream1 = new TransactionalEventStream<>(eventStore, (aggregate, version) -> null, accountId);
+        var account1 = new Account(eventStream1);
+        eventStream1.replay(account1);
+        account1.deposit(42);
+
+        var eventStream2 = new TransactionalEventStream<>(eventStore, (aggregate, version) -> null, accountId);
+        var account2 = new Account(eventStream2);
+        eventStream2.replay(account2);
+        account2.deposit(42);
+        eventStream2.commit();
+
+        assertThatThrownBy(eventStream1::commit).isInstanceOf(ConcurrentModificationException.class);
+    }
+
+    @Test
     public void multipleDepositsShouldAccumulateBalance() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
         givenEvents(accountId, new AccountOpenedEvent(accountId, ownerId));
 
-        var account = accountRepository.load(accountId);
-        account.deposit(1);
-        account.deposit(1);
+        accountRepository.transact(accountId, account -> {
+            account.deposit(1);
+            account.deposit(1);
+        });
 
+        var account = accountRepository.query(accountId);
         assertThat(account.balance()).isEqualTo(2);
         assertThat(eventStore.getEvents(accountId, 0)).containsExactly(
                 new AccountOpenedEvent(accountId, ownerId),
@@ -130,7 +164,7 @@ public abstract class AccountEventSourcingTest {
         var ownerId = UUID.randomUUID();
         givenEvents(accountId, new AccountOpenedEvent(accountId, ownerId));
 
-        var account = accountRepository.load(accountId);
+        var account = accountRepository.query(accountId);
         account.deposit(0);
 
         assertThat(account.balance()).isZero();
@@ -145,7 +179,7 @@ public abstract class AccountEventSourcingTest {
         var ownerId = UUID.randomUUID();
         givenEvents(accountId, new AccountOpenedEvent(accountId, ownerId));
 
-        var account = accountRepository.load(accountId);
+        var account = accountRepository.query(accountId);
         assertThatThrownBy(() -> account.deposit(-42)).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Can not deposit negative amount");
         assertThat(eventStore.getEvents(accountId, 0)).containsExactly(
@@ -162,9 +196,9 @@ public abstract class AccountEventSourcingTest {
                 new MoneyDepositedEvent(10, 10)
         );
 
-        var account = accountRepository.load(accountId);
-        account.withdraw(5);
+        accountRepository.transact(accountId, account -> account.withdraw(5));
 
+        var account = accountRepository.query(accountId);
         assertThat(account.balance()).isEqualTo(5);
         assertThat(eventStore.getEvents(accountId, 0)).containsExactly(
                 new AccountOpenedEvent(accountId, ownerId),
@@ -179,7 +213,7 @@ public abstract class AccountEventSourcingTest {
         var ownerId = UUID.randomUUID();
         givenEvents(accountId, new AccountOpenedEvent(accountId, ownerId));
 
-        var account = accountRepository.load(accountId);
+        var account = accountRepository.query(accountId);
         account.withdraw(0);
 
         assertThat(account.balance()).isEqualTo(0);
@@ -197,7 +231,7 @@ public abstract class AccountEventSourcingTest {
                 new MoneyDepositedEvent(10, 10)
         );
 
-        var account = accountRepository.load(accountId);
+        var account = accountRepository.query(accountId);
         assertThatThrownBy(() -> account.withdraw(11)).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Insufficient balance");
     }
@@ -211,22 +245,27 @@ public abstract class AccountEventSourcingTest {
                 new AccountOpenedEvent(accountId, ownerId),
                 new MoneyDepositedEvent(10, 10)
         );
-        var account = snapshottingAccountRepository.load(accountId);
-        account.deposit(5);
-        account.deposit(5);
-        account.deposit(5);
+        snapshottingAccountRepository.transact(accountId, account -> {
+            account.deposit(5);
+            account.deposit(5);
+            account.deposit(5);
+        });
 
         var snapshot = eventStore.loadSnapshot(accountId);
-        assertThat(snapshot).isEqualTo(new SequencedEvent<>(5, new AccountSnapshot(accountId, ownerId, 25, true)));
+        assertThat(snapshot)
+                .isEqualTo(new SequencedEvent<>(5, new AccountSnapshot(accountId, ownerId, 25, true)));
 
-        account.deposit(5);
-        account.deposit(5);
-        account.deposit(5);
-        account.deposit(5);
-        account.deposit(5);
+        snapshottingAccountRepository.transact(accountId, account -> {
+            account.deposit(5);
+            account.deposit(5);
+            account.deposit(5);
+            account.deposit(5);
+            account.deposit(5);
+        });
 
         snapshot = eventStore.loadSnapshot(accountId);
-        assertThat(snapshot).isEqualTo(new SequencedEvent<>(10, new AccountSnapshot(accountId, ownerId, 50, true)));
+        assertThat(snapshot)
+                .isEqualTo(new SequencedEvent<>(10, new AccountSnapshot(accountId, ownerId, 50, true)));
     }
 
     @Test
@@ -237,7 +276,7 @@ public abstract class AccountEventSourcingTest {
         eventStore.append(accountId, List.of(),
                 new SequencedEvent<>(10, new AccountSnapshot(accountId, ownerId, 42, true)));
 
-        var account = snapshottingAccountRepository.load(accountId);
+        var account = snapshottingAccountRepository.query(accountId);
         assertThat(account.balance()).isEqualTo(42);
         assertThat(account.id()).isEqualTo(accountId);
         assertThat(account.ownerId()).isEqualTo(ownerId);
@@ -252,7 +291,7 @@ public abstract class AccountEventSourcingTest {
                 List.of(new SequencedEvent<>(10, new MoneyDepositedEvent(10, 11))),
                 new SequencedEvent<>(10, new AccountSnapshot(accountId, ownerId, 42, true)));
 
-        var account = snapshottingAccountRepository.load(accountId);
+        var account = snapshottingAccountRepository.query(accountId);
         assertThat(account.balance()).isEqualTo(42);
         assertThat(account.id()).isEqualTo(accountId);
         assertThat(account.ownerId()).isEqualTo(ownerId);
@@ -268,7 +307,7 @@ public abstract class AccountEventSourcingTest {
                         new SequencedEvent<>(11, new MoneyDepositedEvent(1, 43))),
                 new SequencedEvent<>(10, new AccountSnapshot(accountId, ownerId, 42, true)));
 
-        var account = snapshottingAccountRepository.load(accountId);
+        var account = snapshottingAccountRepository.query(accountId);
         assertThat(account.balance()).isEqualTo(43);
         assertThat(account.id()).isEqualTo(accountId);
         assertThat(account.ownerId()).isEqualTo(ownerId);

@@ -4,8 +4,6 @@ import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.eventsourcing.AccountConsistencyTest;
 import lt.rieske.accounts.eventsourcing.EventStore;
 
-import java.util.ConcurrentModificationException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class InMemoryAccountConsistencyTest extends AccountConsistencyTest {
@@ -15,11 +13,6 @@ public class InMemoryAccountConsistencyTest extends AccountConsistencyTest {
     @Override
     protected EventStore<Account> getEventStore() {
         return eventStore;
-    }
-
-    @Override
-    protected Class<? extends RuntimeException> consistencyViolationException() {
-        return ConcurrentModificationException.class;
     }
 
     @Override

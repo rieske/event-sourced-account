@@ -18,27 +18,34 @@ public class AggregateRepository<T> {
         this.snapshotter = snapshotter;
     }
 
+    public void create(UUID accountId, Consumer<T> transaction) {
+        var eventStream = transactionalEventStream(accountId);
+        var aggregate = aggregateFactory.makeAggregate(eventStream);
+        transaction.accept(aggregate);
+        eventStream.commit();
+    }
+
     public void transact(UUID aggregateId, Consumer<T> transaction) {
-        var eventStream = eventStream(aggregateId);
+        var eventStream = transactionalEventStream(aggregateId);
         var aggregate = aggregateFactory.makeAggregate(eventStream);
         eventStream.replay(aggregate);
         transaction.accept(aggregate);
         eventStream.commit();
     }
 
-    public T load(UUID aggregateId) {
-        var eventStream = eventStream(aggregateId);
+    public T query(UUID aggregateId) {
+        var eventStream = readOnlyEventStream(aggregateId);
         var aggregate = aggregateFactory.makeAggregate(eventStream);
         eventStream.replay(aggregate);
         return aggregate;
     }
 
-    public T create(UUID accountId) {
-        return aggregateFactory.makeAggregate(eventStream(accountId));
+    private TransactionalEventStream<T> transactionalEventStream(UUID aggregateId) {
+        return new TransactionalEventStream<>(eventStore, snapshotter, aggregateId);
     }
 
-    private EventSourcedEventStream<T> eventStream(UUID aggregateId) {
-        return new EventSourcedEventStream<>(eventStore, snapshotter, aggregateId);
+    private ReplayingEventStream<T> readOnlyEventStream(UUID aggregateId) {
+        return new ReplayingEventStream<>(eventStore, aggregateId);
     }
 }
 

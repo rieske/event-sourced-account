@@ -1,10 +1,12 @@
 package lt.rieske.accounts.eventsourcing;
 
+import com.mysql.cj.jdbc.exceptions.MySQLQueryInterruptedException;
 import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.domain.AccountSnapshotter;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ConcurrentModificationException;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -33,8 +35,6 @@ public abstract class AccountConsistencyTest {
         return accountId;
     }
 
-    protected abstract Class<? extends RuntimeException> consistencyViolationException();
-
     @Before
     public void init() {
         eventStore = getEventStore();
@@ -57,8 +57,7 @@ public abstract class AccountConsistencyTest {
         accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
-        var account = repository.create(accountId);
-        account.open(accountId, ownerId);
+        repository.create(accountId, account -> account.open(accountId, ownerId));
 
         var depositCount = depositCount();
         var threadCount = threadCount();
@@ -70,12 +69,12 @@ public abstract class AccountConsistencyTest {
                 executor.submit(() -> {
                     while (true) {
                         try {
-                            repository.load(accountId).deposit(1);
+                            repository.transact(accountId, account -> account.deposit(1));
                             break;
                         } catch (RuntimeException e) {
-                            if (!consistencyViolationException().equals(e.getClass())) {
+                            if (!e.getClass().equals(ConcurrentModificationException.class)) {
                                 e.printStackTrace();
-                                throw e;
+                                break;
                             }
                         }
                     }
@@ -85,7 +84,7 @@ public abstract class AccountConsistencyTest {
             latch.await();
         }
 
-        assertThat(accountRepository.load(accountId).balance()).isEqualTo(depositCount * threadCount);
-        assertThat(snapshottingAccountRepository.load(accountId).balance()).isEqualTo(depositCount * threadCount);
+        assertThat(accountRepository.query(accountId).balance()).isEqualTo(depositCount * threadCount);
+        assertThat(snapshottingAccountRepository.query(accountId).balance()).isEqualTo(depositCount * threadCount);
     }
 }

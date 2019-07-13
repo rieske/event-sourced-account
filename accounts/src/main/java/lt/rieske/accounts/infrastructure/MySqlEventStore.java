@@ -7,7 +7,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,6 +42,8 @@ public class MySqlEventStore implements SqlEventStore {
                 insertPayload(connection, STORE_SNAPSHOT_SQL, aggregateId, serializedSnapshot.getSequenceNumber(), serializedSnapshot.getPayload());
             }
             connection.commit();
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw new ConcurrentModificationException(e);
         } catch (SQLException e) {
             throw new UncheckedIOException(new IOException(e));
         }

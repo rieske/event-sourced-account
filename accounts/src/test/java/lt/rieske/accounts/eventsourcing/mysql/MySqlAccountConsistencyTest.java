@@ -9,8 +9,6 @@ import lt.rieske.accounts.infrastructure.SerializingEventStore;
 import lt.rieske.accounts.infrastructure.serialization.JsonEventSerializer;
 import org.junit.AfterClass;
 
-import java.io.UncheckedIOException;
-
 public class MySqlAccountConsistencyTest extends AccountConsistencyTest {
 
     private static final MySql MYSQL = new MySql();
@@ -35,8 +33,4 @@ public class MySqlAccountConsistencyTest extends AccountConsistencyTest {
         return 8;
     }
 
-    @Override
-    protected Class<? extends RuntimeException> consistencyViolationException() {
-        return UncheckedIOException.class;
-    }
 }
