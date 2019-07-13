@@ -2,6 +2,9 @@ package lt.rieske.accounts.eventsourcing;
 
 import lt.rieske.accounts.domain.EventStream;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 public class EventSourcedEventStream<T> implements EventStream<T> {
@@ -10,7 +13,10 @@ public class EventSourcedEventStream<T> implements EventStream<T> {
     private final Snapshotter<T> snapshotter;
     private final UUID aggregateId;
 
-    private long version;
+    private List<SequencedEvent<T>> uncomittedEvents = new ArrayList<>();
+    private SequencedEvent<T> uncomittedSnapshot;
+
+    private long currentVersion;
 
     EventSourcedEventStream(EventStore<T> eventStore, Snapshotter<T> snapshotter, UUID aggregateId) {
         this.eventStore = eventStore;
@@ -20,27 +26,45 @@ public class EventSourcedEventStream<T> implements EventStream<T> {
 
     @Override
     public void append(Event<T> event, T aggregate) {
-        long nextSequence = version + 1;
-        eventStore.append(aggregateId, event, nextSequence);
         event.apply(aggregate);
-        version = nextSequence;
-        var snapshotEvent = snapshotter.takeSnapshot(aggregate, version);
+        currentVersion++;
+        uncomittedEvents.add(new SequencedEvent<>(currentVersion, event));
+        var snapshotEvent = snapshotter.takeSnapshot(aggregate, currentVersion);
         if (snapshotEvent != null) {
-            eventStore.storeSnapshot(aggregateId, snapshotEvent, version);
+            uncomittedSnapshot = new SequencedEvent<>(currentVersion, snapshotEvent);
         }
+
+        commit();
     }
 
     void replay(T aggregate) {
         var snapshot = eventStore.loadSnapshot(aggregateId);
         if (snapshot != null) {
             snapshot.apply(aggregate);
-            version = snapshot.getVersion();
+            currentVersion = snapshot.getVersion();
         }
-        var events = eventStore.getEvents(aggregateId, version);
+        var events = eventStore.getEvents(aggregateId, currentVersion);
         if (events.isEmpty() && snapshot == null) {
             throw new AggregateNotFoundException(aggregateId);
         }
         events.forEach(event -> event.apply(aggregate));
-        version += events.size();
+        currentVersion += events.size();
+    }
+
+    List<SequencedEvent> uncomittedEvents() {
+        return Collections.unmodifiableList(uncomittedEvents);
+    }
+
+    SequencedEvent uncomittedSnapshot() {
+        return uncomittedSnapshot;
+    }
+
+    void commit() {
+        uncomittedEvents.forEach(e -> eventStore.append(aggregateId, e.getPayload(), e.getSequenceNumber()));
+        uncomittedEvents.clear();
+        if (uncomittedSnapshot != null) {
+            eventStore.storeSnapshot(aggregateId, uncomittedSnapshot.getPayload(), uncomittedSnapshot.getSequenceNumber());
+            uncomittedSnapshot = null;
+        }
     }
 }

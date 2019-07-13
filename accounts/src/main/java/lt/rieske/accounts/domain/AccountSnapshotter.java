@@ -5,11 +5,15 @@ import lt.rieske.accounts.eventsourcing.Snapshotter;
 
 public class AccountSnapshotter implements Snapshotter<Account> {
 
-    private static final int SNAPSHOT_FREQUENCY_EVENTS = 50;
+    private final int snapshottingFrequencyEvents;
+
+    public AccountSnapshotter(int snapshottingFrequencyEvents) {
+        this.snapshottingFrequencyEvents = snapshottingFrequencyEvents;
+    }
 
     @Override
     public Event<Account> takeSnapshot(Account account, long version) {
-        if (version % SNAPSHOT_FREQUENCY_EVENTS == 0) {
+        if (version % snapshottingFrequencyEvents == 0) {
             return new AccountSnapshot(account.id(), account.ownerId(), account.balance(), account.isOpen());
         }
         return null;

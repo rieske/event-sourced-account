@@ -39,7 +39,7 @@ public abstract class AccountConsistencyTest {
     public void init() {
         eventStore = getEventStore();
         accountRepository = new AggregateRepository<>(eventStore, Account::new);
-        snapshottingAccountRepository = new AggregateRepository<>(eventStore, Account::new, new AccountSnapshotter());
+        snapshottingAccountRepository = new AggregateRepository<>(eventStore, Account::new, new AccountSnapshotter(5));
     }
 
     @Test

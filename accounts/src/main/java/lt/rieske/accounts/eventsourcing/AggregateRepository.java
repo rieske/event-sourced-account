@@ -1,6 +1,7 @@
 package lt.rieske.accounts.eventsourcing;
 
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class AggregateRepository<T> {
     private final EventStore<T> eventStore;
@@ -15,6 +16,14 @@ public class AggregateRepository<T> {
         this.eventStore = eventStore;
         this.aggregateFactory = aggregateFactory;
         this.snapshotter = snapshotter;
+    }
+
+    public void transact(UUID aggregateId, Consumer<T> transaction) {
+        var eventStream = eventStream(aggregateId);
+        var aggregate = aggregateFactory.makeAggregate(eventStream);
+        eventStream.replay(aggregate);
+        transaction.accept(aggregate);
+        eventStream.commit();
     }
 
     public T load(UUID aggregateId) {

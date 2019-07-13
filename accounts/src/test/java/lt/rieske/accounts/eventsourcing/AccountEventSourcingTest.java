@@ -26,7 +26,7 @@ public abstract class AccountEventSourcingTest {
     public void init() {
         eventStore = getEventStore();
         accountRepository = new AggregateRepository<>(eventStore, Account::new);
-        snapshottingAccountRepository = new AggregateRepository<>(eventStore, Account::new, new AccountSnapshotter());
+        snapshottingAccountRepository = new AggregateRepository<>(eventStore, Account::new, new AccountSnapshotter(5));
     }
 
     @SafeVarargs
@@ -199,16 +199,35 @@ public abstract class AccountEventSourcingTest {
     }
 
     @Test
+    public void shouldCreateSnapshotAfterFiveEvents() {
+
+    }
+
+    @Test
     public void shouldInstantiateAccountFromSnapshot() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
-        eventStore.storeSnapshot(accountId, new AccountSnapshot(accountId, ownerId, 42, true), 10);
-
+        givenEvents(accountId,
+                new AccountOpenedEvent(accountId, ownerId),
+                new MoneyDepositedEvent(10, 10)
+        );
         var account = snapshottingAccountRepository.load(accountId);
-        assertThat(account.balance()).isEqualTo(42);
-        assertThat(account.id()).isEqualTo(accountId);
-        assertThat(account.ownerId()).isEqualTo(ownerId);
+        account.deposit(5);
+        account.deposit(5);
+        account.deposit(5);
+
+        var snapshot = eventStore.loadSnapshot(accountId);
+        assertThat(snapshot).isEqualTo(new Snapshot<>(new AccountSnapshot(accountId, ownerId, 25, true), 5));
+
+        account.deposit(5);
+        account.deposit(5);
+        account.deposit(5);
+        account.deposit(5);
+        account.deposit(5);
+
+        snapshot = eventStore.loadSnapshot(accountId);
+        assertThat(snapshot).isEqualTo(new Snapshot<>(new AccountSnapshot(accountId, ownerId, 50, true), 10));
     }
 
     @Test
