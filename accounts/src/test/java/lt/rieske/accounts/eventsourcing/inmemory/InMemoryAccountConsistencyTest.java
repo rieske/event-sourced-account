@@ -1,16 +1,10 @@
 package lt.rieske.accounts.eventsourcing.inmemory;
 
 import lt.rieske.accounts.domain.Account;
-import lt.rieske.accounts.domain.AccountSnapshotter;
 import lt.rieske.accounts.eventsourcing.AccountConsistencyTest;
-import lt.rieske.accounts.eventsourcing.AggregateRepository;
 import lt.rieske.accounts.eventsourcing.EventStore;
-import org.junit.Test;
 
 import java.util.ConcurrentModificationException;
-import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

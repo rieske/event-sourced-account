@@ -3,7 +3,6 @@ package lt.rieske.accounts.eventsourcing;
 import lt.rieske.accounts.domain.EventStream;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,8 +39,8 @@ public class EventSourcedEventStream<T> implements EventStream<T> {
     void replay(T aggregate) {
         var snapshot = eventStore.loadSnapshot(aggregateId);
         if (snapshot != null) {
-            snapshot.apply(aggregate);
-            currentVersion = snapshot.getVersion();
+            snapshot.getPayload().apply(aggregate);
+            currentVersion = snapshot.getSequenceNumber();
         }
         var events = eventStore.getEvents(aggregateId, currentVersion);
         if (events.isEmpty() && snapshot == null) {
@@ -49,14 +48,6 @@ public class EventSourcedEventStream<T> implements EventStream<T> {
         }
         events.forEach(event -> event.apply(aggregate));
         currentVersion += events.size();
-    }
-
-    List<SequencedEvent> uncomittedEvents() {
-        return Collections.unmodifiableList(uncomittedEvents);
-    }
-
-    SequencedEvent uncomittedSnapshot() {
-        return uncomittedSnapshot;
     }
 
     void commit() {

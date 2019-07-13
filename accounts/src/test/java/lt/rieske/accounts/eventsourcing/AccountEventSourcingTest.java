@@ -217,7 +217,7 @@ public abstract class AccountEventSourcingTest {
         account.deposit(5);
 
         var snapshot = eventStore.loadSnapshot(accountId);
-        assertThat(snapshot).isEqualTo(new Snapshot<>(new AccountSnapshot(accountId, ownerId, 25, true), 5));
+        assertThat(snapshot).isEqualTo(new SequencedEvent<>(5, new AccountSnapshot(accountId, ownerId, 25, true)));
 
         account.deposit(5);
         account.deposit(5);
@@ -226,7 +226,7 @@ public abstract class AccountEventSourcingTest {
         account.deposit(5);
 
         snapshot = eventStore.loadSnapshot(accountId);
-        assertThat(snapshot).isEqualTo(new Snapshot<>(new AccountSnapshot(accountId, ownerId, 50, true), 10));
+        assertThat(snapshot).isEqualTo(new SequencedEvent<>(10, new AccountSnapshot(accountId, ownerId, 50, true)));
     }
 
     @Test

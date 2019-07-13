@@ -3,7 +3,6 @@ package lt.rieske.accounts.eventsourcing.inmemory;
 import lt.rieske.accounts.eventsourcing.Event;
 import lt.rieske.accounts.eventsourcing.EventStore;
 import lt.rieske.accounts.eventsourcing.SequencedEvent;
-import lt.rieske.accounts.eventsourcing.Snapshot;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -16,7 +15,7 @@ import static java.util.stream.Collectors.toList;
 
 public class InMemoryEventStore<T> implements EventStore<T> {
     private final Map<UUID, List<SequencedEvent<T>>> aggregateEvents = new HashMap<>();
-    private final Map<UUID, Snapshot<T>> snapshots = new HashMap<>();
+    private final Map<UUID, SequencedEvent<T>> snapshots = new HashMap<>();
 
     // Synchronized block here simulates what a persistence engine of choice should do - ensure consistency
     // Events can only be written in sequence.
@@ -25,7 +24,7 @@ public class InMemoryEventStore<T> implements EventStore<T> {
     public synchronized void append(UUID aggregateId, List<SequencedEvent<T>> uncomittedEvents, SequencedEvent<T> uncomittedSnapshot) {
         uncomittedEvents.forEach(e -> append(aggregateId, e));
         if (uncomittedSnapshot != null) {
-            snapshots.put(aggregateId, new Snapshot<>(uncomittedSnapshot.getPayload(), uncomittedSnapshot.getSequenceNumber()));
+            snapshots.put(aggregateId, uncomittedSnapshot);
         }
     }
 
@@ -39,7 +38,7 @@ public class InMemoryEventStore<T> implements EventStore<T> {
     }
 
     @Override
-    public Snapshot<T> loadSnapshot(UUID aggregateId) {
+    public SequencedEvent<T> loadSnapshot(UUID aggregateId) {
         return snapshots.get(aggregateId);
     }
 

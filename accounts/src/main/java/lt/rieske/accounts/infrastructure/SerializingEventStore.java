@@ -3,7 +3,6 @@ package lt.rieske.accounts.infrastructure;
 import lt.rieske.accounts.eventsourcing.Event;
 import lt.rieske.accounts.eventsourcing.EventStore;
 import lt.rieske.accounts.eventsourcing.SequencedEvent;
-import lt.rieske.accounts.eventsourcing.Snapshot;
 import lt.rieske.accounts.infrastructure.serialization.EventSerializer;
 
 import java.util.List;
@@ -42,16 +41,11 @@ public class SerializingEventStore<T> implements EventStore<T> {
     }
 
     @Override
-    public Snapshot<T> loadSnapshot(UUID aggregateId) {
+    public SequencedEvent<T> loadSnapshot(UUID aggregateId) {
         var serializedSnapshot = blobStore.loadLatestSnapshot(aggregateId);
         if (serializedSnapshot == null) {
             return null;
         }
-        return snapshot(serializer.deserialize(serializedSnapshot.getSnapshotEvent()), serializedSnapshot.getVersion());
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> Snapshot<T> snapshot(Event e, long version) {
-        return new Snapshot<>(e, version);
+        return new SequencedEvent<>(serializedSnapshot.getVersion(), serializer.deserialize(serializedSnapshot.getSnapshotEvent()));
     }
 }

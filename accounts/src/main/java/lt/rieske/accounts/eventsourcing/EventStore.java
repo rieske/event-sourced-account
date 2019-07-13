@@ -8,5 +8,5 @@ public interface EventStore<T> {
     void append(UUID aggregateId, List<SequencedEvent<T>> uncomittedEvents, SequencedEvent<T> uncomittedSnapshot);
 
     List<Event<T>> getEvents(UUID aggregateId, long fromVersion);
-    Snapshot<T> loadSnapshot(UUID aggregateId);
+    SequencedEvent<T> loadSnapshot(UUID aggregateId);
 }
