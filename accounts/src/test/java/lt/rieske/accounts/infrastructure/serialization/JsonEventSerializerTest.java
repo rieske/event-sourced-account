@@ -33,5 +33,4 @@ public class JsonEventSerializerTest {
         assertThat(deserializedEvent).isEqualTo(event);
     }
 
-
 }
