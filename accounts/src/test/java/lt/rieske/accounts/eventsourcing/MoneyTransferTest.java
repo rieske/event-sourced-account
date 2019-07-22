@@ -1,7 +1,6 @@
 package lt.rieske.accounts.eventsourcing;
 
 import lt.rieske.accounts.domain.Account;
-import lt.rieske.accounts.domain.AccountSnapshotter;
 import lt.rieske.accounts.domain.Operation;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +12,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public abstract class MoneyTransferTest {
 
-    private EventStore<Account> eventStore;
     private AggregateRepository<Account> accountRepository;
 
     protected abstract EventStore<Account> getEventStore();
@@ -24,8 +22,7 @@ public abstract class MoneyTransferTest {
 
     @Before
     public void init() {
-        eventStore = getEventStore();
-        accountRepository = new AggregateRepository<>(eventStore, Account::new);
+        accountRepository = new AggregateRepository<>(getEventStore(), Account::new);
 
         accountRepository.create(sourceAccountId, account -> account.open(ownerId));
         accountRepository.create(targetAccountId, account -> account.open(ownerId));
