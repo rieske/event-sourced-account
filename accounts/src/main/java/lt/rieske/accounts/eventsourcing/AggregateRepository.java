@@ -29,24 +29,22 @@ public class AggregateRepository<T extends Aggregate> {
 
     public void transact(UUID aggregateId, Consumer<T> transaction) {
         var eventStream = transactionalEventStream();
-        var aggregate = aggregateFactory.makeAggregate(eventStream, aggregateId);
-        eventStream.replay(aggregate);
+        var aggregate = loadAggregate(eventStream, aggregateId);
         transaction.accept(aggregate);
         eventStream.commit();
     }
 
     public void transact(UUID aggregateId1, UUID aggregateId2, BiConsumer<T, T> transaction) {
         var eventStream = transactionalEventStream();
-        var aggregate1 = aggregateFactory.makeAggregate(eventStream, aggregateId1);
-        eventStream.replay(aggregate1);
-        var aggregate2 = aggregateFactory.makeAggregate(eventStream, aggregateId2);
-        eventStream.replay(aggregate2);
-        transaction.accept(aggregate1, aggregate2);
+        transaction.accept(loadAggregate(eventStream, aggregateId1), loadAggregate(eventStream, aggregateId2));
         eventStream.commit();
     }
 
     public T query(UUID aggregateId) {
-        var eventStream = readOnlyEventStream();
+        return loadAggregate(readOnlyEventStream(), aggregateId);
+    }
+
+    private T loadAggregate(ReplayingEventStream<T> eventStream, UUID aggregateId) {
         var aggregate = aggregateFactory.makeAggregate(eventStream, aggregateId);
         eventStream.replay(aggregate);
         return aggregate;
