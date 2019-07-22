@@ -2,6 +2,7 @@ package lt.rieske.accounts.eventsourcing;
 
 import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.domain.AccountSnapshotter;
+import lt.rieske.accounts.domain.Operation;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,11 +36,8 @@ public abstract class MoneyTransferTest {
         accountRepository.create(targetAccountId, account -> account.open(ownerId));
 
         int transferAmount = 42;
-        accountRepository.transact(sourceAccountId, sourceAccount -> sourceAccount.deposit(42));
-        accountRepository.transact(sourceAccountId, targetAccountId, (sourceAccount, targetAccount) -> {
-            sourceAccount.withdraw(transferAmount);
-            targetAccount.deposit(transferAmount);
-        });
+        accountRepository.transact(sourceAccountId, Operation.deposit(transferAmount));
+        accountRepository.transact(sourceAccountId, targetAccountId, Operation.transfer(transferAmount));
 
         var sourceAccount = accountRepository.query(sourceAccountId);
         assertThat(sourceAccount.balance()).isZero();

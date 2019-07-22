@@ -6,6 +6,7 @@ import lt.rieske.accounts.domain.AccountSnapshot;
 import lt.rieske.accounts.domain.AccountSnapshotter;
 import lt.rieske.accounts.domain.MoneyDepositedEvent;
 import lt.rieske.accounts.domain.MoneyWithdrawnEvent;
+import lt.rieske.accounts.domain.Operation;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -109,7 +110,7 @@ public abstract class AccountEventSourcingTest {
         var ownerId = UUID.randomUUID();
         givenEvents(accountId, new AccountOpenedEvent(ownerId));
 
-        accountRepository.transact(accountId, account -> account.deposit(42));
+        accountRepository.transact(accountId, Operation.deposit(42));
 
         var account = accountRepository.query(accountId);
         assertThat(account.balance()).isEqualTo(42);
@@ -197,7 +198,7 @@ public abstract class AccountEventSourcingTest {
                 new MoneyDepositedEvent(10, 10)
         );
 
-        accountRepository.transact(accountId, account -> account.withdraw(5));
+        accountRepository.transact(accountId, Operation.withdraw(5));
 
         var account = accountRepository.query(accountId);
         assertThat(account.balance()).isEqualTo(5);

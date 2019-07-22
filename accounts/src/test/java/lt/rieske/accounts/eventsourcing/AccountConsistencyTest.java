@@ -2,6 +2,7 @@ package lt.rieske.accounts.eventsourcing;
 
 import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.domain.AccountSnapshotter;
+import lt.rieske.accounts.domain.Operation;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -68,7 +69,7 @@ public abstract class AccountConsistencyTest {
                 executor.submit(() -> {
                     while (true) {
                         try {
-                            repository.transact(accountId, account -> account.deposit(1));
+                            repository.transact(accountId, Operation.deposit(1));
                             break;
                         } catch (RuntimeException e) {
                             if (!e.getClass().equals(ConcurrentModificationException.class)) {
