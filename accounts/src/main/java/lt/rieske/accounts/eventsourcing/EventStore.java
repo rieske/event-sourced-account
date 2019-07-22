@@ -5,8 +5,8 @@ import java.util.UUID;
 
 public interface EventStore<T> {
 
-    void append(UUID aggregateId, List<SequencedEvent<T>> uncomittedEvents, SequencedEvent<T> uncomittedSnapshot);
+    void append(List<SequencedEvent<T>> uncomittedEvents, SequencedEvent<T> uncomittedSnapshot);
 
-    List<Event<T>> getEvents(UUID aggregateId, long fromVersion);
+    List<SequencedEvent<T>> getEvents(UUID aggregateId, long fromVersion);
     SequencedEvent<T> loadSnapshot(UUID aggregateId);
 }

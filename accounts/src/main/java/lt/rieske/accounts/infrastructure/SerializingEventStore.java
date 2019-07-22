@@ -20,22 +20,23 @@ public class SerializingEventStore<T> implements EventStore<T> {
     }
 
     @Override
-    public void append(UUID aggregateId, List<SequencedEvent<T>> uncomittedEvents, SequencedEvent<T> uncomittedSnapshot) {
+    public void append(List<SequencedEvent<T>> uncomittedEvents, SequencedEvent<T> uncomittedSnapshot) {
         var serializedEvents = uncomittedEvents.stream()
-                .map(e -> new SerializedEvent(e.getSequenceNumber(), serializer.serialize(e.getPayload())))
+                .map(e -> new SerializedEvent(e.getAggregateId(), e.getSequenceNumber(), serializer.serialize(e.getPayload())))
                 .collect(Collectors.toList());
         SerializedEvent serializedSnapshot = null;
         if (uncomittedSnapshot != null) {
             serializedSnapshot = new SerializedEvent(
+                    uncomittedSnapshot.getAggregateId(),
                     uncomittedSnapshot.getSequenceNumber(),
                     serializer.serialize(uncomittedSnapshot.getPayload()));
         }
 
-        blobStore.append(aggregateId, serializedEvents, serializedSnapshot);
+        blobStore.append(serializedEvents, serializedSnapshot);
     }
 
     @Override
-    public List<Event<T>> getEvents(UUID aggregateId, long fromVersion) {
+    public List<SequencedEvent<T>> getEvents(UUID aggregateId, long fromVersion) {
         var serializedEvents = blobStore.getEvents(aggregateId, fromVersion);
         return serializer.deserialize(serializedEvents);
     }
@@ -46,6 +47,6 @@ public class SerializingEventStore<T> implements EventStore<T> {
         if (serializedSnapshot == null) {
             return null;
         }
-        return new SequencedEvent<>(serializedSnapshot.getVersion(), serializer.deserialize(serializedSnapshot.getSnapshotEvent()));
+        return new SequencedEvent<>(aggregateId, serializedSnapshot.getVersion(), serializer.deserialize(serializedSnapshot.getSnapshotEvent()));
     }
 }

@@ -21,19 +21,18 @@ public class InMemoryEventStore<T> implements EventStore<T> {
     // Events can only be written in sequence.
     // One way to ensure this in RDB - primary key on (aggregateId, sequenceNumber)
     @Override
-    public synchronized void append(UUID aggregateId, List<SequencedEvent<T>> uncomittedEvents, SequencedEvent<T> uncomittedSnapshot) {
-        uncomittedEvents.forEach(e -> append(aggregateId, e));
+    public synchronized void append(List<SequencedEvent<T>> uncomittedEvents, SequencedEvent<T> uncomittedSnapshot) {
+        uncomittedEvents.forEach(e -> append(e.getAggregateId(), e));
         if (uncomittedSnapshot != null) {
-            snapshots.put(aggregateId, uncomittedSnapshot);
+            snapshots.put(uncomittedSnapshot.getAggregateId(), uncomittedSnapshot);
         }
     }
 
     @Override
-    public List<Event<T>> getEvents(UUID aggregateId, long fromVersion) {
+    public List<SequencedEvent<T>> getEvents(UUID aggregateId, long fromVersion) {
         return aggregateEvents.getOrDefault(aggregateId, List.of())
                 .stream()
                 .filter(e -> e.getSequenceNumber() > fromVersion)
-                .map(SequencedEvent::getPayload)
                 .collect(toList());
     }
 

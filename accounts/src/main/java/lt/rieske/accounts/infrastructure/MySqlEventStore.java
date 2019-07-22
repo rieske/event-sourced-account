@@ -18,12 +18,12 @@ public class MySqlEventStore implements SqlEventStore {
     private static final String APPEND_EVENT_SQL =
             "INSERT INTO event_store.Event(aggregateId, sequenceNumber, payload) VALUES(?, ?, ?)";
     private static final String SELECT_EVENTS_SQL =
-            "SELECT payload FROM event_store.Event WHERE aggregateId = ? AND sequenceNumber > ? ORDER BY sequenceNumber ASC";
+            "SELECT sequenceNumber, payload FROM event_store.Event WHERE aggregateId = ? AND sequenceNumber > ? ORDER BY sequenceNumber ASC";
 
     private static final String STORE_SNAPSHOT_SQL =
             "INSERT INTO event_store.Snapshot(aggregateId, sequenceNumber, payload) VALUES(?, ?, ?)";
     private static final String SELECT_LATEST_SNAPSHOT_SQL =
-            "SELECT payload, sequenceNumber FROM event_store.Snapshot WHERE aggregateId = ? ORDER BY sequenceNumber DESC LIMIT 1";
+            "SELECT sequenceNumber, payload FROM event_store.Snapshot WHERE aggregateId = ? ORDER BY sequenceNumber DESC LIMIT 1";
 
     private final DataSource dataSource;
 
@@ -32,14 +32,14 @@ public class MySqlEventStore implements SqlEventStore {
     }
 
     @Override
-    public void append(UUID aggregateId, List<SerializedEvent> serializedEvents, SerializedEvent serializedSnapshot) {
+    public void append(List<SerializedEvent> serializedEvents, SerializedEvent serializedSnapshot) {
         try (var connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
             for (var e : serializedEvents) {
-                insertPayload(connection, APPEND_EVENT_SQL, aggregateId, e.getSequenceNumber(), e.getPayload());
+                insertPayload(connection, APPEND_EVENT_SQL, e.getAggregateId(), e.getSequenceNumber(), e.getPayload());
             }
             if (serializedSnapshot != null) {
-                insertPayload(connection, STORE_SNAPSHOT_SQL, aggregateId, serializedSnapshot.getSequenceNumber(), serializedSnapshot.getPayload());
+                insertPayload(connection, STORE_SNAPSHOT_SQL, serializedSnapshot.getAggregateId(), serializedSnapshot.getSequenceNumber(), serializedSnapshot.getPayload());
             }
             connection.commit();
         } catch (SQLIntegrityConstraintViolationException e) {
@@ -50,15 +50,15 @@ public class MySqlEventStore implements SqlEventStore {
     }
 
     @Override
-    public List<byte[]> getEvents(UUID aggregateId, long fromVersion) {
+    public List<SerializedEvent> getEvents(UUID aggregateId, long fromVersion) {
         try (var connection = dataSource.getConnection();
              var statement = connection.prepareStatement(SELECT_EVENTS_SQL)) {
             statement.setBytes(1, uuidToBytes(aggregateId));
             statement.setLong(2, fromVersion);
             try (var resultSet = statement.executeQuery()) {
-                List<byte[]> eventPayloads = new ArrayList<>();
+                List<SerializedEvent> eventPayloads = new ArrayList<>();
                 while (resultSet.next()) {
-                    eventPayloads.add(resultSet.getBytes(1));
+                    eventPayloads.add(new SerializedEvent(aggregateId, resultSet.getLong(1), resultSet.getBytes(2)));
                 }
                 return eventPayloads;
             }
@@ -74,7 +74,7 @@ public class MySqlEventStore implements SqlEventStore {
             statement.setBytes(1, uuidToBytes(aggregateId));
             try (var resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    return new SnapshotBlob(resultSet.getBytes(1), resultSet.getLong(2));
+                    return new SnapshotBlob(resultSet.getLong(1), resultSet.getBytes(2));
                 } else {
                     return null;
                 }

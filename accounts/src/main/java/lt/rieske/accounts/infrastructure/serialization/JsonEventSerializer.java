@@ -10,6 +10,8 @@ import lt.rieske.accounts.domain.AccountSnapshot;
 import lt.rieske.accounts.domain.MoneyDepositedEvent;
 import lt.rieske.accounts.domain.MoneyWithdrawnEvent;
 import lt.rieske.accounts.eventsourcing.Event;
+import lt.rieske.accounts.eventsourcing.SequencedEvent;
+import lt.rieske.accounts.infrastructure.SerializedEvent;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -40,8 +42,10 @@ public class JsonEventSerializer<T> implements EventSerializer<T> {
     }
 
     @Override
-    public List<Event<T>> deserialize(List<byte[]> serializedEvents) {
-        return serializedEvents.stream().map(this::deserialize).collect(Collectors.toList());
+    public List<SequencedEvent<T>> deserialize(List<SerializedEvent> serializedEvents) {
+        return serializedEvents.stream()
+                .map(se -> new SequencedEvent<>(se.getAggregateId(), se.getSequenceNumber(), deserialize(se.getPayload())))
+                .collect(Collectors.toList());
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@t")

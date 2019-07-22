@@ -5,6 +5,6 @@ import lombok.Value;
 
 @Value
 class SnapshotBlob {
-    private final byte[] snapshotEvent;
     private final long version;
+    private final byte[] snapshotEvent;
 }

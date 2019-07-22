@@ -1,47 +1,17 @@
-buildscript {
-    ext {
-        grpcVersion = '1.21.0'
-    }
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.10'
-    }
-}
-
 plugins {
     id 'java'
     id 'application'
-    id 'com.google.protobuf' version '0.8.10'
-    id 'idea'
 }
 
 sourceCompatibility = 11
 targetCompatibility = 11
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 test {
     maxParallelForks = 8
-}
-
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:3.9.0"
-    }
-    plugins {
-        grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
-        }
-    }
-    generateProtoTasks {
-        all()*.plugins {
-            grpc {}
-        }
-    }
 }
 
 dependencies {
@@ -49,7 +19,6 @@ dependencies {
     implementation 'org.projectlombok:lombok:1.18.8'
 
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
-    implementation 'com.google.protobuf:protobuf-java:3.9.0'
     
     implementation 'org.flywaydb:flyway-core:5.2.4'
 

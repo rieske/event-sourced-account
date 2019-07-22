@@ -2,18 +2,18 @@ package lt.rieske.accounts.eventsourcing;
 
 import lt.rieske.accounts.domain.EventStream;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
-public class ReplayingEventStream<T> implements EventStream<T> {
+public class ReplayingEventStream<T extends Aggregate> implements EventStream<T> {
 
     protected final EventStore<T> eventStore;
-    protected final UUID aggregateId;
 
-    long currentVersion;
+    final Map<UUID, Long> aggregateVersions = new HashMap<>();
 
-    ReplayingEventStream(EventStore<T> eventStore, UUID aggregateId) {
+    ReplayingEventStream(EventStore<T> eventStore) {
         this.eventStore = eventStore;
-        this.aggregateId = aggregateId;
     }
 
     @Override
@@ -22,16 +22,19 @@ public class ReplayingEventStream<T> implements EventStream<T> {
     }
 
     void replay(T aggregate) {
-        var snapshot = eventStore.loadSnapshot(aggregateId);
+        aggregateVersions.put(aggregate.id(), 0L);
+        var snapshot = eventStore.loadSnapshot(aggregate.id());
         if (snapshot != null) {
             snapshot.getPayload().apply(aggregate);
-            currentVersion = snapshot.getSequenceNumber();
+            aggregateVersions.put(aggregate.id(), snapshot.getSequenceNumber());
         }
-        var events = eventStore.getEvents(aggregateId, currentVersion);
+        var events = eventStore.getEvents(aggregate.id(), aggregateVersions.get(aggregate.id()));
         if (events.isEmpty() && snapshot == null) {
-            throw new AggregateNotFoundException(aggregateId);
+            throw new AggregateNotFoundException(aggregate.id());
         }
-        events.forEach(event -> event.apply(aggregate));
-        currentVersion += events.size();
+        events.forEach(event -> event.getPayload().apply(aggregate));
+        if (!events.isEmpty()) {
+            aggregateVersions.put(aggregate.id(), events.get(events.size() - 1).getSequenceNumber());
+        }
     }
 }

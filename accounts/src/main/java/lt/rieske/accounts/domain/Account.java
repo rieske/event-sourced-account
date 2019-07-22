@@ -1,21 +1,25 @@
 package lt.rieske.accounts.domain;
 
+import lt.rieske.accounts.eventsourcing.Aggregate;
+
 import java.util.UUID;
 
-public class Account {
+public class Account implements Aggregate {
     private final EventStream<Account> eventStream;
 
-    private UUID accountId;
+    private final UUID accountId;
+
     private UUID ownerId;
     private int balance;
     private boolean open;
 
-    public Account(EventStream<Account> eventStream) {
+    public Account(EventStream<Account> eventStream, UUID accountId) {
         this.eventStream = eventStream;
+        this.accountId = accountId;
     }
 
-    public void open(UUID accountId, UUID ownerId) {
-        eventStream.append(new AccountOpenedEvent(accountId, ownerId), this);
+    public void open(UUID ownerId) {
+        eventStream.append(new AccountOpenedEvent(ownerId), this);
     }
 
     public void deposit(int amount) {
@@ -47,6 +51,7 @@ public class Account {
         eventStream.append(new AccountClosedEvent(), this);
     }
 
+    @Override
     public UUID id() {
         return accountId;
     }
@@ -64,14 +69,12 @@ public class Account {
     }
 
     void applySnapshot(AccountSnapshot snapshot) {
-        this.accountId = snapshot.getAccountId();
         this.ownerId = snapshot.getOwnerId();
         this.balance = snapshot.getBalance();
         this.open = snapshot.isOpen();
     }
 
     void apply(AccountOpenedEvent event) {
-        this.accountId = event.getAccountId();
         this.ownerId = event.getOwnerId();
         this.balance = 0;
         this.open = true;

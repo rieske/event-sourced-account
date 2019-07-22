@@ -26,7 +26,7 @@ public class MySqlEventStoreTest {
     @Test
     public void shouldStoreAnEvent() throws SQLException {
         var aggregateId = UUID.randomUUID();
-        eventStore.append(aggregateId, List.of(new SerializedEvent(42, "foobar".getBytes())), null);
+        eventStore.append(List.of(new SerializedEvent(aggregateId, 42, "foobar".getBytes())), null);
 
         try (var connection = dataSource.getConnection();
              var statement = connection.prepareStatement(
@@ -42,28 +42,29 @@ public class MySqlEventStoreTest {
     @Test
     public void shouldGetStoredEvent() {
         var aggregateId = UUID.randomUUID();
-        eventStore.append(aggregateId, List.of(new SerializedEvent(1, "foobar".getBytes())), null);
+        eventStore.append(List.of(new SerializedEvent(aggregateId, 1, "foobar".getBytes())), null);
 
         var events = eventStore.getEvents(aggregateId, 0);
 
-        assertThat(events).containsExactly("foobar".getBytes());
+        assertThat(events).containsExactly(new SerializedEvent(aggregateId, 1, "foobar".getBytes()));
     }
 
     @Test
     public void shouldGetStoredEventsFromSpecificVersion() {
         var aggregateId = UUID.randomUUID();
 
-        eventStore.append(aggregateId, List.of(
-                new SerializedEvent(1, "1".getBytes()),
-                new SerializedEvent(2, "2".getBytes()),
-                new SerializedEvent(3, "3".getBytes()),
-                new SerializedEvent(4, "4".getBytes())
-                ),
+        eventStore.append(List.of(
+                new SerializedEvent(aggregateId, 1, "1".getBytes()),
+                new SerializedEvent(aggregateId, 2, "2".getBytes()),
+                new SerializedEvent(aggregateId, 3, "3".getBytes()),
+                new SerializedEvent(aggregateId, 4, "4".getBytes())),
                 null);
 
         var events = eventStore.getEvents(aggregateId, 2);
 
-        assertThat(events).containsExactly("3".getBytes(), "4".getBytes());
+        assertThat(events).containsExactly(
+                new SerializedEvent(aggregateId, 3, "3".getBytes()),
+                new SerializedEvent(aggregateId, 4, "4".getBytes()));
     }
 
     @Test
@@ -77,7 +78,7 @@ public class MySqlEventStoreTest {
     public void shouldStoreSnapshot() throws SQLException {
         var aggregateId = UUID.randomUUID();
 
-        eventStore.append(aggregateId, List.of(), new SerializedEvent(42, "foobar".getBytes()));
+        eventStore.append(List.of(), new SerializedEvent(aggregateId, 42, "foobar".getBytes()));
 
         try (var connection = dataSource.getConnection();
              var statement = connection.prepareStatement(
@@ -93,9 +94,9 @@ public class MySqlEventStoreTest {
     @Test
     public void shouldLoadLatestSnapshot() {
         var aggregateId = UUID.randomUUID();
-        eventStore.append(aggregateId, List.of(), new SerializedEvent(50, "1".getBytes()));
-        eventStore.append(aggregateId, List.of(), new SerializedEvent(100, "2".getBytes()));
-        eventStore.append(aggregateId, List.of(), new SerializedEvent(150, "3".getBytes()));
+        eventStore.append(List.of(), new SerializedEvent(aggregateId, 50, "1".getBytes()));
+        eventStore.append(List.of(), new SerializedEvent(aggregateId, 100, "2".getBytes()));
+        eventStore.append(List.of(), new SerializedEvent(aggregateId, 150, "3".getBytes()));
 
         var snapshot = eventStore.loadLatestSnapshot(aggregateId);
 

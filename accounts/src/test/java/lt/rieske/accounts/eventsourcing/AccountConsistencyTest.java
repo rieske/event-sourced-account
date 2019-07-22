@@ -56,7 +56,7 @@ public abstract class AccountConsistencyTest {
         accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
-        repository.create(accountId, account -> account.open(accountId, ownerId));
+        repository.create(accountId, account -> account.open(ownerId));
 
         var depositCount = depositCount();
         var threadCount = threadCount();
