@@ -100,8 +100,8 @@ public class MySqlEventStoreTest {
 
         var snapshot = eventStore.loadLatestSnapshot(aggregateId);
 
-        assertThat(snapshot.getVersion()).isEqualTo(150);
-        assertThat(snapshot.getSnapshotEvent()).isEqualTo("3".getBytes());
+        assertThat(snapshot.getSequenceNumber()).isEqualTo(150);
+        assertThat(snapshot.getPayload()).isEqualTo("3".getBytes());
     }
 
     @Test

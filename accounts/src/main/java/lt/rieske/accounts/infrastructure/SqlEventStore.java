@@ -7,5 +7,5 @@ public interface SqlEventStore {
     void append(List<SerializedEvent> serializedEvents, SerializedEvent serializedSnapshot);
 
     List<SerializedEvent> getEvents(UUID aggregateId, long fromVersion);
-    SnapshotBlob loadLatestSnapshot(UUID aggregateId);
+    SerializedEvent loadLatestSnapshot(UUID aggregateId);
 }

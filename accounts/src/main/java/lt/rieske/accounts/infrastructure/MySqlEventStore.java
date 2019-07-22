@@ -68,13 +68,13 @@ public class MySqlEventStore implements SqlEventStore {
     }
 
     @Override
-    public SnapshotBlob loadLatestSnapshot(UUID aggregateId) {
+    public SerializedEvent loadLatestSnapshot(UUID aggregateId) {
         try (var connection = dataSource.getConnection();
              var statement = connection.prepareStatement(SELECT_LATEST_SNAPSHOT_SQL)) {
             statement.setBytes(1, uuidToBytes(aggregateId));
             try (var resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    return new SnapshotBlob(resultSet.getLong(1), resultSet.getBytes(2));
+                    return new SerializedEvent(aggregateId, resultSet.getLong(1), resultSet.getBytes(2));
                 } else {
                     return null;
                 }

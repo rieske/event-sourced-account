@@ -1,6 +1,5 @@
 package lt.rieske.accounts.eventsourcing.inmemory;
 
-import lt.rieske.accounts.eventsourcing.Event;
 import lt.rieske.accounts.eventsourcing.EventStore;
 import lt.rieske.accounts.eventsourcing.SequencedEvent;
 

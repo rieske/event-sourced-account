@@ -9,5 +9,5 @@ import java.util.UUID;
 public class SequencedEvent<T> {
     private final UUID aggregateId;
     private final long sequenceNumber;
-    private final Event<T> payload;
+    private final Event<T> event;
 }

@@ -2,7 +2,6 @@ package lt.rieske.accounts.eventsourcing;
 
 import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.domain.AccountSnapshotter;
-import lt.rieske.accounts.eventsourcing.Event;
 import org.junit.Before;
 import org.junit.Test;
 

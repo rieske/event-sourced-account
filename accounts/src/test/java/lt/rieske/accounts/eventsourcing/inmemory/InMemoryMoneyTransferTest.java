@@ -1,7 +1,6 @@
 package lt.rieske.accounts.eventsourcing.inmemory;
 
 import lt.rieske.accounts.domain.Account;
-import lt.rieske.accounts.eventsourcing.AccountEventSourcingTest;
 import lt.rieske.accounts.eventsourcing.EventStore;
 import lt.rieske.accounts.eventsourcing.MoneyTransferTest;
 

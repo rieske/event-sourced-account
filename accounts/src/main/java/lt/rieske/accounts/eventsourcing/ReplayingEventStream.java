@@ -25,14 +25,14 @@ public class ReplayingEventStream<T extends Aggregate> implements EventStream<T>
         aggregateVersions.put(aggregate.id(), 0L);
         var snapshot = eventStore.loadSnapshot(aggregate.id());
         if (snapshot != null) {
-            snapshot.getPayload().apply(aggregate);
+            snapshot.getEvent().apply(aggregate);
             aggregateVersions.put(aggregate.id(), snapshot.getSequenceNumber());
         }
         var events = eventStore.getEvents(aggregate.id(), aggregateVersions.get(aggregate.id()));
         if (events.isEmpty() && snapshot == null) {
             throw new AggregateNotFoundException(aggregate.id());
         }
-        events.forEach(event -> event.getPayload().apply(aggregate));
+        events.forEach(event -> event.getEvent().apply(aggregate));
         if (!events.isEmpty()) {
             aggregateVersions.put(aggregate.id(), events.get(events.size() - 1).getSequenceNumber());
         }
