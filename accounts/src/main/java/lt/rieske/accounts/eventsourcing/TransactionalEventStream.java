@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class TransactionalEventStream<T extends Aggregate> extends ReplayingEventStream<T> {
+class TransactionalEventStream<T extends Aggregate> extends ReplayingEventStream<T> {
 
     private final Snapshotter<T> snapshotter;
 

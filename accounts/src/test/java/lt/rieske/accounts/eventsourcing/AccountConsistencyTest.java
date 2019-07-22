@@ -1,8 +1,8 @@
 package lt.rieske.accounts.eventsourcing;
 
 import lt.rieske.accounts.domain.Account;
-import lt.rieske.accounts.domain.AccountSnapshotter;
 import lt.rieske.accounts.domain.Operation;
+import lt.rieske.accounts.infrastructure.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,8 +38,8 @@ public abstract class AccountConsistencyTest {
     @Before
     public void init() {
         eventStore = getEventStore();
-        accountRepository = new AggregateRepository<>(eventStore, Account::new);
-        snapshottingAccountRepository = new AggregateRepository<>(eventStore, Account::new, new AccountSnapshotter(5));
+        accountRepository = Configuration.accountRepository(eventStore);
+        snapshottingAccountRepository = Configuration.snapshottingAccountRepository(eventStore, 5);
     }
 
     @Test

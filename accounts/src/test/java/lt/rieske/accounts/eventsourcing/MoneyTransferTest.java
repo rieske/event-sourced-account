@@ -2,6 +2,7 @@ package lt.rieske.accounts.eventsourcing;
 
 import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.domain.Operation;
+import lt.rieske.accounts.infrastructure.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,7 +23,7 @@ public abstract class MoneyTransferTest {
 
     @Before
     public void init() {
-        accountRepository = new AggregateRepository<>(getEventStore(), Account::new);
+        accountRepository = Configuration.accountRepository(getEventStore());
 
         accountRepository.create(sourceAccountId, account -> account.open(ownerId));
         accountRepository.create(targetAccountId, account -> account.open(ownerId));

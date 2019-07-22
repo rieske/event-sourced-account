@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 
 
-public class ReplayingEventStream<T extends Aggregate> implements EventStream<T> {
+class ReplayingEventStream<T extends Aggregate> implements EventStream<T> {
 
     protected final EventStore<T> eventStore;
 
