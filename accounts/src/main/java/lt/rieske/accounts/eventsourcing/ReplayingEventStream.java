@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+
 public class ReplayingEventStream<T extends Aggregate> implements EventStream<T> {
 
     protected final EventStore<T> eventStore;
@@ -22,19 +23,20 @@ public class ReplayingEventStream<T extends Aggregate> implements EventStream<T>
     }
 
     void replay(T aggregate) {
-        aggregateVersions.put(aggregate.id(), 0L);
+        long currentVersion = 0L;
         var snapshot = eventStore.loadSnapshot(aggregate.id());
         if (snapshot != null) {
             snapshot.getEvent().apply(aggregate);
-            aggregateVersions.put(aggregate.id(), snapshot.getSequenceNumber());
+            currentVersion = snapshot.getSequenceNumber();
         }
-        var events = eventStore.getEvents(aggregate.id(), aggregateVersions.get(aggregate.id()));
+        var events = eventStore.getEvents(aggregate.id(), currentVersion);
         if (events.isEmpty() && snapshot == null) {
             throw new AggregateNotFoundException(aggregate.id());
         }
         events.forEach(event -> event.getEvent().apply(aggregate));
         if (!events.isEmpty()) {
-            aggregateVersions.put(aggregate.id(), events.get(events.size() - 1).getSequenceNumber());
+            currentVersion = events.get(events.size() - 1).getSequenceNumber();
         }
+        aggregateVersions.put(aggregate.id(), currentVersion);
     }
 }
