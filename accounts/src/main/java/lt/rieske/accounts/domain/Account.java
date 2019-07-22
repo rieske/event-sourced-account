@@ -38,6 +38,9 @@ public class Account implements Aggregate {
             return;
         }
         requireOpenAccount();
+        if (amount < 0) {
+            throw new IllegalArgumentException("Can not withdraw negative amount: " + amount);
+        }
         if (balance < amount) {
             throw new IllegalArgumentException("Insufficient balance");
         }

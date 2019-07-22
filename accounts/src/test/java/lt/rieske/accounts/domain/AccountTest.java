@@ -77,6 +77,17 @@ public class AccountTest {
     }
 
     @Test
+    public void shouldThrowWhenWithdrawingNegativeAmount() {
+        var accountId = UUID.randomUUID();
+        var account = new Account(Event::apply, accountId);
+        account.open(UUID.randomUUID());
+        account.deposit(100);
+
+        assertThatThrownBy(() -> account.withdraw(-42)).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Can not withdraw negative amount");
+    }
+
+    @Test
     public void shouldCloseAccount() {
         var accountId = UUID.randomUUID();
         var account = new Account(Event::apply, accountId);
