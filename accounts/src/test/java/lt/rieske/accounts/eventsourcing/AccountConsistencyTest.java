@@ -70,7 +70,7 @@ public abstract class AccountConsistencyTest {
             for (int j = 0; j < threadCount; j++) {
                 executor.submit(() -> {
                     withRetryOnConcurrentModification(() ->
-                            repository.transact(accountId, Operation.deposit(1)));
+                            repository.transact(accountId, Operation.deposit(1, UUID.randomUUID())));
                     latch.countDown();
                 });
             }
@@ -89,10 +89,10 @@ public abstract class AccountConsistencyTest {
         var balance = operationCount * threadCount;
 
         var sourceAccountId = openNewAccount(repository);
-        repository.transact(sourceAccountId, Operation.deposit(balance));
+        repository.transact(sourceAccountId, Operation.deposit(balance, UUID.randomUUID()));
 
         var targetAccountId = openNewAccount(repository);
-        repository.transact(targetAccountId, Operation.deposit(balance));
+        repository.transact(targetAccountId, Operation.deposit(balance, UUID.randomUUID()));
 
         var executor = Executors.newFixedThreadPool(threadCount);
 

@@ -30,6 +30,10 @@ public class Account implements Aggregate {
     }
 
     public void deposit(int amount) {
+        deposit(amount, UUID.randomUUID());
+    }
+
+    public void deposit(int amount, UUID transactionId) {
         if (amount == 0) {
             return;
         }
@@ -37,7 +41,7 @@ public class Account implements Aggregate {
         if (amount < 0) {
             throw new IllegalArgumentException("Can not deposit negative amount: " + amount);
         }
-        eventStream.append(new MoneyDepositedEvent(amount, balance + amount), this);
+        eventStream.append(new MoneyDepositedEvent(amount, balance + amount, transactionId), this);
     }
 
     public void withdraw(int amount) {

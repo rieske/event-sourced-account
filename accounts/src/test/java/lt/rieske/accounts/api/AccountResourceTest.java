@@ -116,7 +116,44 @@ class AccountResourceTest {
         var ownerId = UUID.randomUUID();
         createAccount(accountId, ownerId);
 
-        when().put("/account/" + accountId + "/deposit?amount=" + 42)
+        when().put("/account/" + accountId + "/deposit?amount=" + 42 + "&transactionId=" + UUID.randomUUID())
+                .then()
+                .statusCode(204);
+
+        var accountJsonPath = queryAccount(accountId);
+        assertThat(accountJsonPath.getInt("balance")).isEqualTo(42);
+    }
+
+    @Test
+    void depositsShouldAccumulateBalance() {
+
+        var accountId = UUID.randomUUID();
+        var ownerId = UUID.randomUUID();
+        createAccount(accountId, ownerId);
+
+        when().put("/account/" + accountId + "/deposit?amount=" + 42 + "&transactionId=" + UUID.randomUUID())
+                .then()
+                .statusCode(204);
+        when().put("/account/" + accountId + "/deposit?amount=" + 42 + "&transactionId=" + UUID.randomUUID())
+                .then()
+                .statusCode(204);
+
+        var accountJsonPath = queryAccount(accountId);
+        assertThat(accountJsonPath.getInt("balance")).isEqualTo(84);
+    }
+
+    @Test
+    void depositTransactionsShouldBeIdempotent() {
+
+        var accountId = UUID.randomUUID();
+        var ownerId = UUID.randomUUID();
+        createAccount(accountId, ownerId);
+
+        var txId = UUID.randomUUID();
+        when().put("/account/" + accountId + "/deposit?amount=" + 42 + "&transactionId=" + txId)
+                .then()
+                .statusCode(204);
+        when().put("/account/" + accountId + "/deposit?amount=" + 42 + "&transactionId=" + txId)
                 .then()
                 .statusCode(204);
 
@@ -131,7 +168,7 @@ class AccountResourceTest {
         var ownerId = UUID.randomUUID();
         createAccount(accountId, ownerId);
 
-        when().put("/account/" + accountId + "/deposit?amount=42.4")
+        when().put("/account/" + accountId + "/deposit?amount=42.4&transactionId=" + UUID.randomUUID())
                 .then()
                 .statusCode(400)
                 .body("message", equalTo("For input string: '42.4'"));
@@ -147,7 +184,7 @@ class AccountResourceTest {
         var ownerId = UUID.randomUUID();
         createAccount(accountId, ownerId);
 
-        when().put("/account/" + accountId + "/deposit?amount=banana")
+        when().put("/account/" + accountId + "/deposit?amount=banana&transactionId=" + UUID.randomUUID())
                 .then()
                 .statusCode(400)
                 .body("message", equalTo("For input string: 'banana'"));
@@ -163,7 +200,7 @@ class AccountResourceTest {
         var ownerId = UUID.randomUUID();
         createAccount(accountId, ownerId);
 
-        when().put("/account/" + accountId + "/deposit?amount=-1")
+        when().put("/account/" + accountId + "/deposit?amount=-1&transactionId=" + UUID.randomUUID())
                 .then()
                 .statusCode(400)
                 .body("message", equalTo("Can not deposit negative amount: -1"));
@@ -295,7 +332,7 @@ class AccountResourceTest {
     }
 
     private void deposit(UUID accountId, int amount) {
-        when().put("/account/" + accountId + "/deposit?amount=" + amount)
+        when().put("/account/" + accountId + "/deposit?amount=" + amount + "&transactionId=" + UUID.randomUUID())
                 .then()
                 .statusCode(204);
     }

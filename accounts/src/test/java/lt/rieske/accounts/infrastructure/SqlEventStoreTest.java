@@ -20,7 +20,7 @@ public abstract class SqlEventStoreTest {
     @Test
     void shouldStoreAnEvent() throws SQLException {
         var aggregateId = UUID.randomUUID();
-        eventStore.append(List.of(new SerializedEvent(aggregateId, 42, "foobar".getBytes())), null);
+        eventStore.append(List.of(new SerializedEvent(aggregateId, 42, UUID.randomUUID(), "foobar".getBytes())), null);
 
         try (var connection = dataSource.getConnection();
              var statement = connection.prepareStatement(
@@ -36,11 +36,11 @@ public abstract class SqlEventStoreTest {
     @Test
     void shouldGetStoredEvent() {
         var aggregateId = UUID.randomUUID();
-        eventStore.append(List.of(new SerializedEvent(aggregateId, 1, "foobar".getBytes())), null);
+        eventStore.append(List.of(new SerializedEvent(aggregateId, 1, UUID.randomUUID(), "foobar".getBytes())), null);
 
         var events = eventStore.getEvents(aggregateId, 0);
 
-        assertThat(events).containsExactly(new SerializedEvent(aggregateId, 1, "foobar".getBytes()));
+        assertThat(events).containsExactly(new SerializedEvent(aggregateId, 1, null, "foobar".getBytes()));
     }
 
     @Test
@@ -48,17 +48,17 @@ public abstract class SqlEventStoreTest {
         var aggregateId = UUID.randomUUID();
 
         eventStore.append(List.of(
-                new SerializedEvent(aggregateId, 1, "1".getBytes()),
-                new SerializedEvent(aggregateId, 2, "2".getBytes()),
-                new SerializedEvent(aggregateId, 3, "3".getBytes()),
-                new SerializedEvent(aggregateId, 4, "4".getBytes())),
+                new SerializedEvent(aggregateId, 1, UUID.randomUUID(), "1".getBytes()),
+                new SerializedEvent(aggregateId, 2, UUID.randomUUID(), "2".getBytes()),
+                new SerializedEvent(aggregateId, 3, UUID.randomUUID(), "3".getBytes()),
+                new SerializedEvent(aggregateId, 4, UUID.randomUUID(), "4".getBytes())),
                 null);
 
         var events = eventStore.getEvents(aggregateId, 2);
 
         assertThat(events).containsExactly(
-                new SerializedEvent(aggregateId, 3, "3".getBytes()),
-                new SerializedEvent(aggregateId, 4, "4".getBytes()));
+                new SerializedEvent(aggregateId, 3, null, "3".getBytes()),
+                new SerializedEvent(aggregateId, 4, null, "4".getBytes()));
     }
 
     @Test
@@ -72,7 +72,7 @@ public abstract class SqlEventStoreTest {
     void shouldStoreSnapshot() throws SQLException {
         var aggregateId = UUID.randomUUID();
 
-        eventStore.append(List.of(), new SerializedEvent(aggregateId, 42, "foobar".getBytes()));
+        eventStore.append(List.of(), new SerializedEvent(aggregateId, 42, UUID.randomUUID(), "foobar".getBytes()));
 
         try (var connection = dataSource.getConnection();
              var statement = connection.prepareStatement(
@@ -88,9 +88,9 @@ public abstract class SqlEventStoreTest {
     @Test
     void shouldLoadLatestSnapshot() {
         var aggregateId = UUID.randomUUID();
-        eventStore.append(List.of(), new SerializedEvent(aggregateId, 50, "1".getBytes()));
-        eventStore.append(List.of(), new SerializedEvent(aggregateId, 100, "2".getBytes()));
-        eventStore.append(List.of(), new SerializedEvent(aggregateId, 150, "3".getBytes()));
+        eventStore.append(List.of(), new SerializedEvent(aggregateId, 50, UUID.randomUUID(), "1".getBytes()));
+        eventStore.append(List.of(), new SerializedEvent(aggregateId, 100, UUID.randomUUID(), "2".getBytes()));
+        eventStore.append(List.of(), new SerializedEvent(aggregateId, 150, UUID.randomUUID(), "3".getBytes()));
 
         var snapshot = eventStore.loadLatestSnapshot(aggregateId);
 

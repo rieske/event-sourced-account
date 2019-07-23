@@ -32,7 +32,7 @@ public abstract class MoneyTransferTest {
     @Test
     void shouldTransferMoneyBetweenAccounts() {
         int transferAmount = 42;
-        accountRepository.transact(sourceAccountId, Operation.deposit(transferAmount));
+        accountRepository.transact(sourceAccountId, Operation.deposit(transferAmount, UUID.randomUUID()));
         accountRepository.transact(sourceAccountId, targetAccountId, Operation.transfer(transferAmount));
 
         var sourceAccount = accountRepository.query(sourceAccountId);
@@ -45,7 +45,7 @@ public abstract class MoneyTransferTest {
     @Test
     void shouldFailMoneyTransferWhenSourceHasInsufficientBalance() {
         int transferAmount = 42;
-        accountRepository.transact(sourceAccountId, Operation.deposit(10));
+        accountRepository.transact(sourceAccountId, Operation.deposit(10, UUID.randomUUID()));
 
         assertThatThrownBy(() -> accountRepository.transact(sourceAccountId, targetAccountId, Operation.transfer(transferAmount)))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -61,7 +61,7 @@ public abstract class MoneyTransferTest {
     @Test
     void shouldFailMoneyTransferWhenTargetAccountIsClosed() {
         int transferAmount = 42;
-        accountRepository.transact(sourceAccountId, Operation.deposit(transferAmount));
+        accountRepository.transact(sourceAccountId, Operation.deposit(transferAmount, UUID.randomUUID()));
         accountRepository.transact(targetAccountId, Account::close);
 
         assertThatThrownBy(() -> accountRepository.transact(sourceAccountId, targetAccountId, Operation.transfer(transferAmount)))
@@ -93,7 +93,7 @@ public abstract class MoneyTransferTest {
 
     @Test
     void shouldNotTransferNegativeAmount() {
-        accountRepository.transact(sourceAccountId, Operation.deposit(42));
+        accountRepository.transact(sourceAccountId, Operation.deposit(42, UUID.randomUUID()));
 
         assertThatThrownBy(() -> accountRepository.transact(sourceAccountId, targetAccountId, Operation.transfer(-1)))
                 .isInstanceOf(IllegalArgumentException.class)

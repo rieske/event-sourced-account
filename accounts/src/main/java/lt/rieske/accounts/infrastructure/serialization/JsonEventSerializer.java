@@ -3,6 +3,7 @@ package lt.rieske.accounts.infrastructure.serialization;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lt.rieske.accounts.domain.AccountClosedEvent;
 import lt.rieske.accounts.domain.AccountOpenedEvent;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 public class JsonEventSerializer<T> implements EventSerializer<T> {
 
     private final ObjectMapper objectMapper = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .addMixIn(Event.class, PolymorphicEventMixIn.class);
 
     @Override

@@ -39,8 +39,9 @@ class AccountResource {
     String deposit(Request request, Response response) {
         var accountId = UUID.fromString(request.params("accountId"));
         int amount = Integer.parseInt(getMandatoryQueryParameter(request, "amount"));
+        var transactionId = UUID.fromString(getMandatoryQueryParameter(request, "transactionId"));
 
-        accountService.deposit(accountId, amount);
+        accountService.deposit(accountId, amount, transactionId);
 
         response.status(204);
         return "";

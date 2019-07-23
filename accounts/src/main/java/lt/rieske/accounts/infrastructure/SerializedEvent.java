@@ -9,5 +9,6 @@ import java.util.UUID;
 public class SerializedEvent {
     private final UUID aggregateId;
     private final long sequenceNumber;
+    private final UUID transactionId;
     private final byte[] payload;
 }

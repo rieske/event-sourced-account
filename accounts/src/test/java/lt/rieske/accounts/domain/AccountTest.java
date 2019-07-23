@@ -40,7 +40,7 @@ class AccountTest {
         var accountId = UUID.randomUUID();
         var account = new Account(Event::apply, accountId);
         account.open(UUID.randomUUID());
-        account.deposit(42);
+        account.deposit(42, UUID.randomUUID());
 
         assertThat(account.balance()).isEqualTo(42);
     }
@@ -50,8 +50,8 @@ class AccountTest {
         var accountId = UUID.randomUUID();
         var account = new Account(Event::apply, accountId);
         account.open(UUID.randomUUID());
-        account.deposit(1);
-        account.deposit(1);
+        account.deposit(1, UUID.randomUUID());
+        account.deposit(1, UUID.randomUUID());
 
         assertThat(account.balance()).isEqualTo(2);
     }
@@ -62,7 +62,7 @@ class AccountTest {
         var account = new Account(Event::apply, accountId);
         account.open(UUID.randomUUID());
 
-        assertThatThrownBy(() -> account.deposit(-42)).isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> account.deposit(-42, UUID.randomUUID())).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Can not deposit negative amount");
     }
 
@@ -71,7 +71,7 @@ class AccountTest {
         var accountId = UUID.randomUUID();
         var account = new Account(Event::apply, accountId);
         account.open(UUID.randomUUID());
-        account.deposit(10);
+        account.deposit(10, UUID.randomUUID());
 
         account.withdraw(5);
 
@@ -93,7 +93,7 @@ class AccountTest {
         var accountId = UUID.randomUUID();
         var account = new Account(Event::apply, accountId);
         account.open(UUID.randomUUID());
-        account.deposit(100);
+        account.deposit(100, UUID.randomUUID());
 
         assertThatThrownBy(() -> account.withdraw(-42)).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Can not withdraw negative amount");
@@ -115,7 +115,7 @@ class AccountTest {
         var accountId = UUID.randomUUID();
         var account = new Account(Event::apply, accountId);
         account.open(UUID.randomUUID());
-        account.deposit(10);
+        account.deposit(10, UUID.randomUUID());
 
         assertThatThrownBy(account::close).isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Balance outstanding");
