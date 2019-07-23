@@ -5,17 +5,25 @@ import spark.Spark;
 
 public class Server {
 
+
     private final AccountResource accountResource;
 
-    public Server(AccountResource accountResource) {
+    Server(AccountResource accountResource) {
         this.accountResource = accountResource;
     }
 
     public int start(int port) {
         Spark.port(port);
 
-        Spark.post("/account/:accountId", accountResource::createAccount);
-        Spark.get("/account/:accountId", accountResource::getAccount);
+        Spark.path("/account/:accountId", () -> {
+            Spark.post("", accountResource::createAccount);
+            Spark.get("", accountResource::getAccount);
+            Spark.put("/deposit", accountResource::deposit);
+            Spark.put("/withdraw", accountResource::withdraw);
+            Spark.put("/transfer", accountResource::transfer);
+            Spark.delete("", accountResource::close);
+        });
+
         Spark.exception(IllegalArgumentException.class, accountResource::badRequest);
         Spark.exception(AggregateNotFoundException.class, accountResource::notFound);
 

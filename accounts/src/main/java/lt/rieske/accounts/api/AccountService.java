@@ -2,6 +2,7 @@ package lt.rieske.accounts.api;
 
 import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.domain.AccountSnapshot;
+import lt.rieske.accounts.domain.Operation;
 import lt.rieske.accounts.eventsourcing.AggregateRepository;
 
 import java.util.UUID;
@@ -16,6 +17,22 @@ class AccountService {
 
     void openAccount(UUID accountId, UUID ownerId) {
         accountRepository.create(accountId, account -> account.open(ownerId));
+    }
+
+    void deposit(UUID accountId, int amount) {
+        accountRepository.transact(accountId, Operation.deposit(amount));
+    }
+
+    void withdraw(UUID accountId, int amount) {
+        accountRepository.transact(accountId, Operation.withdraw(amount));
+    }
+
+    void transfer(UUID sourceAccountId, UUID targetAccountId, int amount) {
+        accountRepository.transact(sourceAccountId, targetAccountId, Operation.transfer(amount));
+    }
+
+    void close(UUID accountId) {
+        accountRepository.transact(accountId, Account::close);
     }
 
     AccountSnapshot queryAccount(UUID accountId) {

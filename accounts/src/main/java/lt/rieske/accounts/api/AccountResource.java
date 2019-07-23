@@ -29,10 +29,51 @@ class AccountResource {
 
     String getAccount(Request request, Response response) {
         var accountId = UUID.fromString(request.params("accountId"));
+
         var account = accountService.queryAccount(accountId);
 
         response.type(APPLICATION_JSON);
         return accountJson(account);
+    }
+
+    String deposit(Request request, Response response) {
+        var accountId = UUID.fromString(request.params("accountId"));
+        int amount = Integer.parseInt(request.queryParams("amount"));
+
+        accountService.deposit(accountId, amount);
+
+        response.status(204);
+        return "";
+    }
+
+    String withdraw(Request request, Response response) {
+        var accountId = UUID.fromString(request.params("accountId"));
+        int amount = Integer.parseInt(request.queryParams("amount"));
+
+        accountService.withdraw(accountId, amount);
+
+        response.status(204);
+        return "";
+    }
+
+    String transfer(Request request, Response response) {
+        var sourceAccountId = UUID.fromString(request.params("accountId"));
+        var targetAccountId = UUID.fromString(request.queryParams("targetAccount"));
+        int amount = Integer.parseInt(request.queryParams("amount"));
+
+        accountService.transfer(sourceAccountId, targetAccountId, amount);
+
+        response.status(204);
+        return "";
+    }
+
+    String close(Request request, Response response) {
+        var accountId = UUID.fromString(request.params("accountId"));
+
+        accountService.close(accountId);
+
+        response.status(204);
+        return "";
     }
 
     <T extends Exception> void badRequest(T e, Request request, Response response) {
@@ -55,6 +96,6 @@ class AccountResource {
     private void errorJson(Response response, int status, String message) {
         response.status(status);
         response.type(APPLICATION_JSON);
-        response.body("{\"message\":\"" + message + "\"}");
+        response.body("{\"message\":\"" + message.replaceAll("\"", "'") + "\"}");
     }
 }
