@@ -2,9 +2,11 @@ package lt.rieske.accounts.eventsourcing.mysql;
 
 import lt.rieske.accounts.infrastructure.SqlEventStoreTest;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Tag;
 
 import javax.sql.DataSource;
 
+@Tag("integration")
 class MySqlEventStoreTest extends SqlEventStoreTest {
 
     private static final MySql MYSQL = new MySql();

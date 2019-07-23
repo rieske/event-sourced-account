@@ -7,7 +7,9 @@ import lt.rieske.accounts.infrastructure.SerializingEventStore;
 import lt.rieske.accounts.infrastructure.SqlEventStore;
 import lt.rieske.accounts.infrastructure.serialization.JsonEventSerializer;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Tag;
 
+@Tag("integration")
 class MySqlAccountEventSourcingTest extends AccountEventSourcingTest {
 
     private static final MySql MYSQL = new MySql();

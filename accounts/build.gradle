@@ -11,7 +11,16 @@ repositories {
 }
 
 test {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags 'integration'
+    }
+    maxParallelForks = 8
+}
+
+task integrationTest(type: Test) {
+    useJUnitPlatform {
+        includeTags 'integration'
+    }
     maxParallelForks = 8
 }
 
