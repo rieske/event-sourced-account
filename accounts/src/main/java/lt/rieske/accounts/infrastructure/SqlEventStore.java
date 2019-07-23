@@ -13,7 +13,8 @@ import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.UUID;
 
-public class SqlEventStore implements BlobEventStore {
+
+class SqlEventStore implements BlobEventStore {
 
     private static final String APPEND_EVENT_SQL =
             "INSERT INTO event_store.Event(aggregateId, sequenceNumber, payload) VALUES(?, ?, ?)";

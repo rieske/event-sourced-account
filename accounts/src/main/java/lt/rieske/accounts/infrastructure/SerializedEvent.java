@@ -4,6 +4,7 @@ import lombok.Value;
 
 import java.util.UUID;
 
+
 @Value
 public class SerializedEvent {
     private final UUID aggregateId;

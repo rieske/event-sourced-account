@@ -1,7 +1,6 @@
 package lt.rieske.accounts.infrastructure;
 
 import lt.rieske.accounts.domain.Account;
-import lt.rieske.accounts.domain.AccountService;
 import lt.rieske.accounts.domain.AccountSnapshotter;
 import lt.rieske.accounts.eventsourcing.AggregateRepository;
 import lt.rieske.accounts.eventsourcing.EventStore;
@@ -11,12 +10,6 @@ import javax.sql.DataSource;
 
 
 public class Configuration {
-
-    public static AccountService accountService(DataSource dataSource) {
-        var eventStore = accountEventStore(dataSource);
-        var accountRepository = snapshottingAccountRepository(eventStore, 50);
-        return new AccountService(accountRepository);
-    }
 
     public static AggregateRepository<Account> accountRepository(EventStore<Account> eventStore) {
         return new AggregateRepository<>(eventStore, Account::new);

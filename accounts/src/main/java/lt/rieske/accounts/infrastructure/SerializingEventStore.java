@@ -8,12 +8,13 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class SerializingEventStore<T> implements EventStore<T> {
+
+class SerializingEventStore<T> implements EventStore<T> {
 
     private final EventSerializer<T> serializer;
     private final BlobEventStore blobStore;
 
-    public SerializingEventStore(EventSerializer<T> serializer, BlobEventStore blobStore) {
+    SerializingEventStore(EventSerializer<T> serializer, BlobEventStore blobStore) {
         this.serializer = serializer;
         this.blobStore = blobStore;
     }

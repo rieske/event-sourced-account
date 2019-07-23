@@ -18,6 +18,7 @@ import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 public class JsonEventSerializer<T> implements EventSerializer<T> {
 
     private final ObjectMapper objectMapper = new ObjectMapper()

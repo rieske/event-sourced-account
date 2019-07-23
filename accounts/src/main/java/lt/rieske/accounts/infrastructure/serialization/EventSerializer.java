@@ -6,6 +6,7 @@ import lt.rieske.accounts.infrastructure.SerializedEvent;
 
 import java.util.List;
 
+
 public interface EventSerializer<T> {
     byte[] serialize(Event event);
 

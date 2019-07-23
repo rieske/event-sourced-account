@@ -1,11 +1,9 @@
 package lt.rieske.accounts;
 
 public class App {
-    public String getGreeting() {
-        return "Hello world.";
-    }
 
     public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+        //var server = ApiConfiguration.server(dataSource);
+        //server.start();
     }
 }

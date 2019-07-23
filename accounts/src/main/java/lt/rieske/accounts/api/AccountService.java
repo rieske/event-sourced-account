@@ -1,22 +1,24 @@
-package lt.rieske.accounts.domain;
+package lt.rieske.accounts.api;
 
+import lt.rieske.accounts.domain.Account;
+import lt.rieske.accounts.domain.AccountSnapshot;
 import lt.rieske.accounts.eventsourcing.AggregateRepository;
 
 import java.util.UUID;
 
-public class AccountService {
+class AccountService {
 
     private final AggregateRepository<Account> accountRepository;
 
-    public AccountService(AggregateRepository<Account> accountRepository) {
+    AccountService(AggregateRepository<Account> accountRepository) {
         this.accountRepository = accountRepository;
     }
 
-    public void openAccount(UUID accountId, UUID ownerId) {
+    void openAccount(UUID accountId, UUID ownerId) {
         accountRepository.create(accountId, account -> account.open(ownerId));
     }
 
-    public AccountSnapshot queryAccount(UUID accountId) {
+    AccountSnapshot queryAccount(UUID accountId) {
         return accountRepository.query(accountId).snapshot();
     }
 }

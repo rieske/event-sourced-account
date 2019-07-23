@@ -20,4 +20,9 @@ class ArchitectureTest {
     static final ArchRule domainShouldNotDependOnInfrastructure =
             noClasses().that().resideInAPackage("lt.rieske.accounts.domain")
                     .should().dependOnClassesThat().resideInAPackage("lt.rieske.accounts.infrastructure");
+
+    @ArchTest
+    static final ArchRule domainShouldNotDependOnApi =
+            noClasses().that().resideInAPackage("lt.rieske.accounts.domain")
+                    .should().dependOnClassesThat().resideInAPackage("lt.rieske.accounts.api");
 }
