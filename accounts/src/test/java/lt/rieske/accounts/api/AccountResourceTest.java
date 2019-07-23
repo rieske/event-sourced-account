@@ -22,6 +22,7 @@ class AccountResourceTest {
     @BeforeAll
     static void startServer() {
         RestAssured.port = SERVER.start(0);
+        RestAssured.basePath = "/api/";
     }
 
     @AfterAll
