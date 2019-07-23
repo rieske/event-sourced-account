@@ -1,6 +1,6 @@
 package lt.rieske.accounts.infrastructure;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -18,7 +18,7 @@ public abstract class SqlEventStoreTest {
     protected abstract DataSource dataSource();
 
     @Test
-    public void shouldStoreAnEvent() throws SQLException {
+    void shouldStoreAnEvent() throws SQLException {
         var aggregateId = UUID.randomUUID();
         eventStore.append(List.of(new SerializedEvent(aggregateId, 42, "foobar".getBytes())), null);
 
@@ -34,7 +34,7 @@ public abstract class SqlEventStoreTest {
     }
 
     @Test
-    public void shouldGetStoredEvent() {
+    void shouldGetStoredEvent() {
         var aggregateId = UUID.randomUUID();
         eventStore.append(List.of(new SerializedEvent(aggregateId, 1, "foobar".getBytes())), null);
 
@@ -44,7 +44,7 @@ public abstract class SqlEventStoreTest {
     }
 
     @Test
-    public void shouldGetStoredEventsFromSpecificVersion() {
+    void shouldGetStoredEventsFromSpecificVersion() {
         var aggregateId = UUID.randomUUID();
 
         eventStore.append(List.of(
@@ -62,14 +62,14 @@ public abstract class SqlEventStoreTest {
     }
 
     @Test
-    public void emptyListWhenNoEventsFound() {
+    void emptyListWhenNoEventsFound() {
         var events = eventStore.getEvents(UUID.randomUUID(), 2);
 
         assertThat(events).isEmpty();
     }
 
     @Test
-    public void shouldStoreSnapshot() throws SQLException {
+    void shouldStoreSnapshot() throws SQLException {
         var aggregateId = UUID.randomUUID();
 
         eventStore.append(List.of(), new SerializedEvent(aggregateId, 42, "foobar".getBytes()));
@@ -86,7 +86,7 @@ public abstract class SqlEventStoreTest {
     }
 
     @Test
-    public void shouldLoadLatestSnapshot() {
+    void shouldLoadLatestSnapshot() {
         var aggregateId = UUID.randomUUID();
         eventStore.append(List.of(), new SerializedEvent(aggregateId, 50, "1".getBytes()));
         eventStore.append(List.of(), new SerializedEvent(aggregateId, 100, "2".getBytes()));
@@ -99,7 +99,7 @@ public abstract class SqlEventStoreTest {
     }
 
     @Test
-    public void shouldReturnNullWhenSnapshotNotFound() {
+    void shouldReturnNullWhenSnapshotNotFound() {
         var snapshot = eventStore.loadLatestSnapshot(UUID.randomUUID());
 
         assertThat(snapshot).isNull();

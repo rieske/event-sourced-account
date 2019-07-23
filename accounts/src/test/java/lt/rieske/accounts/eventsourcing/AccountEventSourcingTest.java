@@ -7,8 +7,8 @@ import lt.rieske.accounts.domain.MoneyDepositedEvent;
 import lt.rieske.accounts.domain.MoneyWithdrawnEvent;
 import lt.rieske.accounts.domain.Operation;
 import lt.rieske.accounts.infrastructure.Configuration;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -26,8 +26,8 @@ public abstract class AccountEventSourcingTest {
 
     protected abstract EventStore<Account> getEventStore();
 
-    @Before
-    public void init() {
+    @BeforeEach
+    void init() {
         eventStore = getEventStore();
         accountRepository = Configuration.accountRepository(eventStore);
         snapshottingAccountRepository = Configuration.snapshottingAccountRepository(eventStore, 5);
@@ -43,7 +43,7 @@ public abstract class AccountEventSourcingTest {
     }
 
     @Test
-    public void shouldOpenAnAccount() {
+    void shouldOpenAnAccount() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
@@ -58,7 +58,7 @@ public abstract class AccountEventSourcingTest {
     }
 
     @Test
-    public void shouldConflictIfAccountWithIdExists() {
+    void shouldConflictIfAccountWithIdExists() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
@@ -69,7 +69,7 @@ public abstract class AccountEventSourcingTest {
     }
 
     @Test
-    public void shouldLoadAnAccount() {
+    void shouldLoadAnAccount() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
         givenEvents(accountId, new AccountOpenedEvent(ownerId));
@@ -81,7 +81,7 @@ public abstract class AccountEventSourcingTest {
     }
 
     @Test
-    public void shouldLoadTwoDistinctAccounts() {
+    void shouldLoadTwoDistinctAccounts() {
         var account1Id = UUID.randomUUID();
         var account2Id = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
@@ -99,13 +99,13 @@ public abstract class AccountEventSourcingTest {
     }
 
     @Test
-    public void shouldThrowWhenAccountIsNotFound() {
+    void shouldThrowWhenAccountIsNotFound() {
         assertThatThrownBy(() -> accountRepository.query(UUID.randomUUID()))
                 .isInstanceOf(AggregateNotFoundException.class);
     }
 
     @Test
-    public void shouldDepositMoneyToAccount() {
+    void shouldDepositMoneyToAccount() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
         givenEvents(accountId, new AccountOpenedEvent(ownerId));
@@ -121,7 +121,7 @@ public abstract class AccountEventSourcingTest {
     }
 
     @Test
-    public void shouldConflictOnConcurrentModification() {
+    void shouldConflictOnConcurrentModification() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
         givenEvents(accountId, new AccountOpenedEvent(ownerId));
@@ -141,7 +141,7 @@ public abstract class AccountEventSourcingTest {
     }
 
     @Test
-    public void multipleDepositsShouldAccumulateBalance() {
+    void multipleDepositsShouldAccumulateBalance() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
         givenEvents(accountId, new AccountOpenedEvent(ownerId));
@@ -161,7 +161,7 @@ public abstract class AccountEventSourcingTest {
     }
 
     @Test
-    public void shouldNotDepositZeroToAccount() {
+    void shouldNotDepositZeroToAccount() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
         givenEvents(accountId, new AccountOpenedEvent(ownerId));
@@ -176,7 +176,7 @@ public abstract class AccountEventSourcingTest {
     }
 
     @Test
-    public void shouldThrowWhenDepositingNegativeAmount() {
+    void shouldThrowWhenDepositingNegativeAmount() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
         givenEvents(accountId, new AccountOpenedEvent(ownerId));
@@ -190,7 +190,7 @@ public abstract class AccountEventSourcingTest {
     }
 
     @Test
-    public void shouldWithdrawMoney() {
+    void shouldWithdrawMoney() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
         givenEvents(accountId,
@@ -210,7 +210,7 @@ public abstract class AccountEventSourcingTest {
     }
 
     @Test
-    public void shouldNotWithdrawZero() {
+    void shouldNotWithdrawZero() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
         givenEvents(accountId, new AccountOpenedEvent(ownerId));
@@ -225,7 +225,7 @@ public abstract class AccountEventSourcingTest {
     }
 
     @Test
-    public void shouldNotWithdrawMoneyWhenBalanceInsufficient() {
+    void shouldNotWithdrawMoneyWhenBalanceInsufficient() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
         givenEvents(accountId,
@@ -239,7 +239,7 @@ public abstract class AccountEventSourcingTest {
     }
 
     @Test
-    public void shouldCreateSnapshotAfterFiveEvents() {
+    void shouldCreateSnapshotAfterFiveEvents() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
@@ -271,7 +271,7 @@ public abstract class AccountEventSourcingTest {
     }
 
     @Test
-    public void shouldInstantiateAccountFromSnapshot() {
+    void shouldInstantiateAccountFromSnapshot() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
@@ -285,7 +285,7 @@ public abstract class AccountEventSourcingTest {
     }
 
     @Test
-    public void shouldNotReplayEventsPriorToSnapshot() {
+    void shouldNotReplayEventsPriorToSnapshot() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
@@ -300,7 +300,7 @@ public abstract class AccountEventSourcingTest {
     }
 
     @Test
-    public void shouldReplayEventsAfterSnapshot() {
+    void shouldReplayEventsAfterSnapshot() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 

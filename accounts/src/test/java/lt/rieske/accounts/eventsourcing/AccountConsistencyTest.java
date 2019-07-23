@@ -3,8 +3,8 @@ package lt.rieske.accounts.eventsourcing;
 import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.domain.Operation;
 import lt.rieske.accounts.infrastructure.Configuration;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ConcurrentModificationException;
 import java.util.HashSet;
@@ -38,21 +38,21 @@ public abstract class AccountConsistencyTest {
         return accountIds;
     }
 
-    @Before
-    public void init() {
+    @BeforeEach
+    void init() {
         var eventStore = getEventStore();
         accountRepository = Configuration.accountRepository(eventStore);
         snapshottingAccountRepository = Configuration.snapshottingAccountRepository(eventStore, 5);
     }
 
     @Test
-    public void accountRemainsConsistentWithConcurrentModifications_noSnapshots() throws InterruptedException {
+    protected void accountRemainsConsistentWithConcurrentModifications_noSnapshots() throws InterruptedException {
         accountRemainsConsistentWithConcurrentDeposits(accountRepository);
         accountsRemainConsistentWithConcurrentTransfers(accountRepository);
     }
 
     @Test
-    public void accountRemainsConsistentWithConcurrentModifications_withSnapshotting() throws InterruptedException {
+    protected void accountRemainsConsistentWithConcurrentModifications_withSnapshotting() throws InterruptedException {
         accountRemainsConsistentWithConcurrentDeposits(snapshottingAccountRepository);
         accountsRemainConsistentWithConcurrentTransfers(snapshottingAccountRepository);
     }

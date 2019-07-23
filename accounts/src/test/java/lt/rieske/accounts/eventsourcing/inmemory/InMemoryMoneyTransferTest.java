@@ -4,7 +4,7 @@ import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.eventsourcing.EventStore;
 import lt.rieske.accounts.eventsourcing.MoneyTransferTest;
 
-public class InMemoryMoneyTransferTest extends MoneyTransferTest {
+class InMemoryMoneyTransferTest extends MoneyTransferTest {
 
     private final InMemoryEventStore<Account> eventStore = new InMemoryEventStore<>();
 

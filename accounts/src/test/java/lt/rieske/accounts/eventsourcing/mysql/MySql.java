@@ -6,7 +6,7 @@ import org.testcontainers.containers.MySQLContainer;
 
 import javax.sql.DataSource;
 
-public class MySql {
+class MySql {
 
     private static final String DATABASE = "event_store";
 
@@ -14,7 +14,7 @@ public class MySql {
 
     private final DataSource dataSource;
 
-    public MySql() {
+    MySql() {
         mysql.start();
 
         var dataSource = new MysqlDataSource();
@@ -30,11 +30,11 @@ public class MySql {
         flyway.migrate();
     }
 
-    public void stop() {
+    void stop() {
         mysql.stop();
     }
 
-    public DataSource dataSource() {
+    DataSource dataSource() {
         return dataSource;
     }
 }

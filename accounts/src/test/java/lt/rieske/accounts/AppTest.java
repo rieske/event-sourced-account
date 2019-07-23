@@ -1,12 +1,14 @@
 package lt.rieske.accounts;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AppTest {
+class AppTest {
+
     @Test
-    public void appHasAGreeting() {
+    void appHasAGreeting() {
         App classUnderTest = new App();
 
         assertThat(classUnderTest.getGreeting()).isNotNull();

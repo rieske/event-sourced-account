@@ -7,7 +7,7 @@ import lt.rieske.accounts.infrastructure.SerializingEventStore;
 import lt.rieske.accounts.infrastructure.SqlEventStore;
 import lt.rieske.accounts.infrastructure.serialization.JsonEventSerializer;
 
-public class H2MoneyTransferTest extends MoneyTransferTest {
+class H2MoneyTransferTest extends MoneyTransferTest {
 
     private static final H2 H2 = new H2();
 

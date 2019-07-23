@@ -1,11 +1,11 @@
 package lt.rieske.accounts.eventsourcing.mysql;
 
 import lt.rieske.accounts.infrastructure.SqlEventStoreTest;
-import org.junit.AfterClass;
+import org.junit.jupiter.api.AfterAll;
 
 import javax.sql.DataSource;
 
-public class MySqlEventStoreTest extends SqlEventStoreTest {
+class MySqlEventStoreTest extends SqlEventStoreTest {
 
     private static final MySql MYSQL = new MySql();
 
@@ -13,8 +13,8 @@ public class MySqlEventStoreTest extends SqlEventStoreTest {
         return MYSQL.dataSource();
     }
 
-    @AfterClass
-    public static void stopDatabase() {
+    @AfterAll
+    static void stopDatabase() {
         MYSQL.stop();
     }
 }

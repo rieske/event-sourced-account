@@ -12,7 +12,7 @@ import java.util.UUID;
 
 import static java.util.stream.Collectors.toList;
 
-public class InMemoryEventStore<T> implements EventStore<T> {
+class InMemoryEventStore<T> implements EventStore<T> {
     private final Map<UUID, List<SequencedEvent<T>>> aggregateEvents = new HashMap<>();
     private final Map<UUID, SequencedEvent<T>> snapshots = new HashMap<>();
 

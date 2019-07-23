@@ -3,8 +3,8 @@ package lt.rieske.accounts.eventsourcing;
 import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.domain.Operation;
 import lt.rieske.accounts.infrastructure.Configuration;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
@@ -21,8 +21,8 @@ public abstract class MoneyTransferTest {
     private final UUID sourceAccountId = UUID.randomUUID();
     private final UUID targetAccountId = UUID.randomUUID();
 
-    @Before
-    public void init() {
+    @BeforeEach
+    void init() {
         accountRepository = Configuration.accountRepository(getEventStore());
 
         accountRepository.create(sourceAccountId, account -> account.open(ownerId));
@@ -30,7 +30,7 @@ public abstract class MoneyTransferTest {
     }
 
     @Test
-    public void shouldTransferMoneyBetweenAccounts() {
+    void shouldTransferMoneyBetweenAccounts() {
         int transferAmount = 42;
         accountRepository.transact(sourceAccountId, Operation.deposit(transferAmount));
         accountRepository.transact(sourceAccountId, targetAccountId, Operation.transfer(transferAmount));
@@ -43,7 +43,7 @@ public abstract class MoneyTransferTest {
     }
 
     @Test
-    public void shouldFailMoneyTransferWhenSourceHasInsufficientBalance() {
+    void shouldFailMoneyTransferWhenSourceHasInsufficientBalance() {
         int transferAmount = 42;
         accountRepository.transact(sourceAccountId, Operation.deposit(10));
 
@@ -59,7 +59,7 @@ public abstract class MoneyTransferTest {
     }
 
     @Test
-    public void shouldFailMoneyTransferWhenTargetAccountIsClosed() {
+    void shouldFailMoneyTransferWhenTargetAccountIsClosed() {
         int transferAmount = 42;
         accountRepository.transact(sourceAccountId, Operation.deposit(transferAmount));
         accountRepository.transact(targetAccountId, Account::close);
@@ -76,7 +76,7 @@ public abstract class MoneyTransferTest {
     }
 
     @Test
-    public void shouldFailMoneyTransferWhenSourceAccountIsClosed() {
+    void shouldFailMoneyTransferWhenSourceAccountIsClosed() {
         int transferAmount = 42;
         accountRepository.transact(sourceAccountId, Account::close);
 
@@ -92,7 +92,7 @@ public abstract class MoneyTransferTest {
     }
 
     @Test
-    public void shouldNotTransferNegativeAmount() {
+    void shouldNotTransferNegativeAmount() {
         accountRepository.transact(sourceAccountId, Operation.deposit(42));
 
         assertThatThrownBy(() -> accountRepository.transact(sourceAccountId, targetAccountId, Operation.transfer(-1)))

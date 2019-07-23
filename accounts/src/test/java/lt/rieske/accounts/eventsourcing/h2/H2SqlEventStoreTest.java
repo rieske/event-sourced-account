@@ -4,7 +4,7 @@ import lt.rieske.accounts.infrastructure.SqlEventStoreTest;
 
 import javax.sql.DataSource;
 
-public class H2SqlEventStoreTest extends SqlEventStoreTest {
+class H2SqlEventStoreTest extends SqlEventStoreTest {
 
     private static final H2 H2 = new H2();
 

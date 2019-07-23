@@ -1,17 +1,17 @@
 package lt.rieske.accounts.domain;
 
 import lt.rieske.accounts.eventsourcing.Event;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class AccountTest {
+class AccountTest {
 
     @Test
-    public void shouldOpenAnAccount() {
+    void shouldOpenAnAccount() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
@@ -24,7 +24,7 @@ public class AccountTest {
     }
 
     @Test
-    public void shouldThrowWhenOpeningAlreadyOpenAccount() {
+    void shouldThrowWhenOpeningAlreadyOpenAccount() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
@@ -36,7 +36,7 @@ public class AccountTest {
     }
 
     @Test
-    public void shouldDepositMoneyToAccount() {
+    void shouldDepositMoneyToAccount() {
         var accountId = UUID.randomUUID();
         var account = new Account(Event::apply, accountId);
         account.open(UUID.randomUUID());
@@ -46,7 +46,7 @@ public class AccountTest {
     }
 
     @Test
-    public void multipleDepositsShouldAccumulateBalance() {
+    void multipleDepositsShouldAccumulateBalance() {
         var accountId = UUID.randomUUID();
         var account = new Account(Event::apply, accountId);
         account.open(UUID.randomUUID());
@@ -57,7 +57,7 @@ public class AccountTest {
     }
 
     @Test
-    public void shouldThrowWhenDepositingNegativeAmount() {
+    void shouldThrowWhenDepositingNegativeAmount() {
         var accountId = UUID.randomUUID();
         var account = new Account(Event::apply, accountId);
         account.open(UUID.randomUUID());
@@ -67,7 +67,7 @@ public class AccountTest {
     }
 
     @Test
-    public void shouldWithdrawMoney() {
+    void shouldWithdrawMoney() {
         var accountId = UUID.randomUUID();
         var account = new Account(Event::apply, accountId);
         account.open(UUID.randomUUID());
@@ -79,7 +79,7 @@ public class AccountTest {
     }
 
     @Test
-    public void shouldNotWithdrawMoneyWhenBalanceInsufficient() {
+    void shouldNotWithdrawMoneyWhenBalanceInsufficient() {
         var accountId = UUID.randomUUID();
         var account = new Account(Event::apply, accountId);
         account.open(UUID.randomUUID());
@@ -89,7 +89,7 @@ public class AccountTest {
     }
 
     @Test
-    public void shouldThrowWhenWithdrawingNegativeAmount() {
+    void shouldThrowWhenWithdrawingNegativeAmount() {
         var accountId = UUID.randomUUID();
         var account = new Account(Event::apply, accountId);
         account.open(UUID.randomUUID());
@@ -100,7 +100,7 @@ public class AccountTest {
     }
 
     @Test
-    public void shouldCloseAccount() {
+    void shouldCloseAccount() {
         var accountId = UUID.randomUUID();
         var account = new Account(Event::apply, accountId);
         account.open(UUID.randomUUID());
@@ -111,7 +111,7 @@ public class AccountTest {
     }
 
     @Test
-    public void shouldNotCloseAccountWithOutstandingBalance() {
+    void shouldNotCloseAccountWithOutstandingBalance() {
         var accountId = UUID.randomUUID();
         var account = new Account(Event::apply, accountId);
         account.open(UUID.randomUUID());
