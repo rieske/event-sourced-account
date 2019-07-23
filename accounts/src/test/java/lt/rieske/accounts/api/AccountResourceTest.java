@@ -62,6 +62,16 @@ class AccountResourceTest {
     }
 
     @Test
+    void shouldRespondWithBadRequestOnMissingQueryParam() {
+
+        var accountId = UUID.randomUUID();
+        when().post("/account/" + accountId)
+                .then()
+                .statusCode(400)
+                .body("message", equalTo("'owner' query parameter is required"));
+    }
+
+    @Test
     void shouldConflictOnAccountOpeningWhenAccountAlreadyExists() {
 
         var accountId = UUID.randomUUID();

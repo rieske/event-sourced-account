@@ -18,7 +18,7 @@ class AccountResource {
 
     String createAccount(Request request, Response response) {
         var accountId = UUID.fromString(request.params("accountId"));
-        var ownerId = UUID.fromString(request.queryParams("owner"));
+        var ownerId = UUID.fromString(getMandatoryQueryParameter(request, "owner"));
 
         accountService.openAccount(accountId, ownerId);
 
@@ -38,7 +38,7 @@ class AccountResource {
 
     String deposit(Request request, Response response) {
         var accountId = UUID.fromString(request.params("accountId"));
-        int amount = Integer.parseInt(request.queryParams("amount"));
+        int amount = Integer.parseInt(getMandatoryQueryParameter(request, "amount"));
 
         accountService.deposit(accountId, amount);
 
@@ -48,7 +48,7 @@ class AccountResource {
 
     String withdraw(Request request, Response response) {
         var accountId = UUID.fromString(request.params("accountId"));
-        int amount = Integer.parseInt(request.queryParams("amount"));
+        int amount = Integer.parseInt(getMandatoryQueryParameter(request, "amount"));
 
         accountService.withdraw(accountId, amount);
 
@@ -58,8 +58,8 @@ class AccountResource {
 
     String transfer(Request request, Response response) {
         var sourceAccountId = UUID.fromString(request.params("accountId"));
-        var targetAccountId = UUID.fromString(request.queryParams("targetAccount"));
-        int amount = Integer.parseInt(request.queryParams("amount"));
+        var targetAccountId = UUID.fromString(getMandatoryQueryParameter(request, "targetAccount"));
+        int amount = Integer.parseInt(getMandatoryQueryParameter(request, "amount"));
 
         accountService.transfer(sourceAccountId, targetAccountId, amount);
 
@@ -87,6 +87,14 @@ class AccountResource {
     <T extends Exception> void conflict(T e, Request request, Response response) {
         response.status(409);
         response.body("");
+    }
+
+    private String getMandatoryQueryParameter(Request request, String paramName) {
+        var param = request.queryParams(paramName);
+        if (param == null) {
+            throw new IllegalArgumentException(String.format("'%s' query parameter is required", paramName));
+        }
+        return param;
     }
 
     private String accountJson(AccountSnapshot account) {
