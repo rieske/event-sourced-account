@@ -1,6 +1,7 @@
 package lt.rieske.accounts.domain;
 
 import lt.rieske.accounts.eventsourcing.Aggregate;
+import lt.rieske.accounts.eventsourcing.Event;
 
 import java.util.UUID;
 
@@ -16,6 +17,10 @@ public class Account implements Aggregate {
     public Account(EventStream<Account> eventStream, UUID accountId) {
         this.eventStream = eventStream;
         this.accountId = accountId;
+    }
+
+    AccountSnapshot snapshot() {
+        return new AccountSnapshot(accountId, ownerId, balance, open);
     }
 
     public void open(UUID ownerId) {
