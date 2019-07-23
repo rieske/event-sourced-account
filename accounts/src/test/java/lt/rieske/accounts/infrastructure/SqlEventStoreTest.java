@@ -1,6 +1,5 @@
 package lt.rieske.accounts.infrastructure;
 
-import org.junit.AfterClass;
 import org.junit.Test;
 
 import javax.sql.DataSource;
@@ -8,20 +7,15 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
-import static lt.rieske.accounts.infrastructure.MySqlEventStore.uuidToBytes;
+import static lt.rieske.accounts.infrastructure.SqlEventStore.uuidToBytes;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MySqlEventStoreTest {
+public abstract class SqlEventStoreTest {
 
-    private static final MySql MYSQL = new MySql();
+    private final DataSource dataSource = dataSource();
+    private BlobEventStore eventStore = new SqlEventStore(dataSource());
 
-    private final DataSource dataSource = MYSQL.dataSource();
-    private final SqlEventStore eventStore = new MySqlEventStore(MYSQL.dataSource());
-
-    @AfterClass
-    public static void stopDatabase() {
-        MYSQL.stop();
-    }
+    protected abstract DataSource dataSource();
 
     @Test
     public void shouldStoreAnEvent() throws SQLException {

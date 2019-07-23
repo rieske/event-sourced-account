@@ -11,9 +11,9 @@ import java.util.stream.Collectors;
 public class SerializingEventStore<T> implements EventStore<T> {
 
     private final EventSerializer<T> serializer;
-    private final SqlEventStore blobStore;
+    private final BlobEventStore blobStore;
 
-    public SerializingEventStore(EventSerializer<T> serializer, SqlEventStore blobStore) {
+    public SerializingEventStore(EventSerializer<T> serializer, BlobEventStore blobStore) {
         this.serializer = serializer;
         this.blobStore = blobStore;
     }

@@ -1,4 +1,4 @@
-package lt.rieske.accounts.infrastructure;
+package lt.rieske.accounts.eventsourcing.mysql;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
 import org.flywaydb.core.Flyway;

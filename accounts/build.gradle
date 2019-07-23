@@ -31,6 +31,8 @@ dependencies {
     testImplementation 'org.slf4j:slf4j-simple:1.7.26'
     testImplementation 'org.reflections:reflections:0.9.11'
 
+    testImplementation 'com.h2database:h2:1.4.199'
+
     testImplementation "org.testcontainers:mysql:1.11.4"
 }
 
