@@ -48,6 +48,11 @@ class SerializingEventStore<T> implements EventStore<T> {
                 serializer.deserialize(serializedSnapshot.getPayload()));
     }
 
+    @Override
+    public boolean transactionExists(UUID aggregateId, UUID transactionId) {
+        return blobStore.transactionExists(aggregateId, transactionId);
+    }
+
     private SerializedEvent serialize(SequencedEvent<T> e) {
         return new SerializedEvent(e.getAggregateId(), e.getSequenceNumber(), e.getTransactionId(), serializer.serialize(e.getEvent()));
     }

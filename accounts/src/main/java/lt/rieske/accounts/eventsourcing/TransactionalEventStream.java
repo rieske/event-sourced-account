@@ -32,4 +32,5 @@ class TransactionalEventStream<T extends Aggregate> extends ReplayingEventStream
         uncomittedEvents.clear();
         uncomittedSnapshot = null;
     }
+
 }

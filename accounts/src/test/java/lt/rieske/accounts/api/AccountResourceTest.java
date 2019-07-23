@@ -217,12 +217,32 @@ class AccountResourceTest {
         createAccount(accountId, ownerId);
         deposit(accountId, 42);
 
-        when().put("/account/" + accountId + "/withdraw?amount=" + 11)
+        when().put("/account/" + accountId + "/withdraw?amount=" + 11 + "&transactionId=" + UUID.randomUUID())
                 .then()
                 .statusCode(204);
 
         var accountJsonPath = queryAccount(accountId);
         assertThat(accountJsonPath.getInt("balance")).isEqualTo(31);
+    }
+
+    @Test
+    void withdrawalTransactionShouldBeIdempotent() {
+
+        var accountId = UUID.randomUUID();
+        var ownerId = UUID.randomUUID();
+        createAccount(accountId, ownerId);
+        deposit(accountId, 42);
+
+        var txId = UUID.randomUUID();
+        when().put("/account/" + accountId + "/withdraw?amount=" + 30 + "&transactionId=" + txId)
+                .then()
+                .statusCode(204);
+        when().put("/account/" + accountId + "/withdraw?amount=" + 30 + "&transactionId=" + txId)
+                .then()
+                .statusCode(204);
+
+        var accountJsonPath = queryAccount(accountId);
+        assertThat(accountJsonPath.getInt("balance")).isEqualTo(12);
     }
 
     @Test
@@ -233,7 +253,7 @@ class AccountResourceTest {
         createAccount(accountId, ownerId);
         deposit(accountId, 42);
 
-        when().put("/account/" + accountId + "/withdraw?amount=" + 43)
+        when().put("/account/" + accountId + "/withdraw?amount=" + 43 + "&transactionId=" + UUID.randomUUID())
                 .then()
                 .statusCode(400)
                 .body("message", equalTo("Insufficient balance"));
@@ -284,7 +304,7 @@ class AccountResourceTest {
         createAccount(accountId, ownerId);
         deposit(accountId, 42);
 
-        when().put("/account/" + accountId + "/withdraw?amount=-1")
+        when().put("/account/" + accountId + "/withdraw?amount=-1&transactionId=" + UUID.randomUUID())
                 .then()
                 .statusCode(400)
                 .body("message", equalTo("Can not withdraw negative amount: -1"));

@@ -9,4 +9,6 @@ interface BlobEventStore {
 
     List<SerializedEvent> getEvents(UUID aggregateId, long fromVersion);
     SerializedEvent loadLatestSnapshot(UUID aggregateId);
+
+    boolean transactionExists(UUID aggregateId, UUID transactionId);
 }

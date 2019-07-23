@@ -16,8 +16,6 @@ import java.util.UUID;
 
 class SqlEventStore implements BlobEventStore {
 
-    private static final String IDEMPOTENCY_CONSTRAINT_PATTERN = "idempotency_constraint";
-
     private static final String APPEND_EVENT_SQL =
             "INSERT INTO event_store.Event(aggregateId, sequenceNumber, transactionId, payload) VALUES(?, ?, ?, ?)";
     private static final String SELECT_EVENTS_SQL =
@@ -27,6 +25,9 @@ class SqlEventStore implements BlobEventStore {
             "INSERT INTO event_store.Snapshot(aggregateId, sequenceNumber, payload) VALUES(?, ?, ?)";
     private static final String SELECT_LATEST_SNAPSHOT_SQL =
             "SELECT sequenceNumber, payload FROM event_store.Snapshot WHERE aggregateId = ? ORDER BY sequenceNumber DESC LIMIT 1";
+
+    private static final String SELECT_TRANSACTION_SQL =
+            "SELECT sequenceNumber FROM event_store.Event WHERE aggregateId = ? AND transactionId = ?";
 
     private final DataSource dataSource;
 
@@ -46,9 +47,6 @@ class SqlEventStore implements BlobEventStore {
             }
             connection.commit();
         } catch (SQLIntegrityConstraintViolationException e) {
-            if (e.getMessage().contains(IDEMPOTENCY_CONSTRAINT_PATTERN)) {
-                return;
-            }
             throw new ConcurrentModificationException(e);
         } catch (SQLException e) {
             throw new UncheckedIOException(new IOException(e));
@@ -90,6 +88,20 @@ class SqlEventStore implements BlobEventStore {
                 } else {
                     return null;
                 }
+            }
+        } catch (SQLException e) {
+            throw new UncheckedIOException(new IOException(e));
+        }
+    }
+
+    @Override
+    public boolean transactionExists(UUID aggregateId, UUID transactionId) {
+        try (var connection = dataSource.getConnection();
+             var statement = connection.prepareStatement(SELECT_TRANSACTION_SQL)) {
+            statement.setBytes(1, uuidToBytes(aggregateId));
+            statement.setBytes(2, uuidToBytes(transactionId));
+            try (var resultSet = statement.executeQuery()) {
+                return resultSet.next();
             }
         } catch (SQLException e) {
             throw new UncheckedIOException(new IOException(e));

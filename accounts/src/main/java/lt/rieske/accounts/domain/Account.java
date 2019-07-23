@@ -29,10 +29,6 @@ public class Account implements Aggregate {
         eventStream.append(new AccountOpenedEvent(ownerId), this);
     }
 
-    public void deposit(int amount) {
-        deposit(amount, UUID.randomUUID());
-    }
-
     public void deposit(int amount, UUID transactionId) {
         if (amount == 0) {
             return;
@@ -44,7 +40,7 @@ public class Account implements Aggregate {
         eventStream.append(new MoneyDepositedEvent(amount, balance + amount, transactionId), this);
     }
 
-    public void withdraw(int amount) {
+    public void withdraw(int amount, UUID transactionId) {
         if (amount == 0) {
             return;
         }
@@ -55,7 +51,7 @@ public class Account implements Aggregate {
         if (balance < amount) {
             throw new IllegalArgumentException("Insufficient balance");
         }
-        eventStream.append(new MoneyWithdrawnEvent(amount, balance - amount), this);
+        eventStream.append(new MoneyWithdrawnEvent(amount, balance - amount, transactionId), this);
     }
 
     public void close() {

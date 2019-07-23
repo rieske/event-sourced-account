@@ -196,21 +196,22 @@ public abstract class AccountEventSourcingTest {
     void shouldWithdrawMoney() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
-        var txId = UUID.randomUUID();
+        var depositTxId = UUID.randomUUID();
 
         givenEvents(accountId,
                 new AccountOpenedEvent(ownerId),
-                new MoneyDepositedEvent(10, 10, txId)
+                new MoneyDepositedEvent(10, 10, depositTxId)
         );
 
-        accountRepository.transact(accountId, Operation.withdraw(5));
+        var withdrawalTxId = UUID.randomUUID();
+        accountRepository.transact(accountId, Operation.withdraw(5, withdrawalTxId));
 
         var account = accountRepository.query(accountId);
         assertThat(account.balance()).isEqualTo(5);
         assertThat(eventStore.getEvents(accountId, 0)).containsExactly(
                 new SequencedEvent<>(accountId, 1, new AccountOpenedEvent(ownerId)),
-                new SequencedEvent<>(accountId, 2, new MoneyDepositedEvent(10, 10, txId)),
-                new SequencedEvent<>(accountId, 3, new MoneyWithdrawnEvent(5, 5))
+                new SequencedEvent<>(accountId, 2, new MoneyDepositedEvent(10, 10, depositTxId)),
+                new SequencedEvent<>(accountId, 3, new MoneyWithdrawnEvent(5, 5, withdrawalTxId))
         );
     }
 
@@ -221,7 +222,7 @@ public abstract class AccountEventSourcingTest {
         givenEvents(accountId, new AccountOpenedEvent(ownerId));
 
         var account = accountRepository.query(accountId);
-        account.withdraw(0);
+        account.withdraw(0, UUID.randomUUID());
 
         assertThat(account.balance()).isEqualTo(0);
         assertThat(eventStore.getEvents(accountId, 0)).containsExactly(
@@ -240,7 +241,7 @@ public abstract class AccountEventSourcingTest {
         );
 
         var account = accountRepository.query(accountId);
-        assertThatThrownBy(() -> account.withdraw(11)).isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> account.withdraw(11, UUID.randomUUID())).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Insufficient balance");
     }
 

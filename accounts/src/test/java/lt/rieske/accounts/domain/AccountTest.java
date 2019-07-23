@@ -73,7 +73,7 @@ class AccountTest {
         account.open(UUID.randomUUID());
         account.deposit(10, UUID.randomUUID());
 
-        account.withdraw(5);
+        account.withdraw(5, UUID.randomUUID());
 
         assertThat(account.balance()).isEqualTo(5);
     }
@@ -84,7 +84,7 @@ class AccountTest {
         var account = new Account(Event::apply, accountId);
         account.open(UUID.randomUUID());
 
-        assertThatThrownBy(() -> account.withdraw(1)).isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> account.withdraw(1, UUID.randomUUID())).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Insufficient balance");
     }
 
@@ -95,7 +95,7 @@ class AccountTest {
         account.open(UUID.randomUUID());
         account.deposit(100, UUID.randomUUID());
 
-        assertThatThrownBy(() -> account.withdraw(-42)).isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> account.withdraw(-42, UUID.randomUUID())).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Can not withdraw negative amount");
     }
 

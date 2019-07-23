@@ -1,6 +1,7 @@
 package lt.rieske.accounts.eventsourcing;
 
 import lt.rieske.accounts.domain.Account;
+import lt.rieske.accounts.domain.Operation;
 import lt.rieske.accounts.infrastructure.Configuration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,11 +34,26 @@ public abstract class IdempotencyTest {
         accountRepository.create(accountId, account -> account.open(ownerId));
 
         var transactionId = UUID.randomUUID();
-        accountRepository.transact(accountId, account -> account.deposit(10, transactionId));
-        accountRepository.transact(accountId, account -> account.deposit(10, transactionId));
+        accountRepository.transact(accountId, Operation.deposit(10, transactionId));
+        accountRepository.transact(accountId, Operation.deposit(10, transactionId));
 
         var account = accountRepository.query(accountId);
 
         assertThat(account.balance()).isEqualTo(10);
+    }
+
+    @Test
+    void withdrawalTransactionShouldBeIdempotent() {
+        var accountId = UUID.randomUUID();
+        accountRepository.create(accountId, account -> account.open(ownerId));
+        accountRepository.transact(accountId, Operation.deposit(100, UUID.randomUUID()));
+
+        var transactionId = UUID.randomUUID();
+        accountRepository.transact(accountId, Operation.withdraw(10, transactionId));
+        accountRepository.transact(accountId, Operation.withdraw(10, transactionId));
+
+        var account = accountRepository.query(accountId);
+
+        assertThat(account.balance()).isEqualTo(90);
     }
 }

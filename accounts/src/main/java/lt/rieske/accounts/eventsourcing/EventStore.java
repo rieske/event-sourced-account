@@ -9,4 +9,6 @@ public interface EventStore<T> {
 
     List<SequencedEvent<T>> getEvents(UUID aggregateId, long fromVersion);
     SequencedEvent<T> loadSnapshot(UUID aggregateId);
+
+    boolean transactionExists(UUID aggregateId, UUID transactionId);
 }

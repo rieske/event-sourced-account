@@ -42,6 +42,11 @@ class InMemoryEventStore<T> implements EventStore<T> {
         return snapshots.get(aggregateId);
     }
 
+    @Override
+    public boolean transactionExists(UUID aggregateId, UUID transactionId) {
+        return false;
+    }
+
     List<SequencedEvent<T>> getSequencedEvents(UUID aggregateId) {
         return aggregateEvents.getOrDefault(aggregateId, List.of());
     }
