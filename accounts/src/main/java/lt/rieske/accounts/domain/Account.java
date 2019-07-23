@@ -19,6 +19,9 @@ public class Account implements Aggregate {
     }
 
     public void open(UUID ownerId) {
+        if (this.ownerId != null) {
+            throw new IllegalStateException("Account already has an owner");
+        }
         eventStream.append(new AccountOpenedEvent(ownerId), this);
     }
 

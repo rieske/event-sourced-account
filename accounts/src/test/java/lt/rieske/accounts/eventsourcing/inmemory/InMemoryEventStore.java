@@ -21,7 +21,9 @@ public class InMemoryEventStore<T> implements EventStore<T> {
     // One way to ensure this in RDB - primary key on (aggregateId, sequenceNumber)
     @Override
     public synchronized void append(List<SequencedEvent<T>> uncomittedEvents, SequencedEvent<T> uncomittedSnapshot) {
-        uncomittedEvents.forEach(e -> append(e.getAggregateId(), e));
+        validateConsistency(uncomittedEvents);
+
+        uncomittedEvents.forEach(this::append);
         if (uncomittedSnapshot != null) {
             snapshots.put(uncomittedSnapshot.getAggregateId(), uncomittedSnapshot);
         }
@@ -44,15 +46,31 @@ public class InMemoryEventStore<T> implements EventStore<T> {
         return aggregateEvents.getOrDefault(aggregateId, List.of());
     }
 
-    private void append(UUID aggregateId, SequencedEvent<T> event) {
-        var currentEvents = aggregateEvents.computeIfAbsent(aggregateId, id -> new ArrayList<>());
-        if (!currentEvents.isEmpty()) {
-            var lastEvent = currentEvents.get(currentEvents.size() - 1);
-            if (event.getSequenceNumber() <= lastEvent.getSequenceNumber()) {
-                throw new ConcurrentModificationException("Event out of sync, last: " +
-                        lastEvent.getSequenceNumber() + ", trying to append: " + event.getSequenceNumber());
-            }
-        }
+    private void append(SequencedEvent<T> event) {
+        var currentEvents = aggregateEvents.computeIfAbsent(event.getAggregateId(), id -> new ArrayList<>());
         currentEvents.add(event);
+    }
+
+    private void validateConsistency(List<SequencedEvent<T>> uncomittedEvents) {
+        Map<UUID, Long> aggregateVersions = new HashMap<>();
+
+        uncomittedEvents.forEach(event -> {
+            long currentVersion = aggregateVersions.getOrDefault(event.getAggregateId(),
+                    getLatestAggregateVersion(event.getAggregateId()));
+
+            if (event.getSequenceNumber() <= currentVersion) {
+                throw new ConcurrentModificationException("Event out of sync, last: " +
+                        currentVersion + ", trying to append: " + event.getSequenceNumber());
+            }
+            aggregateVersions.put(event.getAggregateId(), event.getSequenceNumber());
+        });
+    }
+
+    private Long getLatestAggregateVersion(UUID aggregateId) {
+        var currentEvents = aggregateEvents.get(aggregateId);
+        if (currentEvents == null || currentEvents.isEmpty()) {
+            return 0L;
+        }
+        return currentEvents.get(currentEvents.size() - 1).getSequenceNumber();
     }
 }

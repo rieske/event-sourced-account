@@ -6,6 +6,7 @@ import lt.rieske.accounts.eventsourcing.EventStore;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
 public class InMemoryAccountConsistencyTest extends AccountConsistencyTest {
 
     private final InMemoryEventStore<Account> eventStore = new InMemoryEventStore<>();
@@ -28,9 +29,11 @@ public class InMemoryAccountConsistencyTest extends AccountConsistencyTest {
     }
 
     private void assertConsistency() {
-        var events = eventStore.getSequencedEvents(aggregateId());
-        for (int i = 0; i < depositCount() * threadCount(); i++) {
-            assertThat(events.get(i).getSequenceNumber()).isEqualTo(i + 1);
+        for (var aggregateId : aggregateIds()) {
+            var events = eventStore.getSequencedEvents(aggregateId);
+            for (int i = 0; i < events.size(); i++) {
+                assertThat(events.get(i).getSequenceNumber()).isEqualTo(i + 1);
+            }
         }
     }
 }

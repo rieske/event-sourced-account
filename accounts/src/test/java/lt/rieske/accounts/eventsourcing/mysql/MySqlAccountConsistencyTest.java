@@ -24,7 +24,7 @@ public class MySqlAccountConsistencyTest extends AccountConsistencyTest {
         return eventStore;
     }
 
-    protected int depositCount() {
+    protected int operationCount() {
         return 10;
     }
 

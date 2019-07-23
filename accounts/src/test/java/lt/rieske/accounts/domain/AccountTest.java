@@ -24,6 +24,18 @@ public class AccountTest {
     }
 
     @Test
+    public void shouldThrowWhenOpeningAlreadyOpenAccount() {
+        var accountId = UUID.randomUUID();
+        var ownerId = UUID.randomUUID();
+
+        var account = new Account(Event::apply, accountId);
+        account.open(ownerId);
+
+        assertThatThrownBy(() -> account.open(UUID.randomUUID())).isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Account already has an owner");
+    }
+
+    @Test
     public void shouldDepositMoneyToAccount() {
         var accountId = UUID.randomUUID();
         var account = new Account(Event::apply, accountId);
