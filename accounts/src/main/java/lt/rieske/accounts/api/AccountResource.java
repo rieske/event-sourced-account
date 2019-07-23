@@ -84,6 +84,11 @@ class AccountResource {
         errorJson(response, 404, e.getMessage());
     }
 
+    <T extends Exception> void conflict(T e, Request request, Response response) {
+        response.status(409);
+        response.body("");
+    }
+
     private String accountJson(AccountSnapshot account) {
         return "{" +
                 "\"accountId\":\"" + account.getAccountId() + "\"," +

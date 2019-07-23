@@ -62,6 +62,17 @@ class AccountResourceTest {
     }
 
     @Test
+    void shouldConflictOnAccountOpeningWhenAccountAlreadyExists() {
+
+        var accountId = UUID.randomUUID();
+        createAccount(accountId, UUID.randomUUID());
+
+        when().post("/account/" + accountId + "?owner=" + UUID.randomUUID())
+                .then()
+                .statusCode(409);
+    }
+
+    @Test
     void shouldQueryAnAccount() {
 
         var accountId = UUID.randomUUID();

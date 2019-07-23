@@ -34,6 +34,10 @@ dependencies {
     
     implementation 'org.flywaydb:flyway-core:5.2.4'
 
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
+
+
+    implementation 'com.h2database:h2:1.4.199'
     implementation 'mysql:mysql-connector-java:8.0.16'
 
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.8'
@@ -41,8 +45,6 @@ dependencies {
     testImplementation 'io.rest-assured:rest-assured:4.0.0'
     testImplementation 'org.slf4j:slf4j-simple:1.7.26'
     testImplementation 'org.reflections:reflections:0.9.11'
-
-    testImplementation 'com.h2database:h2:1.4.199'
 
     testImplementation 'org.testcontainers:mysql:1.11.4'
 

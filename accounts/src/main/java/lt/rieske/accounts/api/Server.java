@@ -3,6 +3,8 @@ package lt.rieske.accounts.api;
 import lt.rieske.accounts.eventsourcing.AggregateNotFoundException;
 import spark.Spark;
 
+import java.util.ConcurrentModificationException;
+
 public class Server {
 
 
@@ -26,6 +28,7 @@ public class Server {
 
         Spark.exception(IllegalArgumentException.class, accountResource::badRequest);
         Spark.exception(AggregateNotFoundException.class, accountResource::notFound);
+        Spark.exception(ConcurrentModificationException.class, accountResource::conflict);
 
         Spark.awaitInitialization();
         return Spark.port();
