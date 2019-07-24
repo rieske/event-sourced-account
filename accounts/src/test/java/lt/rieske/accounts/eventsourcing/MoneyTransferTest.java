@@ -1,8 +1,8 @@
 package lt.rieske.accounts.eventsourcing;
 
+import lt.rieske.accounts.api.ApiConfiguration;
 import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.domain.Operation;
-import lt.rieske.accounts.infrastructure.Configuration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +23,7 @@ public abstract class MoneyTransferTest {
 
     @BeforeEach
     void init() {
-        accountRepository = Configuration.accountRepository(getEventStore());
+        accountRepository = ApiConfiguration.accountRepository(getEventStore());
 
         accountRepository.create(sourceAccountId, Operation.open(ownerId));
         accountRepository.create(targetAccountId, Operation.open(ownerId));

@@ -3,7 +3,7 @@ package lt.rieske.accounts.eventsourcing.h2;
 import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.eventsourcing.AccountConsistencyTest;
 import lt.rieske.accounts.eventsourcing.EventStore;
-import lt.rieske.accounts.infrastructure.Configuration;
+import lt.rieske.accounts.eventstore.Configuration;
 
 class H2AccountConsistencyTest extends AccountConsistencyTest {
 

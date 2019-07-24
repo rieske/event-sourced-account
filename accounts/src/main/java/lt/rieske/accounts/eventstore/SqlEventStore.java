@@ -1,4 +1,4 @@
-package lt.rieske.accounts.infrastructure;
+package lt.rieske.accounts.eventstore;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -31,7 +31,7 @@ class SqlEventStore implements BlobEventStore {
 
     private final DataSource dataSource;
 
-    public SqlEventStore(DataSource dataSource) {
+    SqlEventStore(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 

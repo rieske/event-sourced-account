@@ -1,8 +1,8 @@
 package lt.rieske.accounts.eventsourcing;
 
+import lt.rieske.accounts.api.ApiConfiguration;
 import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.domain.Operation;
-import lt.rieske.accounts.infrastructure.Configuration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,8 +41,8 @@ public abstract class AccountConsistencyTest {
     @BeforeEach
     void init() {
         var eventStore = getEventStore();
-        accountRepository = Configuration.accountRepository(eventStore);
-        snapshottingAccountRepository = Configuration.snapshottingAccountRepository(eventStore, 5);
+        accountRepository = ApiConfiguration.accountRepository(eventStore);
+        snapshottingAccountRepository = ApiConfiguration.snapshottingAccountRepository(eventStore, 5);
     }
 
     @Test

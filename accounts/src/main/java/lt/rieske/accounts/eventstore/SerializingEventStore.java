@@ -1,8 +1,8 @@
-package lt.rieske.accounts.infrastructure;
+package lt.rieske.accounts.eventstore;
 
 import lt.rieske.accounts.eventsourcing.EventStore;
 import lt.rieske.accounts.eventsourcing.SequencedEvent;
-import lt.rieske.accounts.infrastructure.serialization.EventSerializer;
+import lt.rieske.accounts.eventstore.serialization.EventSerializer;
 
 import java.util.List;
 import java.util.UUID;

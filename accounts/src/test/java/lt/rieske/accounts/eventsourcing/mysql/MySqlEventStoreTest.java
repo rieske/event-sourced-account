@@ -1,6 +1,6 @@
 package lt.rieske.accounts.eventsourcing.mysql;
 
-import lt.rieske.accounts.infrastructure.SqlEventStoreTest;
+import lt.rieske.accounts.eventstore.SqlEventStoreTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Tag;
 

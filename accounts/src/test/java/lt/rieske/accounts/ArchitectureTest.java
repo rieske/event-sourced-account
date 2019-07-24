@@ -12,9 +12,9 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 class ArchitectureTest {
 
     @ArchTest
-    static final ArchRule domainShouldNotDependOnInfrastructure =
+    static final ArchRule domainShouldNotDependOnEventstore =
             noClasses().that().resideInAPackage("lt.rieske.accounts.domain")
-                    .should().dependOnClassesThat().resideInAPackage("lt.rieske.accounts.infrastructure");
+                    .should().dependOnClassesThat().resideInAPackage("lt.rieske.accounts.eventstore");
 
     @ArchTest
     static final ArchRule domainShouldNotDependOnApi =
@@ -22,9 +22,9 @@ class ArchitectureTest {
                     .should().dependOnClassesThat().resideInAPackage("lt.rieske.accounts.api");
 
     @ArchTest
-    static final ArchRule eventSourcingShouldNotDependOnInfrastructure =
+    static final ArchRule eventSourcingShouldNotDependOnEventstore =
             noClasses().that().resideInAPackage("lt.rieske.accounts.eventsourcing")
-                    .should().dependOnClassesThat().resideInAPackage("lt.rieske.accounts.infrastructure");
+                    .should().dependOnClassesThat().resideInAPackage("lt.rieske.accounts.eventstore");
 
     @ArchTest
     static final ArchRule eventSourcingShouldNotDependOnApi =
@@ -37,7 +37,7 @@ class ArchitectureTest {
                     .should().dependOnClassesThat().resideInAPackage("lt.rieske.accounts.domain");
 
     @ArchTest
-    static final ArchRule infrastructureShouldNotDependOnApi =
-            noClasses().that().resideInAPackage("lt.rieske.accounts.infrastructure")
+    static final ArchRule eventstoreShouldNotDependOnApi =
+            noClasses().that().resideInAPackage("lt.rieske.accounts.eventstore")
                     .should().dependOnClassesThat().resideInAPackage("lt.rieske.accounts.api");
 }

@@ -1,8 +1,8 @@
-package lt.rieske.accounts.infrastructure.serialization;
+package lt.rieske.accounts.eventstore.serialization;
 
 import lt.rieske.accounts.eventsourcing.Event;
 import lt.rieske.accounts.eventsourcing.SequencedEvent;
-import lt.rieske.accounts.infrastructure.SerializedEvent;
+import lt.rieske.accounts.eventstore.SerializedEvent;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package lt.rieske.accounts.infrastructure;
+package lt.rieske.accounts.eventstore;
 
 import java.util.List;
 import java.util.UUID;

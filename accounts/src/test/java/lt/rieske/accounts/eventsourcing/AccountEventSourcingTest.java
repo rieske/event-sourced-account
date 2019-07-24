@@ -1,12 +1,12 @@
 package lt.rieske.accounts.eventsourcing;
 
+import lt.rieske.accounts.api.ApiConfiguration;
 import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.domain.AccountOpenedEvent;
 import lt.rieske.accounts.domain.AccountSnapshot;
 import lt.rieske.accounts.domain.MoneyDepositedEvent;
 import lt.rieske.accounts.domain.MoneyWithdrawnEvent;
 import lt.rieske.accounts.domain.Operation;
-import lt.rieske.accounts.infrastructure.Configuration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -29,8 +29,8 @@ public abstract class AccountEventSourcingTest {
     @BeforeEach
     void init() {
         eventStore = getEventStore();
-        accountRepository = Configuration.accountRepository(eventStore);
-        snapshottingAccountRepository = Configuration.snapshottingAccountRepository(eventStore, 5);
+        accountRepository = ApiConfiguration.accountRepository(eventStore);
+        snapshottingAccountRepository = ApiConfiguration.snapshottingAccountRepository(eventStore, 5);
     }
 
     @SafeVarargs

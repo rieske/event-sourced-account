@@ -1,6 +1,6 @@
 package lt.rieske.accounts.eventsourcing.h2;
 
-import lt.rieske.accounts.infrastructure.SqlEventStoreTest;
+import lt.rieske.accounts.eventstore.SqlEventStoreTest;
 
 import javax.sql.DataSource;
 

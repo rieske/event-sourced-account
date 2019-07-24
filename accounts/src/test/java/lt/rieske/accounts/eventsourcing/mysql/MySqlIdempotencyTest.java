@@ -3,7 +3,7 @@ package lt.rieske.accounts.eventsourcing.mysql;
 import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.eventsourcing.EventStore;
 import lt.rieske.accounts.eventsourcing.IdempotencyTest;
-import lt.rieske.accounts.infrastructure.Configuration;
+import lt.rieske.accounts.eventstore.Configuration;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Tag;
 

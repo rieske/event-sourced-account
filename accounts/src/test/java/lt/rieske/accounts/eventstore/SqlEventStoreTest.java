@@ -1,4 +1,4 @@
-package lt.rieske.accounts.infrastructure;
+package lt.rieske.accounts.eventstore;
 
 import org.junit.jupiter.api.Test;
 
@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
-import static lt.rieske.accounts.infrastructure.SqlEventStore.uuidToBytes;
+import static lt.rieske.accounts.eventstore.SqlEventStore.uuidToBytes;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class SqlEventStoreTest {

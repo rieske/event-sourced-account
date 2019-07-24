@@ -1,4 +1,4 @@
-package lt.rieske.accounts.infrastructure.serialization;
+package lt.rieske.accounts.eventstore.serialization;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -12,7 +12,7 @@ import lt.rieske.accounts.domain.MoneyDepositedEvent;
 import lt.rieske.accounts.domain.MoneyWithdrawnEvent;
 import lt.rieske.accounts.eventsourcing.Event;
 import lt.rieske.accounts.eventsourcing.SequencedEvent;
-import lt.rieske.accounts.infrastructure.SerializedEvent;
+import lt.rieske.accounts.eventstore.SerializedEvent;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
