@@ -24,6 +24,12 @@ task integrationTest(type: Test) {
     maxParallelForks = 8
 }
 
+configurations.all {
+    resolutionStrategy {
+        failOnVersionConflict()
+    }
+}
+
 dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.8'
     implementation 'org.projectlombok:lombok:1.18.8'
@@ -44,16 +50,23 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.8'
     testImplementation 'org.assertj:assertj-core:3.11.1'
     testImplementation 'io.rest-assured:rest-assured:4.0.0'
-    testImplementation 'org.slf4j:slf4j-simple:1.7.26'
     testImplementation 'org.reflections:reflections:0.9.11'
 
-    testImplementation 'org.testcontainers:mysql:1.11.4'
+    testImplementation ('org.testcontainers:mysql:1.11.4') {
+        exclude group: 'org.hamcrest', module: 'hamcrest-core'
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+        exclude group: 'javax.xml.bind', module: 'jaxb-api'
+        exclude group: 'net.java.dev.jna', module: 'jna-platform'
+    }
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
 
     testImplementation 'com.tngtech.archunit:archunit-junit5-api:0.10.2'
-    testRuntimeOnly 'com.tngtech.archunit:archunit-junit5-engine:0.10.2'
+    testRuntimeOnly ('com.tngtech.archunit:archunit-junit5-engine:0.10.2') {
+        exclude group: 'org.junit.platform', module: 'junit-platform-engine'
+        exclude group: 'org.junit.jupiter', module: 'junit-jupiter-engine'
+    }
 }
 
 mainClassName = 'lt.rieske.accounts.App'
