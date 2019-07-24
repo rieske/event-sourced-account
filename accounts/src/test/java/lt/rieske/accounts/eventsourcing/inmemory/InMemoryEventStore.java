@@ -16,9 +16,12 @@ class InMemoryEventStore<T> implements EventStore<T> {
     private final Map<UUID, List<SequencedEvent<T>>> aggregateEvents = new HashMap<>();
     private final Map<UUID, SequencedEvent<T>> snapshots = new HashMap<>();
 
+    private final Map<String, Long> aggregateTransactionVersions = new HashMap<>();
+
     // Synchronized block here simulates what a persistence engine of choice should do - ensure consistency
-    // Events can only be written in sequence.
+    // Events can only be written in sequence per aggregate.
     // One way to ensure this in RDB - primary key on (aggregateId, sequenceNumber)
+    // Event writes have to happen in a transaction - either all get written or none
     @Override
     public synchronized void append(List<SequencedEvent<T>> uncomittedEvents, SequencedEvent<T> uncomittedSnapshot) {
         validateConsistency(uncomittedEvents);
@@ -44,7 +47,7 @@ class InMemoryEventStore<T> implements EventStore<T> {
 
     @Override
     public boolean transactionExists(UUID aggregateId, UUID transactionId) {
-        return false;
+        return aggregateTransactionVersions.get(aggregateTransaction(aggregateId, transactionId)) != null;
     }
 
     List<SequencedEvent<T>> getSequencedEvents(UUID aggregateId) {
@@ -54,6 +57,9 @@ class InMemoryEventStore<T> implements EventStore<T> {
     private void append(SequencedEvent<T> event) {
         var currentEvents = aggregateEvents.computeIfAbsent(event.getAggregateId(), id -> new ArrayList<>());
         currentEvents.add(event);
+
+        var transactionId = event.getTransactionId() != null ? event.getTransactionId() : UUID.randomUUID();
+        aggregateTransactionVersions.put(aggregateTransaction(event.getAggregateId(), transactionId), event.getSequenceNumber());
     }
 
     private void validateConsistency(List<SequencedEvent<T>> uncomittedEvents) {
@@ -69,6 +75,10 @@ class InMemoryEventStore<T> implements EventStore<T> {
             }
             aggregateVersions.put(event.getAggregateId(), event.getSequenceNumber());
         });
+    }
+
+    private String aggregateTransaction(UUID aggregateId, UUID transactionId) {
+        return aggregateId.toString() + transactionId.toString();
     }
 
     private Long getLatestAggregateVersion(UUID aggregateId) {
