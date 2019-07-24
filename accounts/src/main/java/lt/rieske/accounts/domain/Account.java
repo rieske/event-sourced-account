@@ -1,13 +1,12 @@
 package lt.rieske.accounts.domain;
 
-import lt.rieske.accounts.eventsourcing.Aggregate;
 import lt.rieske.accounts.eventsourcing.EventStream;
 
 import java.util.UUID;
 
 
-public class Account implements Aggregate, AccountEventsVisitor {
-    private final EventStream<Account> eventStream;
+public class Account implements AccountEventsVisitor {
+    private final EventStream<Account, AccountEventsVisitor> eventStream;
 
     private final UUID accountId;
 
@@ -15,20 +14,20 @@ public class Account implements Aggregate, AccountEventsVisitor {
     private long balance;
     private boolean open;
 
-    public Account(EventStream<Account> eventStream, UUID accountId) {
+    public Account(EventStream<Account, AccountEventsVisitor> eventStream, UUID accountId) {
         this.eventStream = eventStream;
         this.accountId = accountId;
     }
 
-    public AccountSnapshot snapshot() {
-        return new AccountSnapshot(accountId, ownerId, balance, open);
+    public AccountSnapshot<AccountEventsVisitor> snapshot() {
+        return new AccountSnapshot<>(accountId, ownerId, balance, open);
     }
 
     public void open(UUID ownerId) {
         if (this.ownerId != null) {
             throw new IllegalStateException("Account already has an owner");
         }
-        eventStream.append(new AccountOpenedEvent<>(ownerId), this);
+        eventStream.append(new AccountOpenedEvent<>(ownerId), this, accountId);
     }
 
     public void deposit(long amount) {
@@ -39,7 +38,7 @@ public class Account implements Aggregate, AccountEventsVisitor {
         if (amount < 0) {
             throw new IllegalArgumentException("Can not deposit negative amount: " + amount);
         }
-        eventStream.append(new MoneyDepositedEvent<>(amount, balance + amount), this);
+        eventStream.append(new MoneyDepositedEvent<>(amount, balance + amount), this, accountId);
     }
 
     public void withdraw(long amount) {
@@ -53,17 +52,16 @@ public class Account implements Aggregate, AccountEventsVisitor {
         if (balance < amount) {
             throw new IllegalArgumentException("Insufficient balance");
         }
-        eventStream.append(new MoneyWithdrawnEvent<>(amount, balance - amount), this);
+        eventStream.append(new MoneyWithdrawnEvent<>(amount, balance - amount), this, accountId);
     }
 
     public void close() {
         if (balance != 0) {
             throw new IllegalStateException("Balance outstanding");
         }
-        eventStream.append(new AccountClosedEvent<>(), this);
+        eventStream.append(new AccountClosedEvent<>(), this, accountId);
     }
 
-    @Override
     public UUID id() {
         return accountId;
     }

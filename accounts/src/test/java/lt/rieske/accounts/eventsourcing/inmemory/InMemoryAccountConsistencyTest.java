@@ -1,6 +1,6 @@
 package lt.rieske.accounts.eventsourcing.inmemory;
 
-import lt.rieske.accounts.domain.Account;
+import lt.rieske.accounts.domain.AccountEventsVisitor;
 import lt.rieske.accounts.eventsourcing.AccountConsistencyTest;
 import lt.rieske.accounts.eventsourcing.EventStore;
 import org.junit.jupiter.api.Test;
@@ -10,10 +10,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class InMemoryAccountConsistencyTest extends AccountConsistencyTest {
 
-    private final InMemoryEventStore<Account> eventStore = new InMemoryEventStore<>();
+    private final InMemoryEventStore<AccountEventsVisitor> eventStore = new InMemoryEventStore<>();
 
     @Override
-    protected EventStore<Account> getEventStore() {
+    protected EventStore<AccountEventsVisitor> getEventStore() {
         return eventStore;
     }
 

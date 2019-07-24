@@ -5,26 +5,26 @@ import java.util.List;
 import java.util.UUID;
 
 
-class TransactionalEventStream<T extends Aggregate> extends ReplayingEventStream<T> {
+class TransactionalEventStream<A extends E, E> extends ReplayingEventStream<A, E> {
 
-    private final Snapshotter<T> snapshotter;
+    private final Snapshotter<A, E> snapshotter;
 
-    private List<SequencedEvent<T>> uncomittedEvents = new ArrayList<>();
-    private SequencedEvent<T> uncomittedSnapshot;
+    private List<SequencedEvent<E>> uncomittedEvents = new ArrayList<>();
+    private SequencedEvent<E> uncomittedSnapshot;
 
-    TransactionalEventStream(EventStore<T> eventStore, Snapshotter<T> snapshotter) {
+    TransactionalEventStream(EventStore<E> eventStore, Snapshotter<A, E> snapshotter) {
         super(eventStore);
         this.snapshotter = snapshotter;
     }
 
     @Override
-    public void append(Event<T> event, T aggregate) {
+    public void append(Event<E> event, A aggregate, UUID aggregateId) {
         event.apply(aggregate);
-        var currentVersion = aggregateVersions.compute(aggregate.id(), (id, version) -> version != null ? version + 1 : 1);
-        uncomittedEvents.add(new SequencedEvent<>(aggregate.id(), currentVersion, null, event));
+        var currentVersion = aggregateVersions.compute(aggregateId, (id, version) -> version != null ? version + 1 : 1);
+        uncomittedEvents.add(new SequencedEvent<>(aggregateId, currentVersion, null, event));
         var snapshotEvent = snapshotter.takeSnapshot(aggregate, currentVersion);
         if (snapshotEvent != null) {
-            uncomittedSnapshot = new SequencedEvent<>(aggregate.id(), currentVersion, null, snapshotEvent);
+            uncomittedSnapshot = new SequencedEvent<>(aggregateId, currentVersion, null, snapshotEvent);
         }
     }
 

@@ -2,6 +2,7 @@ package lt.rieske.accounts.eventsourcing;
 
 import lt.rieske.accounts.api.ApiConfiguration;
 import lt.rieske.accounts.domain.Account;
+import lt.rieske.accounts.domain.AccountEventsVisitor;
 import lt.rieske.accounts.domain.Operation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,9 +14,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public abstract class MoneyTransferTest {
 
-    private AggregateRepository<Account> accountRepository;
+    private AggregateRepository<Account, AccountEventsVisitor> accountRepository;
 
-    protected abstract EventStore<Account> getEventStore();
+    protected abstract EventStore<AccountEventsVisitor> getEventStore();
 
     private final UUID ownerId = UUID.randomUUID();
     private final UUID sourceAccountId = UUID.randomUUID();

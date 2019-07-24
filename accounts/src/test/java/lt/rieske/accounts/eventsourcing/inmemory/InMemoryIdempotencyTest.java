@@ -1,15 +1,15 @@
 package lt.rieske.accounts.eventsourcing.inmemory;
 
-import lt.rieske.accounts.domain.Account;
+import lt.rieske.accounts.domain.AccountEventsVisitor;
 import lt.rieske.accounts.eventsourcing.EventStore;
 import lt.rieske.accounts.eventsourcing.IdempotencyTest;
 
 class InMemoryIdempotencyTest extends IdempotencyTest {
 
-    private final InMemoryEventStore<Account> eventStore = new InMemoryEventStore<>();
+    private final InMemoryEventStore<AccountEventsVisitor> eventStore = new InMemoryEventStore<>();
 
     @Override
-    protected EventStore<Account> getEventStore() {
+    protected EventStore<AccountEventsVisitor> getEventStore() {
         return eventStore;
     }
 

@@ -392,22 +392,22 @@ class AccountResourceTest {
                 .statusCode(200)
                 .header("Content-Type", equalTo("application/json"))
                 .body("size()", equalTo(3))
-                .body("[0].aggregateId", equalTo(accountId.toString()))
                 .body("[0].sequenceNumber", equalTo(1))
                 .body("[0].transactionId", notNullValue())
-                .body("[0].event.ownerId", equalTo(ownerId.toString()))
+                .body("[0].type", equalTo("AccountOpenedEvent"))
+                .body("[0].ownerId", equalTo(ownerId.toString()))
 
-                .body("[1].aggregateId", equalTo(accountId.toString()))
                 .body("[1].sequenceNumber", equalTo(2))
                 .body("[1].transactionId", notNullValue())
-                .body("[1].event.amountDeposited", equalTo(5))
-                .body("[1].event.balance", equalTo(5))
+                .body("[1].type", equalTo("MoneyDepositedEvent"))
+                .body("[1].amountDeposited", equalTo(5))
+                .body("[1].balance", equalTo(5))
 
-                .body("[2].aggregateId", equalTo(accountId.toString()))
                 .body("[2].sequenceNumber", equalTo(3))
                 .body("[2].transactionId", notNullValue())
-                .body("[2].event.amountDeposited", equalTo(12))
-                .body("[2].event.balance", equalTo(17));
+                .body("[2].type", equalTo("MoneyDepositedEvent"))
+                .body("[2].amountDeposited", equalTo(12))
+                .body("[2].balance", equalTo(17));
     }
 
     @Test

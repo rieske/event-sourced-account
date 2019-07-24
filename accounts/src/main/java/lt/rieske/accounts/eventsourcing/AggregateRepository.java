@@ -5,29 +5,29 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 
-public class AggregateRepository<T extends Aggregate> {
-    private final EventStore<T> eventStore;
-    private final AggregateFactory<T> aggregateFactory;
-    private final Snapshotter<T> snapshotter;
+public class AggregateRepository<A extends E, E> {
+    private final EventStore<E> eventStore;
+    private final AggregateFactory<A> aggregateFactory;
+    private final Snapshotter<A, E> snapshotter;
 
-    public AggregateRepository(EventStore<T> eventStore, AggregateFactory<T> aggregateFactory) {
+    public AggregateRepository(EventStore<E> eventStore, AggregateFactory<A> aggregateFactory) {
         this(eventStore, aggregateFactory, (aggregate, version) -> null);
     }
 
-    public AggregateRepository(EventStore<T> eventStore, AggregateFactory<T> aggregateFactory, Snapshotter<T> snapshotter) {
+    public AggregateRepository(EventStore<E> eventStore, AggregateFactory<A> aggregateFactory, Snapshotter<A, E> snapshotter) {
         this.eventStore = eventStore;
         this.aggregateFactory = aggregateFactory;
         this.snapshotter = snapshotter;
     }
 
-    public void create(UUID aggregateId, UUID transactionId, Consumer<T> transaction) {
+    public void create(UUID aggregateId, UUID transactionId, Consumer<A> transaction) {
         var eventStream = transactionalEventStream();
         var aggregate = aggregateFactory.makeAggregate(eventStream, aggregateId);
         transaction.accept(aggregate);
         eventStream.commit(transactionId);
     }
 
-    public void transact(UUID aggregateId, UUID transactionId, Consumer<T> transaction) {
+    public void transact(UUID aggregateId, UUID transactionId, Consumer<A> transaction) {
         if (eventStore.transactionExists(aggregateId, transactionId)) {
             return;
         }
@@ -38,7 +38,7 @@ public class AggregateRepository<T extends Aggregate> {
         eventStream.commit(transactionId);
     }
 
-    public void transact(UUID aggregateId1, UUID aggregateId2, UUID transactionId, BiConsumer<T, T> transaction) {
+    public void transact(UUID aggregateId1, UUID aggregateId2, UUID transactionId, BiConsumer<A, A> transaction) {
         if (eventStore.transactionExists(aggregateId1, transactionId) &&
                 eventStore.transactionExists(aggregateId2, transactionId)) {
             return;
@@ -49,21 +49,21 @@ public class AggregateRepository<T extends Aggregate> {
         eventStream.commit(transactionId);
     }
 
-    public T query(UUID aggregateId) {
+    public A query(UUID aggregateId) {
         return loadAggregate(readOnlyEventStream(), aggregateId);
     }
 
-    private T loadAggregate(ReplayingEventStream<T> eventStream, UUID aggregateId) {
+    private A loadAggregate(ReplayingEventStream<A, E> eventStream, UUID aggregateId) {
         var aggregate = aggregateFactory.makeAggregate(eventStream, aggregateId);
-        eventStream.replay(aggregate);
+        eventStream.replay(aggregate, aggregateId);
         return aggregate;
     }
 
-    private TransactionalEventStream<T> transactionalEventStream() {
+    private TransactionalEventStream<A, E> transactionalEventStream() {
         return new TransactionalEventStream<>(eventStore, snapshotter);
     }
 
-    private ReplayingEventStream<T> readOnlyEventStream() {
+    private ReplayingEventStream<A, E> readOnlyEventStream() {
         return new ReplayingEventStream<>(eventStore);
     }
 }

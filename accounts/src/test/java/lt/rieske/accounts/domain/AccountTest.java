@@ -15,7 +15,7 @@ class AccountTest {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
-        var account = new Account(Event::apply, accountId);
+        var account = new Account(this::apply, accountId);
         account.open(ownerId);
 
         assertThat(account.id()).isEqualTo(accountId);
@@ -28,7 +28,7 @@ class AccountTest {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
 
-        var account = new Account(Event::apply, accountId);
+        var account = new Account(this::apply, accountId);
         account.open(ownerId);
 
         assertThatThrownBy(() -> account.open(UUID.randomUUID())).isInstanceOf(IllegalStateException.class)
@@ -38,7 +38,7 @@ class AccountTest {
     @Test
     void shouldDepositMoneyToAccount() {
         var accountId = UUID.randomUUID();
-        var account = new Account(Event::apply, accountId);
+        var account = new Account(this::apply, accountId);
         account.open(UUID.randomUUID());
         account.deposit(42);
 
@@ -48,7 +48,7 @@ class AccountTest {
     @Test
     void multipleDepositsShouldAccumulateBalance() {
         var accountId = UUID.randomUUID();
-        var account = new Account(Event::apply, accountId);
+        var account = new Account(this::apply, accountId);
         account.open(UUID.randomUUID());
         account.deposit(1);
         account.deposit(1);
@@ -59,7 +59,7 @@ class AccountTest {
     @Test
     void shouldThrowWhenDepositingNegativeAmount() {
         var accountId = UUID.randomUUID();
-        var account = new Account(Event::apply, accountId);
+        var account = new Account(this::apply, accountId);
         account.open(UUID.randomUUID());
 
         assertThatThrownBy(() -> account.deposit(-42)).isInstanceOf(IllegalArgumentException.class)
@@ -69,7 +69,7 @@ class AccountTest {
     @Test
     void shouldWithdrawMoney() {
         var accountId = UUID.randomUUID();
-        var account = new Account(Event::apply, accountId);
+        var account = new Account(this::apply, accountId);
         account.open(UUID.randomUUID());
         account.deposit(10);
 
@@ -81,7 +81,7 @@ class AccountTest {
     @Test
     void shouldNotWithdrawMoneyWhenBalanceInsufficient() {
         var accountId = UUID.randomUUID();
-        var account = new Account(Event::apply, accountId);
+        var account = new Account(this::apply, accountId);
         account.open(UUID.randomUUID());
 
         assertThatThrownBy(() -> account.withdraw(1)).isInstanceOf(IllegalArgumentException.class)
@@ -91,7 +91,7 @@ class AccountTest {
     @Test
     void shouldThrowWhenWithdrawingNegativeAmount() {
         var accountId = UUID.randomUUID();
-        var account = new Account(Event::apply, accountId);
+        var account = new Account(this::apply, accountId);
         account.open(UUID.randomUUID());
         account.deposit(100);
 
@@ -102,7 +102,7 @@ class AccountTest {
     @Test
     void shouldCloseAccount() {
         var accountId = UUID.randomUUID();
-        var account = new Account(Event::apply, accountId);
+        var account = new Account(this::apply, accountId);
         account.open(UUID.randomUUID());
 
         account.close();
@@ -113,12 +113,16 @@ class AccountTest {
     @Test
     void shouldNotCloseAccountWithOutstandingBalance() {
         var accountId = UUID.randomUUID();
-        var account = new Account(Event::apply, accountId);
+        var account = new Account(this::apply, accountId);
         account.open(UUID.randomUUID());
         account.deposit(10);
 
         assertThatThrownBy(account::close).isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Balance outstanding");
+    }
+
+    void apply(Event<AccountEventsVisitor> event, Account aggregate, UUID aggregateId) {
+        event.apply(aggregate);
     }
 
 }

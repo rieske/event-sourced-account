@@ -1,7 +1,6 @@
 package lt.rieske.accounts.api;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lt.rieske.accounts.domain.AccountSnapshot;
 import spark.Request;
 import spark.Response;
 
@@ -13,7 +12,6 @@ class AccountResource {
     private static final String APPLICATION_JSON = "application/json";
 
     private final AccountService accountService;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     AccountResource(AccountService accountService) {
         this.accountService = accountService;
@@ -30,13 +28,13 @@ class AccountResource {
         return "";
     }
 
-    String getAccount(Request request, Response response) throws JsonProcessingException {
+    String getAccount(Request request, Response response) {
         var accountId = accountIdPathParam(request);
 
         var account = accountService.queryAccount(accountId);
 
         response.type(APPLICATION_JSON);
-        return objectMapper.writeValueAsString(account);//accountJson(account);
+        return accountJson(account);
     }
 
     String deposit(Request request, Response response) {
@@ -82,13 +80,13 @@ class AccountResource {
         return "";
     }
 
-    public Object getEvents(Request request, Response response) throws JsonProcessingException {
+    public Object getEvents(Request request, Response response) {
         var accountId = accountIdPathParam(request);
 
         var events = accountService.getEvents(accountId);
 
         response.type(APPLICATION_JSON);
-        return objectMapper.writeValueAsString(events);
+        return new EventStreamJsonSerializer().toJson(events);
     }
 
     <T extends Exception> void badRequest(T e, Request request, Response response) {
@@ -122,6 +120,15 @@ class AccountResource {
             throw new IllegalArgumentException(String.format("'%s' query parameter is required", paramName));
         }
         return param;
+    }
+
+    private String accountJson(AccountSnapshot account) {
+        return "{" +
+                "\"accountId\":\"" + account.getAccountId() + "\"," +
+                "\"ownerId\":\"" + account.getOwnerId() + "\"," +
+                "\"balance\":" + account.getBalance() + "," +
+                "\"open\":" + account.isOpen() + "," +
+                "}";
     }
 
     private void errorJson(Response response, int status, String message) {

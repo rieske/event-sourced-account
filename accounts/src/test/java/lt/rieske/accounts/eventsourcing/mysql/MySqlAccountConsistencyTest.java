@@ -1,6 +1,6 @@
 package lt.rieske.accounts.eventsourcing.mysql;
 
-import lt.rieske.accounts.domain.Account;
+import lt.rieske.accounts.domain.AccountEventsVisitor;
 import lt.rieske.accounts.eventsourcing.AccountConsistencyTest;
 import lt.rieske.accounts.eventsourcing.EventStore;
 import lt.rieske.accounts.eventstore.Configuration;
@@ -12,7 +12,7 @@ class MySqlAccountConsistencyTest extends AccountConsistencyTest {
 
     private static final MySql MYSQL = new MySql();
 
-    private EventStore<Account> eventStore = Configuration.accountEventStore(MYSQL.dataSource());
+    private EventStore<AccountEventsVisitor> eventStore = Configuration.accountEventStore(MYSQL.dataSource());
 
     @AfterAll
     static void stopDatabase() {
@@ -20,7 +20,7 @@ class MySqlAccountConsistencyTest extends AccountConsistencyTest {
     }
 
     @Override
-    protected EventStore<Account> getEventStore() {
+    protected EventStore<AccountEventsVisitor> getEventStore() {
         return eventStore;
     }
 

@@ -1,9 +1,8 @@
 package lt.rieske.accounts.domain;
 
-import lt.rieske.accounts.eventsourcing.Event;
 import lt.rieske.accounts.eventsourcing.Snapshotter;
 
-public class AccountSnapshotter implements Snapshotter<Account> {
+public class AccountSnapshotter implements Snapshotter<Account, AccountEventsVisitor> {
 
     private final int snapshottingFrequencyEvents;
 
@@ -12,7 +11,7 @@ public class AccountSnapshotter implements Snapshotter<Account> {
     }
 
     @Override
-    public Event<Account> takeSnapshot(Account account, long version) {
+    public AccountSnapshot<AccountEventsVisitor> takeSnapshot(Account account, long version) {
         if (version % snapshottingFrequencyEvents == 0) {
             return account.snapshot();
         }

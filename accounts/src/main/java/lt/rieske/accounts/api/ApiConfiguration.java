@@ -1,6 +1,7 @@
 package lt.rieske.accounts.api;
 
 import lt.rieske.accounts.domain.Account;
+import lt.rieske.accounts.domain.AccountEventsVisitor;
 import lt.rieske.accounts.domain.AccountSnapshotter;
 import lt.rieske.accounts.eventsourcing.AggregateRepository;
 import lt.rieske.accounts.eventsourcing.EventStore;
@@ -18,11 +19,11 @@ public class ApiConfiguration {
         return new Server(accountResource);
     }
 
-    public static AggregateRepository<Account> accountRepository(EventStore<Account> eventStore) {
+    public static AggregateRepository<Account, AccountEventsVisitor> accountRepository(EventStore<AccountEventsVisitor> eventStore) {
         return new AggregateRepository<>(eventStore, Account::new);
     }
 
-    public static AggregateRepository<Account> snapshottingAccountRepository(EventStore<Account> eventStore, int snapshottingFrequency) {
+    public static AggregateRepository<Account, AccountEventsVisitor> snapshottingAccountRepository(EventStore<AccountEventsVisitor> eventStore, int snapshottingFrequency) {
         return new AggregateRepository<>(eventStore, Account::new, new AccountSnapshotter(snapshottingFrequency));
     }
 

@@ -5,34 +5,34 @@ import java.util.Map;
 import java.util.UUID;
 
 
-class ReplayingEventStream<T extends Aggregate> implements EventStream<T> {
+class ReplayingEventStream<A extends E, E> implements EventStream<A, E> {
 
-    protected final EventStore<T> eventStore;
+    protected final EventStore<E> eventStore;
 
     final Map<UUID, Long> aggregateVersions = new HashMap<>();
 
-    ReplayingEventStream(EventStore<T> eventStore) {
+    ReplayingEventStream(EventStore<E> eventStore) {
         this.eventStore = eventStore;
     }
 
     @Override
-    public void append(Event<T> event, T aggregate) {
+    public void append(Event<E> event, A aggregate, UUID aggregateId) {
         throw new UnsupportedOperationException("Can not append to read only event stream");
     }
 
-    void replay(T aggregate) {
-        long currentVersion = applySnapshot(aggregate);
-        currentVersion = replayEvents(aggregate, currentVersion);
+    void replay(A aggregate, UUID aggregateId) {
+        long currentVersion = applySnapshot(aggregate, aggregateId);
+        currentVersion = replayEvents(aggregate, currentVersion, aggregateId);
 
         if (currentVersion == 0) {
-            throw new AggregateNotFoundException(aggregate.id());
+            throw new AggregateNotFoundException(aggregateId);
         }
 
-        aggregateVersions.put(aggregate.id(), currentVersion);
+        aggregateVersions.put(aggregateId, currentVersion);
     }
 
-    private long applySnapshot(T aggregate) {
-        var snapshot = eventStore.loadSnapshot(aggregate.id());
+    private long applySnapshot(A aggregate, UUID aggregateId) {
+        var snapshot = eventStore.loadSnapshot(aggregateId);
         if (snapshot != null) {
             snapshot.apply(aggregate);
             return snapshot.getSequenceNumber();
@@ -40,8 +40,8 @@ class ReplayingEventStream<T extends Aggregate> implements EventStream<T> {
         return 0;
     }
 
-    private long replayEvents(T aggregate, long startingVersion) {
-        var events = eventStore.getEvents(aggregate.id(), startingVersion);
+    private long replayEvents(A aggregate, long startingVersion, UUID aggregateId) {
+        var events = eventStore.getEvents(aggregateId, startingVersion);
         long currentVersion = startingVersion;
         for (var event : events) {
             event.apply(aggregate);

@@ -2,6 +2,7 @@ package lt.rieske.accounts.eventsourcing;
 
 import lt.rieske.accounts.api.ApiConfiguration;
 import lt.rieske.accounts.domain.Account;
+import lt.rieske.accounts.domain.AccountEventsVisitor;
 import lt.rieske.accounts.domain.Operation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,14 +18,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class AccountConsistencyTest {
 
-    private AggregateRepository<Account> accountRepository;
-    private AggregateRepository<Account> snapshottingAccountRepository;
+    private AggregateRepository<Account, AccountEventsVisitor> accountRepository;
+    private AggregateRepository<Account, AccountEventsVisitor> snapshottingAccountRepository;
 
     private final Set<UUID> accountIds = new HashSet<>();
 
     private UUID ownerId = UUID.randomUUID();
 
-    protected abstract EventStore<Account> getEventStore();
+    protected abstract EventStore<AccountEventsVisitor> getEventStore();
 
     protected int operationCount() {
         return 50;
@@ -57,7 +58,7 @@ public abstract class AccountConsistencyTest {
         accountsRemainConsistentWithConcurrentTransfers(snapshottingAccountRepository);
     }
 
-    private void accountRemainsConsistentWithConcurrentDeposits(AggregateRepository<Account> repository)
+    private void accountRemainsConsistentWithConcurrentDeposits(AggregateRepository<Account, AccountEventsVisitor> repository)
             throws InterruptedException {
         var accountId = openNewAccount(repository);
 
@@ -81,7 +82,7 @@ public abstract class AccountConsistencyTest {
         assertThat(snapshottingAccountRepository.query(accountId).balance()).isEqualTo(operationCount * threadCount);
     }
 
-    private void accountsRemainConsistentWithConcurrentTransfers(AggregateRepository<Account> repository)
+    private void accountsRemainConsistentWithConcurrentTransfers(AggregateRepository<Account, AccountEventsVisitor> repository)
             throws InterruptedException {
         var operationCount = operationCount();
         var threadCount = threadCount();
@@ -114,7 +115,7 @@ public abstract class AccountConsistencyTest {
         assertThat(snapshottingAccountRepository.query(targetAccountId).balance()).isEqualTo(balance * 2);
     }
 
-    private UUID openNewAccount(AggregateRepository<Account> repository) {
+    private UUID openNewAccount(AggregateRepository<Account, AccountEventsVisitor> repository) {
         var accountId = UUID.randomUUID();
         repository.create(accountId, UUID.randomUUID(), Operation.open(ownerId));
         accountIds.add(accountId);
