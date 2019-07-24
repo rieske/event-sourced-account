@@ -32,6 +32,11 @@ class ArchitectureTest {
                     .should().dependOnClassesThat().resideInAPackage("lt.rieske.accounts.api");
 
     @ArchTest
+    static final ArchRule eventSourcingShouldNotDependOnDomain =
+            noClasses().that().resideInAPackage("lt.rieske.accounts.eventsourcing")
+                    .should().dependOnClassesThat().resideInAPackage("lt.rieske.accounts.domain");
+
+    @ArchTest
     static final ArchRule infrastructureShouldNotDependOnApi =
             noClasses().that().resideInAPackage("lt.rieske.accounts.infrastructure")
                     .should().dependOnClassesThat().resideInAPackage("lt.rieske.accounts.api");
