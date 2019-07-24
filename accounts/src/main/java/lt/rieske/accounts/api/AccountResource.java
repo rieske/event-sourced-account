@@ -1,16 +1,19 @@
 package lt.rieske.accounts.api;
 
-import lt.rieske.accounts.domain.AccountSnapshot;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import spark.Request;
 import spark.Response;
 
 import java.util.UUID;
+
 
 class AccountResource {
 
     private static final String APPLICATION_JSON = "application/json";
 
     private final AccountService accountService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     AccountResource(AccountService accountService) {
         this.accountService = accountService;
@@ -27,13 +30,13 @@ class AccountResource {
         return "";
     }
 
-    String getAccount(Request request, Response response) {
+    String getAccount(Request request, Response response) throws JsonProcessingException {
         var accountId = accountIdPathParam(request);
 
         var account = accountService.queryAccount(accountId);
 
         response.type(APPLICATION_JSON);
-        return accountJson(account);
+        return objectMapper.writeValueAsString(account);//accountJson(account);
     }
 
     String deposit(Request request, Response response) {
@@ -79,6 +82,15 @@ class AccountResource {
         return "";
     }
 
+    public Object getEvents(Request request, Response response) throws JsonProcessingException {
+        var accountId = accountIdPathParam(request);
+
+        var events = accountService.getEvents(accountId);
+
+        response.type(APPLICATION_JSON);
+        return objectMapper.writeValueAsString(events);
+    }
+
     <T extends Exception> void badRequest(T e, Request request, Response response) {
         errorJson(response, 400, e.getMessage());
     }
@@ -112,18 +124,10 @@ class AccountResource {
         return param;
     }
 
-    private String accountJson(AccountSnapshot account) {
-        return "{" +
-                "\"accountId\":\"" + account.getAccountId() + "\"," +
-                "\"ownerId\":\"" + account.getOwnerId() + "\"," +
-                "\"balance\":" + account.getBalance() + "," +
-                "\"open\":" + account.isOpen() + "," +
-                "}";
-    }
-
     private void errorJson(Response response, int status, String message) {
         response.status(status);
         response.type(APPLICATION_JSON);
         response.body("{\"message\":\"" + message.replaceAll("\"", "'") + "\"}");
     }
+
 }

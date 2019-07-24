@@ -4,15 +4,20 @@ import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.domain.AccountSnapshot;
 import lt.rieske.accounts.domain.Operation;
 import lt.rieske.accounts.eventsourcing.AggregateRepository;
+import lt.rieske.accounts.eventsourcing.EventStore;
+import lt.rieske.accounts.eventsourcing.SequencedEvent;
 
+import java.util.List;
 import java.util.UUID;
 
 class AccountService {
 
     private final AggregateRepository<Account> accountRepository;
+    private final EventStore<Account> eventStore;
 
-    AccountService(AggregateRepository<Account> accountRepository) {
+    AccountService(AggregateRepository<Account> accountRepository, EventStore<Account> eventStore) {
         this.accountRepository = accountRepository;
+        this.eventStore = eventStore;
     }
 
     void openAccount(UUID accountId, UUID ownerId) {
@@ -37,5 +42,9 @@ class AccountService {
 
     AccountSnapshot queryAccount(UUID accountId) {
         return accountRepository.query(accountId).snapshot();
+    }
+
+    List<SequencedEvent<Account>> getEvents(UUID accountId) {
+        return eventStore.getEvents(accountId, 0);
     }
 }

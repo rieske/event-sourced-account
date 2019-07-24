@@ -40,6 +40,7 @@ public class Server {
             path("/account/:accountId", () -> {
                 post("", accountResource::createAccount);
                 get("", accountResource::getAccount);
+                get("/events", accountResource::getEvents);
                 put("/deposit", accountResource::deposit);
                 put("/withdraw", accountResource::withdraw);
                 put("/transfer", accountResource::transfer);

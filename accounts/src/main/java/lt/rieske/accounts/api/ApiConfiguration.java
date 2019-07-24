@@ -13,7 +13,7 @@ public class ApiConfiguration {
     public static Server server(DataSource dataSource) {
         var eventStore = Configuration.accountEventStore(dataSource);
         var accountRepository = snapshottingAccountRepository(eventStore, 50);
-        var accountService = new AccountService(accountRepository);
+        var accountService = new AccountService(accountRepository, eventStore);
         var accountResource = new AccountResource(accountService);
         return new Server(accountResource);
     }
