@@ -21,17 +21,17 @@ public class Account implements Aggregate {
     }
 
     public AccountSnapshot snapshot() {
-        return new AccountSnapshot(accountId, ownerId, balance, open, null);
+        return new AccountSnapshot(accountId, ownerId, balance, open);
     }
 
-    public void open(UUID ownerId, UUID transactionId) {
+    public void open(UUID ownerId) {
         if (this.ownerId != null) {
             throw new IllegalStateException("Account already has an owner");
         }
-        eventStream.append(new AccountOpenedEvent(ownerId, transactionId), this);
+        eventStream.append(new AccountOpenedEvent(ownerId), this);
     }
 
-    public void deposit(long amount, UUID transactionId) {
+    public void deposit(long amount) {
         if (amount == 0) {
             return;
         }
@@ -39,10 +39,10 @@ public class Account implements Aggregate {
         if (amount < 0) {
             throw new IllegalArgumentException("Can not deposit negative amount: " + amount);
         }
-        eventStream.append(new MoneyDepositedEvent(amount, balance + amount, transactionId), this);
+        eventStream.append(new MoneyDepositedEvent(amount, balance + amount), this);
     }
 
-    public void withdraw(long amount, UUID transactionId) {
+    public void withdraw(long amount) {
         if (amount == 0) {
             return;
         }
@@ -53,14 +53,14 @@ public class Account implements Aggregate {
         if (balance < amount) {
             throw new IllegalArgumentException("Insufficient balance");
         }
-        eventStream.append(new MoneyWithdrawnEvent(amount, balance - amount, transactionId), this);
+        eventStream.append(new MoneyWithdrawnEvent(amount, balance - amount), this);
     }
 
-    public void close(UUID transactionId) {
+    public void close() {
         if (balance != 0) {
             throw new IllegalStateException("Balance outstanding");
         }
-        eventStream.append(new AccountClosedEvent(transactionId), this);
+        eventStream.append(new AccountClosedEvent(), this);
     }
 
     @Override

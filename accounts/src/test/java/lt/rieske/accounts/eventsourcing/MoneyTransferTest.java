@@ -25,15 +25,15 @@ public abstract class MoneyTransferTest {
     void init() {
         accountRepository = ApiConfiguration.accountRepository(getEventStore());
 
-        accountRepository.create(sourceAccountId, Operation.open(ownerId, UUID.randomUUID()));
-        accountRepository.create(targetAccountId, Operation.open(ownerId, UUID.randomUUID()));
+        accountRepository.create(sourceAccountId, UUID.randomUUID(), Operation.open(ownerId));
+        accountRepository.create(targetAccountId, UUID.randomUUID(), Operation.open(ownerId));
     }
 
     @Test
     void shouldTransferMoneyBetweenAccounts() {
         int transferAmount = 42;
-        accountRepository.transact(sourceAccountId, Operation.deposit(transferAmount, UUID.randomUUID()));
-        accountRepository.transact(sourceAccountId, targetAccountId, Operation.transfer(transferAmount, UUID.randomUUID()));
+        accountRepository.transact(sourceAccountId, UUID.randomUUID(), Operation.deposit(transferAmount));
+        accountRepository.transact(sourceAccountId, targetAccountId, UUID.randomUUID(), Operation.transfer(transferAmount));
 
         var sourceAccount = accountRepository.query(sourceAccountId);
         assertThat(sourceAccount.balance()).isZero();
@@ -45,10 +45,10 @@ public abstract class MoneyTransferTest {
     @Test
     void shouldFailMoneyTransferWhenSourceHasInsufficientBalance() {
         int transferAmount = 42;
-        accountRepository.transact(sourceAccountId, Operation.deposit(10, UUID.randomUUID()));
+        accountRepository.transact(sourceAccountId, UUID.randomUUID(), Operation.deposit(10));
 
-        assertThatThrownBy(() -> accountRepository.transact(sourceAccountId, targetAccountId,
-                Operation.transfer(transferAmount, UUID.randomUUID())))
+        assertThatThrownBy(() -> accountRepository.transact(sourceAccountId, targetAccountId, UUID.randomUUID(),
+                Operation.transfer(transferAmount)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Insufficient balance");
 
@@ -62,11 +62,11 @@ public abstract class MoneyTransferTest {
     @Test
     void shouldFailMoneyTransferWhenTargetAccountIsClosed() {
         int transferAmount = 42;
-        accountRepository.transact(sourceAccountId, Operation.deposit(transferAmount, UUID.randomUUID()));
-        accountRepository.transact(targetAccountId, Operation.close(UUID.randomUUID()));
+        accountRepository.transact(sourceAccountId, UUID.randomUUID(), Operation.deposit(transferAmount));
+        accountRepository.transact(targetAccountId, UUID.randomUUID(), Operation.close());
 
-        assertThatThrownBy(() -> accountRepository.transact(sourceAccountId, targetAccountId,
-                Operation.transfer(transferAmount, UUID.randomUUID())))
+        assertThatThrownBy(() -> accountRepository.transact(sourceAccountId, targetAccountId, UUID.randomUUID(),
+                Operation.transfer(transferAmount)))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Account not open");
 
@@ -80,10 +80,10 @@ public abstract class MoneyTransferTest {
     @Test
     void shouldFailMoneyTransferWhenSourceAccountIsClosed() {
         int transferAmount = 42;
-        accountRepository.transact(sourceAccountId, Operation.close(UUID.randomUUID()));
+        accountRepository.transact(sourceAccountId, UUID.randomUUID(), Operation.close());
 
-        assertThatThrownBy(() -> accountRepository.transact(sourceAccountId, targetAccountId,
-                Operation.transfer(transferAmount, UUID.randomUUID())))
+        assertThatThrownBy(() -> accountRepository.transact(sourceAccountId, targetAccountId, UUID.randomUUID(),
+                Operation.transfer(transferAmount)))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Account not open");
 
@@ -96,10 +96,10 @@ public abstract class MoneyTransferTest {
 
     @Test
     void shouldNotTransferNegativeAmount() {
-        accountRepository.transact(sourceAccountId, Operation.deposit(42, UUID.randomUUID()));
+        accountRepository.transact(sourceAccountId, UUID.randomUUID(), Operation.deposit(42));
 
-        assertThatThrownBy(() -> accountRepository.transact(sourceAccountId, targetAccountId,
-                Operation.transfer(-1, UUID.randomUUID())))
+        assertThatThrownBy(() -> accountRepository.transact(sourceAccountId, targetAccountId, UUID.randomUUID(),
+                Operation.transfer(-1)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Can not withdraw negative amount");
 

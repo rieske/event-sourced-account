@@ -10,7 +10,7 @@ public interface EventStore<T> {
     //   if given sequence number exists for aggregate - we have a concurrent modification - abort.
     //   In such case the client should re-read the current state and retry the operation.
     // - appends must be transactional - either all get written or none
-    void append(List<SequencedEvent<T>> uncomittedEvents, SequencedEvent<T> uncomittedSnapshot);
+    void append(List<SequencedEvent<T>> uncomittedEvents, SequencedEvent<T> uncomittedSnapshot, UUID transactionId);
 
     List<SequencedEvent<T>> getEvents(UUID aggregateId, long fromVersion);
     SequencedEvent<T> loadSnapshot(UUID aggregateId);

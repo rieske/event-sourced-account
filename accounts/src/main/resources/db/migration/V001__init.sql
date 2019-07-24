@@ -4,7 +4,7 @@ CREATE TABLE Event(
     transactionId BINARY(16) NOT NULL,
     payload LONGBLOB NOT NULL,
     PRIMARY KEY (aggregateId, sequenceNumber),
-    UNIQUE KEY idempotency_constraint(aggregateId, transactionId)
+    UNIQUE KEY idempotency_constraint(aggregateId, sequenceNumber, transactionId)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE Snapshot(

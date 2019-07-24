@@ -13,8 +13,6 @@ public class AccountSnapshot implements Event<Account> {
     private final long balance;
     private final boolean open;
 
-    private final UUID transactionId;
-
     @Override
     public void apply(Account aggregate) {
         aggregate.applySnapshot(this);

@@ -16,23 +16,23 @@ class AccountService {
     }
 
     void openAccount(UUID accountId, UUID ownerId) {
-        accountRepository.create(accountId, Operation.open(ownerId, UUID.randomUUID()));
+        accountRepository.create(accountId, UUID.randomUUID(), Operation.open(ownerId));
     }
 
     void deposit(UUID accountId, long amount, UUID transactionId) {
-        accountRepository.transact(accountId, Operation.deposit(amount, transactionId));
+        accountRepository.transact(accountId, transactionId, Operation.deposit(amount));
     }
 
     void withdraw(UUID accountId, long amount, UUID transactionId) {
-        accountRepository.transact(accountId, Operation.withdraw(amount, transactionId));
+        accountRepository.transact(accountId, transactionId, Operation.withdraw(amount));
     }
 
     void transfer(UUID sourceAccountId, UUID targetAccountId, long amount, UUID transactionId) {
-        accountRepository.transact(sourceAccountId, targetAccountId, Operation.transfer(amount, transactionId));
+        accountRepository.transact(sourceAccountId, targetAccountId, transactionId, Operation.transfer(amount));
     }
 
     void close(UUID accountId) {
-        accountRepository.transact(accountId, Operation.close(UUID.randomUUID()));
+        accountRepository.transact(accountId, UUID.randomUUID(), Operation.close());
     }
 
     AccountSnapshot queryAccount(UUID accountId) {

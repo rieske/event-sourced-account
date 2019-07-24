@@ -70,7 +70,7 @@ public abstract class AccountConsistencyTest {
             for (int j = 0; j < threadCount; j++) {
                 executor.submit(() -> {
                     withRetryOnConcurrentModification(() ->
-                            repository.transact(accountId, Operation.deposit(1, UUID.randomUUID())));
+                            repository.transact(accountId, UUID.randomUUID(), Operation.deposit(1)));
                     latch.countDown();
                 });
             }
@@ -89,10 +89,10 @@ public abstract class AccountConsistencyTest {
         var balance = operationCount * threadCount;
 
         var sourceAccountId = openNewAccount(repository);
-        repository.transact(sourceAccountId, Operation.deposit(balance, UUID.randomUUID()));
+        repository.transact(sourceAccountId, UUID.randomUUID(), Operation.deposit(balance));
 
         var targetAccountId = openNewAccount(repository);
-        repository.transact(targetAccountId, Operation.deposit(balance, UUID.randomUUID()));
+        repository.transact(targetAccountId, UUID.randomUUID(), Operation.deposit(balance));
 
         var executor = Executors.newFixedThreadPool(threadCount);
 
@@ -101,7 +101,7 @@ public abstract class AccountConsistencyTest {
             for (int j = 0; j < threadCount; j++) {
                 executor.submit(() -> {
                     withRetryOnConcurrentModification(() ->
-                            repository.transact(sourceAccountId, targetAccountId, Operation.transfer(1, UUID.randomUUID())));
+                            repository.transact(sourceAccountId, targetAccountId, UUID.randomUUID(), Operation.transfer(1)));
                     latch.countDown();
                 });
             }
@@ -116,7 +116,7 @@ public abstract class AccountConsistencyTest {
 
     private UUID openNewAccount(AggregateRepository<Account> repository) {
         var accountId = UUID.randomUUID();
-        repository.create(accountId, Operation.open(ownerId, UUID.randomUUID()));
+        repository.create(accountId, UUID.randomUUID(), Operation.open(ownerId));
         accountIds.add(accountId);
         return accountId;
     }

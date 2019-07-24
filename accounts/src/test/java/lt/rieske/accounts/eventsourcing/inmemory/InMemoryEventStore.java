@@ -23,10 +23,10 @@ class InMemoryEventStore<T> implements EventStore<T> {
     // One way to ensure this in RDB - primary key on (aggregateId, sequenceNumber)
     // Event writes have to happen in a transaction - either all get written or none
     @Override
-    public synchronized void append(List<SequencedEvent<T>> uncomittedEvents, SequencedEvent<T> uncomittedSnapshot) {
+    public synchronized void append(List<SequencedEvent<T>> uncomittedEvents, SequencedEvent<T> uncomittedSnapshot, UUID transactionId) {
         validateConsistency(uncomittedEvents);
 
-        uncomittedEvents.forEach(this::append);
+        uncomittedEvents.forEach(e -> append(e, transactionId));
         if (uncomittedSnapshot != null) {
             snapshots.put(uncomittedSnapshot.getAggregateId(), uncomittedSnapshot);
         }
@@ -54,11 +54,11 @@ class InMemoryEventStore<T> implements EventStore<T> {
         return aggregateEvents.getOrDefault(aggregateId, List.of());
     }
 
-    private void append(SequencedEvent<T> event) {
+    private void append(SequencedEvent<T> event, UUID transactionId) {
         var currentEvents = aggregateEvents.computeIfAbsent(event.getAggregateId(), id -> new ArrayList<>());
-        currentEvents.add(event);
+        currentEvents.add(new SequencedEvent<>(event.getAggregateId(), event.getSequenceNumber(), transactionId, event.getEvent()));
 
-        aggregateTransactionVersions.put(aggregateTransaction(event.getAggregateId(), event.getTransactionId()), event.getSequenceNumber());
+        aggregateTransactionVersions.put(aggregateTransaction(event.getAggregateId(), transactionId), event.getSequenceNumber());
     }
 
     private void validateConsistency(List<SequencedEvent<T>> uncomittedEvents) {

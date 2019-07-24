@@ -1,6 +1,8 @@
 package lt.rieske.accounts.eventsourcing;
 
 import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 
 public class AggregateRepository<T extends Aggregate> {
@@ -18,33 +20,33 @@ public class AggregateRepository<T extends Aggregate> {
         this.snapshotter = snapshotter;
     }
 
-    public void create(UUID aggregateId, Transaction<T> transaction) {
+    public void create(UUID aggregateId, UUID transactionId, Consumer<T> transaction) {
         var eventStream = transactionalEventStream();
         var aggregate = aggregateFactory.makeAggregate(eventStream, aggregateId);
         transaction.accept(aggregate);
-        eventStream.commit();
+        eventStream.commit(transactionId);
     }
 
-    public void transact(UUID aggregateId, Transaction<T> transaction) {
-        if (eventStore.transactionExists(aggregateId, transaction.transactionId())) {
+    public void transact(UUID aggregateId, UUID transactionId, Consumer<T> transaction) {
+        if (eventStore.transactionExists(aggregateId, transactionId)) {
             return;
         }
 
         var eventStream = transactionalEventStream();
         var aggregate = loadAggregate(eventStream, aggregateId);
         transaction.accept(aggregate);
-        eventStream.commit();
+        eventStream.commit(transactionId);
     }
 
-    public void transact(UUID aggregateId1, UUID aggregateId2, BiTransaction<T> transaction) {
-        if (eventStore.transactionExists(aggregateId1, transaction.transactionId()) &&
-                eventStore.transactionExists(aggregateId2, transaction.transactionId())) {
+    public void transact(UUID aggregateId1, UUID aggregateId2, UUID transactionId, BiConsumer<T, T> transaction) {
+        if (eventStore.transactionExists(aggregateId1, transactionId) &&
+                eventStore.transactionExists(aggregateId2, transactionId)) {
             return;
         }
 
         var eventStream = transactionalEventStream();
         transaction.accept(loadAggregate(eventStream, aggregateId1), loadAggregate(eventStream, aggregateId2));
-        eventStream.commit();
+        eventStream.commit(transactionId);
     }
 
     public T query(UUID aggregateId) {

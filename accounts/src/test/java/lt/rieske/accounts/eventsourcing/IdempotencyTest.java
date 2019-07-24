@@ -26,11 +26,11 @@ public abstract class IdempotencyTest {
     @Test
     void depositTransactionShouldBeIdempotent() {
         var accountId = UUID.randomUUID();
-        accountRepository.create(accountId, Operation.open(ownerId, UUID.randomUUID()));
+        accountRepository.create(accountId, UUID.randomUUID(), Operation.open(ownerId));
 
         var transactionId = UUID.randomUUID();
-        accountRepository.transact(accountId, Operation.deposit(10, transactionId));
-        accountRepository.transact(accountId, Operation.deposit(10, transactionId));
+        accountRepository.transact(accountId, transactionId, Operation.deposit(10));
+        accountRepository.transact(accountId, transactionId, Operation.deposit(10));
 
         var account = accountRepository.query(accountId);
         assertThat(account.balance()).isEqualTo(10);
@@ -39,12 +39,12 @@ public abstract class IdempotencyTest {
     @Test
     void withdrawalTransactionShouldBeIdempotent() {
         var accountId = UUID.randomUUID();
-        accountRepository.create(accountId, Operation.open(ownerId, UUID.randomUUID()));
-        accountRepository.transact(accountId, Operation.deposit(100, UUID.randomUUID()));
+        accountRepository.create(accountId, UUID.randomUUID(), Operation.open(ownerId));
+        accountRepository.transact(accountId, UUID.randomUUID(), Operation.deposit(100));
 
         var transactionId = UUID.randomUUID();
-        accountRepository.transact(accountId, Operation.withdraw(10, transactionId));
-        accountRepository.transact(accountId, Operation.withdraw(10, transactionId));
+        accountRepository.transact(accountId, transactionId, Operation.withdraw(10));
+        accountRepository.transact(accountId, transactionId, Operation.withdraw(10));
 
         var account = accountRepository.query(accountId);
         assertThat(account.balance()).isEqualTo(90);
@@ -53,15 +53,15 @@ public abstract class IdempotencyTest {
     @Test
     void moneyTransferTransactionShouldBeIdempotent() {
         var sourceAccountId = UUID.randomUUID();
-        accountRepository.create(sourceAccountId, Operation.open(ownerId, UUID.randomUUID()));
-        accountRepository.transact(sourceAccountId, Operation.deposit(100, UUID.randomUUID()));
+        accountRepository.create(sourceAccountId, UUID.randomUUID(), Operation.open(ownerId));
+        accountRepository.transact(sourceAccountId, UUID.randomUUID(), Operation.deposit(100));
 
         var targetAccountId = UUID.randomUUID();
-        accountRepository.create(targetAccountId, Operation.open(ownerId, UUID.randomUUID()));
+        accountRepository.create(targetAccountId, UUID.randomUUID(), Operation.open(ownerId));
 
         var transactionId = UUID.randomUUID();
-        accountRepository.transact(sourceAccountId, targetAccountId, Operation.transfer(60, transactionId));
-        accountRepository.transact(sourceAccountId, targetAccountId, Operation.transfer(60, transactionId));
+        accountRepository.transact(sourceAccountId, targetAccountId, transactionId, Operation.transfer(60));
+        accountRepository.transact(sourceAccountId, targetAccountId, transactionId, Operation.transfer(60));
 
         var sourceAccount = accountRepository.query(sourceAccountId);
         assertThat(sourceAccount.balance()).isEqualTo(40);
