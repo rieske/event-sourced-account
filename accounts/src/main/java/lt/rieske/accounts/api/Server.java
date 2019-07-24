@@ -68,7 +68,8 @@ public class Server {
     }
 
     private void logResponse(Request request, Response response) {
-        log.info("{} {}", response.status(), response.body());
+        log.info("{} {}", response.status(),
+                response.body() == null ? "" : response.body());
     }
 
 }

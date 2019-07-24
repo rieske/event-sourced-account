@@ -2,8 +2,8 @@ FROM openjdk:11.0.3-jdk-stretch
 
 EXPOSE 8080
 
-ENTRYPOINT exec java \
-       --illegal-access=deny \
-  	   -jar /opt/service/accounts.jar
+ENV JAVA_OPTS --illegal-access=deny
 
-ADD build/libs/accounts.jar /opt/service/accounts.jar
+ENTRYPOINT /opt/service/accounts/bin/accounts
+
+ADD build/distributions/accounts.tar /opt/service/
