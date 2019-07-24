@@ -1,4 +1,4 @@
-package lt.rieske.accounts.domain;
+package lt.rieske.accounts.eventsourcing;
 
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -12,7 +12,7 @@ public class BiTransaction<T> implements BiConsumer<T, T> {
         return transactionId;
     }
 
-    BiTransaction(UUID transactionId, BiConsumer<T, T> consumer) {
+    public BiTransaction(UUID transactionId, BiConsumer<T, T> consumer) {
         this.transactionId = transactionId;
         this.consumer = consumer;
     }

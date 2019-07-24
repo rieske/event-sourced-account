@@ -1,6 +1,7 @@
 package lt.rieske.accounts.domain;
 
 import lt.rieske.accounts.eventsourcing.Aggregate;
+import lt.rieske.accounts.eventsourcing.EventStream;
 
 import java.util.UUID;
 

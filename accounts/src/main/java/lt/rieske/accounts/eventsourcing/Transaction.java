@@ -1,4 +1,4 @@
-package lt.rieske.accounts.domain;
+package lt.rieske.accounts.eventsourcing;
 
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -12,7 +12,7 @@ public class Transaction<T> implements Consumer<T> {
         return transactionId;
     }
 
-    Transaction(UUID transactionId, Consumer<T> consumer) {
+    public Transaction(UUID transactionId, Consumer<T> consumer) {
         this.transactionId = transactionId;
         this.consumer = consumer;
     }

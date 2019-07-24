@@ -1,5 +1,8 @@
 package lt.rieske.accounts.domain;
 
+import lt.rieske.accounts.eventsourcing.BiTransaction;
+import lt.rieske.accounts.eventsourcing.Transaction;
+
 import java.util.UUID;
 
 public final class Operation {

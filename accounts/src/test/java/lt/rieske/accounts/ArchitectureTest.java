@@ -12,11 +12,6 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 class ArchitectureTest {
 
     @ArchTest
-    static final ArchRule domainShouldNotAccessClassesInEventSourcing =
-            noClasses().that().resideInAPackage("lt.rieske.accounts.domain")
-                    .should().accessClassesThat().resideInAPackage("lt.rieske.accounts.eventsourcing");
-
-    @ArchTest
     static final ArchRule domainShouldNotDependOnInfrastructure =
             noClasses().that().resideInAPackage("lt.rieske.accounts.domain")
                     .should().dependOnClassesThat().resideInAPackage("lt.rieske.accounts.infrastructure");
@@ -24,5 +19,20 @@ class ArchitectureTest {
     @ArchTest
     static final ArchRule domainShouldNotDependOnApi =
             noClasses().that().resideInAPackage("lt.rieske.accounts.domain")
+                    .should().dependOnClassesThat().resideInAPackage("lt.rieske.accounts.api");
+
+    @ArchTest
+    static final ArchRule eventSourcingShouldNotDependOnInfrastructure =
+            noClasses().that().resideInAPackage("lt.rieske.accounts.eventsourcing")
+                    .should().dependOnClassesThat().resideInAPackage("lt.rieske.accounts.infrastructure");
+
+    @ArchTest
+    static final ArchRule eventSourcingShouldNotDependOnApi =
+            noClasses().that().resideInAPackage("lt.rieske.accounts.eventsourcing")
+                    .should().dependOnClassesThat().resideInAPackage("lt.rieske.accounts.api");
+
+    @ArchTest
+    static final ArchRule infrastructureShouldNotDependOnApi =
+            noClasses().that().resideInAPackage("lt.rieske.accounts.infrastructure")
                     .should().dependOnClassesThat().resideInAPackage("lt.rieske.accounts.api");
 }

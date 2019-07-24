@@ -1,7 +1,5 @@
 package lt.rieske.accounts.eventsourcing;
 
-import lt.rieske.accounts.domain.EventStream;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
