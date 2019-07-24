@@ -5,6 +5,7 @@ import lt.rieske.accounts.eventsourcing.EventStream;
 
 import java.util.UUID;
 
+
 public class Account implements Aggregate {
     private final EventStream<Account> eventStream;
 
@@ -20,14 +21,14 @@ public class Account implements Aggregate {
     }
 
     public AccountSnapshot snapshot() {
-        return new AccountSnapshot(accountId, ownerId, balance, open);
+        return new AccountSnapshot(accountId, ownerId, balance, open, null);
     }
 
-    public void open(UUID ownerId) {
+    public void open(UUID ownerId, UUID transactionId) {
         if (this.ownerId != null) {
             throw new IllegalStateException("Account already has an owner");
         }
-        eventStream.append(new AccountOpenedEvent(ownerId), this);
+        eventStream.append(new AccountOpenedEvent(ownerId, transactionId), this);
     }
 
     public void deposit(long amount, UUID transactionId) {
@@ -55,11 +56,11 @@ public class Account implements Aggregate {
         eventStream.append(new MoneyWithdrawnEvent(amount, balance - amount, transactionId), this);
     }
 
-    public void close() {
+    public void close(UUID transactionId) {
         if (balance != 0) {
             throw new IllegalStateException("Balance outstanding");
         }
-        eventStream.append(new AccountClosedEvent(), this);
+        eventStream.append(new AccountClosedEvent(transactionId), this);
     }
 
     @Override

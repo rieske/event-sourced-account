@@ -19,7 +19,7 @@ class SqlEventStore implements BlobEventStore {
     private static final String APPEND_EVENT_SQL =
             "INSERT INTO event_store.Event(aggregateId, sequenceNumber, transactionId, payload) VALUES(?, ?, ?, ?)";
     private static final String SELECT_EVENTS_SQL =
-            "SELECT sequenceNumber, payload FROM event_store.Event WHERE aggregateId = ? AND sequenceNumber > ? ORDER BY sequenceNumber ASC";
+            "SELECT sequenceNumber, transactionId, payload FROM event_store.Event WHERE aggregateId = ? AND sequenceNumber > ? ORDER BY sequenceNumber ASC";
 
     private static final String APPEND_SNAPSHOT_SQL =
             "INSERT INTO event_store.Snapshot(aggregateId, sequenceNumber, payload) VALUES(?, ?, ?)";
@@ -64,8 +64,8 @@ class SqlEventStore implements BlobEventStore {
                 while (resultSet.next()) {
                     eventPayloads.add(new SerializedEvent(aggregateId,
                             resultSet.getLong(1),
-                            null,
-                            resultSet.getBytes(2)));
+                            bytesToUUID(resultSet.getBytes(2)),
+                            resultSet.getBytes(3)));
                 }
                 return eventPayloads;
             }
@@ -111,10 +111,9 @@ class SqlEventStore implements BlobEventStore {
     private void insertEvent(Connection connection, SerializedEvent event)
             throws SQLException {
         try (var statement = connection.prepareStatement(APPEND_EVENT_SQL)) {
-            var transactionId = event.getTransactionId() != null ? event.getTransactionId() : UUID.randomUUID();
             statement.setBytes(1, uuidToBytes(event.getAggregateId()));
             statement.setLong(2, event.getSequenceNumber());
-            statement.setBytes(3, uuidToBytes(transactionId));
+            statement.setBytes(3, uuidToBytes(event.getTransactionId()));
             statement.setBytes(4, event.getPayload());
             statement.executeUpdate();
         }
@@ -137,5 +136,13 @@ class SqlEventStore implements BlobEventStore {
                 .putLong(uuid.getMostSignificantBits())
                 .putLong(uuid.getLeastSignificantBits());
         return uuidBytes;
+    }
+
+    private static UUID bytesToUUID(byte[] bytes) {
+        var byteBuffer = ByteBuffer.wrap(bytes)
+                .order(ByteOrder.BIG_ENDIAN);
+        long high = byteBuffer.getLong();
+        long low = byteBuffer.getLong();
+        return new UUID(high, low);
     }
 }

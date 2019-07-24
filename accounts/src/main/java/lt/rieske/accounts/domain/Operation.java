@@ -7,8 +7,8 @@ import java.util.UUID;
 
 public final class Operation {
 
-    public static Transaction<Account> open(UUID ownerId) {
-        return new Transaction<>(UUID.randomUUID(), a -> a.open(ownerId));
+    public static Transaction<Account> open(UUID ownerId, UUID transactionId) {
+        return new Transaction<>(transactionId, a -> a.open(ownerId, transactionId));
     }
 
     public static Transaction<Account> deposit(long amount, UUID transactionId) {
@@ -26,8 +26,8 @@ public final class Operation {
         });
     }
 
-    public static Transaction<Account> close() {
-        return new Transaction<>(UUID.randomUUID(), Account::close);
+    public static Transaction<Account> close(UUID transactionId) {
+        return new Transaction<>(transactionId, a -> a.close(transactionId));
     }
 }
 

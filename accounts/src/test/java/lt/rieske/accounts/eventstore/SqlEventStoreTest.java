@@ -36,29 +36,32 @@ public abstract class SqlEventStoreTest {
     @Test
     void shouldGetStoredEvent() {
         var aggregateId = UUID.randomUUID();
-        eventStore.append(List.of(new SerializedEvent(aggregateId, 1, UUID.randomUUID(), "foobar".getBytes())), null);
+        var txId = UUID.randomUUID();
+        eventStore.append(List.of(new SerializedEvent(aggregateId, 1, txId, "foobar".getBytes())), null);
 
         var events = eventStore.getEvents(aggregateId, 0);
 
-        assertThat(events).containsExactly(new SerializedEvent(aggregateId, 1, null, "foobar".getBytes()));
+        assertThat(events).containsExactly(new SerializedEvent(aggregateId, 1, txId, "foobar".getBytes()));
     }
 
     @Test
     void shouldGetStoredEventsFromSpecificVersion() {
         var aggregateId = UUID.randomUUID();
 
+        var txId3 = UUID.randomUUID();
+        var txId4 = UUID.randomUUID();
         eventStore.append(List.of(
                 new SerializedEvent(aggregateId, 1, UUID.randomUUID(), "1".getBytes()),
                 new SerializedEvent(aggregateId, 2, UUID.randomUUID(), "2".getBytes()),
-                new SerializedEvent(aggregateId, 3, UUID.randomUUID(), "3".getBytes()),
-                new SerializedEvent(aggregateId, 4, UUID.randomUUID(), "4".getBytes())),
+                new SerializedEvent(aggregateId, 3, txId3, "3".getBytes()),
+                new SerializedEvent(aggregateId, 4, txId4, "4".getBytes())),
                 null);
 
         var events = eventStore.getEvents(aggregateId, 2);
 
         assertThat(events).containsExactly(
-                new SerializedEvent(aggregateId, 3, null, "3".getBytes()),
-                new SerializedEvent(aggregateId, 4, null, "4".getBytes()));
+                new SerializedEvent(aggregateId, 3, txId3, "3".getBytes()),
+                new SerializedEvent(aggregateId, 4, txId4, "4".getBytes()));
     }
 
     @Test

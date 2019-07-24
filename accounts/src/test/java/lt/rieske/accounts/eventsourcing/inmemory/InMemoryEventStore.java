@@ -58,8 +58,7 @@ class InMemoryEventStore<T> implements EventStore<T> {
         var currentEvents = aggregateEvents.computeIfAbsent(event.getAggregateId(), id -> new ArrayList<>());
         currentEvents.add(event);
 
-        var transactionId = event.getTransactionId() != null ? event.getTransactionId() : UUID.randomUUID();
-        aggregateTransactionVersions.put(aggregateTransaction(event.getAggregateId(), transactionId), event.getSequenceNumber());
+        aggregateTransactionVersions.put(aggregateTransaction(event.getAggregateId(), event.getTransactionId()), event.getSequenceNumber());
     }
 
     private void validateConsistency(List<SequencedEvent<T>> uncomittedEvents) {

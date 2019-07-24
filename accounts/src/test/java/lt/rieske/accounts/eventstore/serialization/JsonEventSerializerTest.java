@@ -25,7 +25,7 @@ class JsonEventSerializerTest {
 
     @Test
     void serializesAndDeserializesAnEvent() {
-        var event = new AccountOpenedEvent(UUID.randomUUID());
+        var event = new AccountOpenedEvent(UUID.randomUUID(), UUID.randomUUID());
 
         var serializedEvent = serializer.serialize(event);
         var deserializedEvent = serializer.deserialize(serializedEvent);

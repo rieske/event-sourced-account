@@ -16,7 +16,7 @@ class AccountService {
     }
 
     void openAccount(UUID accountId, UUID ownerId) {
-        accountRepository.create(accountId, Operation.open(ownerId));
+        accountRepository.create(accountId, Operation.open(ownerId, UUID.randomUUID()));
     }
 
     void deposit(UUID accountId, long amount, UUID transactionId) {
@@ -32,7 +32,7 @@ class AccountService {
     }
 
     void close(UUID accountId) {
-        accountRepository.transact(accountId, Operation.close());
+        accountRepository.transact(accountId, Operation.close(UUID.randomUUID()));
     }
 
     AccountSnapshot queryAccount(UUID accountId) {

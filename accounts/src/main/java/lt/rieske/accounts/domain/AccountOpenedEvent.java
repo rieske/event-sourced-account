@@ -8,6 +8,7 @@ import java.util.UUID;
 @Value
 public class AccountOpenedEvent implements Event<Account> {
     private final UUID ownerId;
+    private final UUID transactionId;
 
     @Override
     public void apply(Account aggregate) {
