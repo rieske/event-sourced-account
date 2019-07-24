@@ -1,19 +1,18 @@
 package lt.rieske.accounts.eventsourcing;
 
-import lt.rieske.accounts.domain.EventStream;
-
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
-public class ReplayingEventStream<T> implements EventStream<T> {
+
+class ReplayingEventStream<T extends Aggregate> implements EventStream<T> {
 
     protected final EventStore<T> eventStore;
-    protected final UUID aggregateId;
 
-    long currentVersion;
+    final Map<UUID, Long> aggregateVersions = new HashMap<>();
 
-    ReplayingEventStream(EventStore<T> eventStore, UUID aggregateId) {
+    ReplayingEventStream(EventStore<T> eventStore) {
         this.eventStore = eventStore;
-        this.aggregateId = aggregateId;
     }
 
     @Override
@@ -22,16 +21,32 @@ public class ReplayingEventStream<T> implements EventStream<T> {
     }
 
     void replay(T aggregate) {
-        var snapshot = eventStore.loadSnapshot(aggregateId);
+        long currentVersion = applySnapshot(aggregate);
+        currentVersion = replayEvents(aggregate, currentVersion);
+
+        if (currentVersion == 0) {
+            throw new AggregateNotFoundException(aggregate.id());
+        }
+
+        aggregateVersions.put(aggregate.id(), currentVersion);
+    }
+
+    private long applySnapshot(T aggregate) {
+        var snapshot = eventStore.loadSnapshot(aggregate.id());
         if (snapshot != null) {
-            snapshot.getPayload().apply(aggregate);
-            currentVersion = snapshot.getSequenceNumber();
+            snapshot.apply(aggregate);
+            return snapshot.getSequenceNumber();
         }
-        var events = eventStore.getEvents(aggregateId, currentVersion);
-        if (events.isEmpty() && snapshot == null) {
-            throw new AggregateNotFoundException(aggregateId);
+        return 0;
+    }
+
+    private long replayEvents(T aggregate, long startingVersion) {
+        var events = eventStore.getEvents(aggregate.id(), startingVersion);
+        long currentVersion = startingVersion;
+        for (var event : events) {
+            event.apply(aggregate);
+            currentVersion = event.getSequenceNumber();
         }
-        events.forEach(event -> event.apply(aggregate));
-        currentVersion += events.size();
+        return currentVersion;
     }
 }

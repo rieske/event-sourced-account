@@ -1,8 +1,9 @@
-package lt.rieske.accounts.infrastructure.serialization;
+package lt.rieske.accounts.eventstore.serialization;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lt.rieske.accounts.domain.AccountClosedEvent;
 import lt.rieske.accounts.domain.AccountOpenedEvent;
@@ -10,11 +11,14 @@ import lt.rieske.accounts.domain.AccountSnapshot;
 import lt.rieske.accounts.domain.MoneyDepositedEvent;
 import lt.rieske.accounts.domain.MoneyWithdrawnEvent;
 import lt.rieske.accounts.eventsourcing.Event;
+import lt.rieske.accounts.eventsourcing.SequencedEvent;
+import lt.rieske.accounts.eventstore.SerializedEvent;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 public class JsonEventSerializer<T> implements EventSerializer<T> {
 
@@ -40,8 +44,10 @@ public class JsonEventSerializer<T> implements EventSerializer<T> {
     }
 
     @Override
-    public List<Event<T>> deserialize(List<byte[]> serializedEvents) {
-        return serializedEvents.stream().map(this::deserialize).collect(Collectors.toList());
+    public List<SequencedEvent<T>> deserialize(List<SerializedEvent> serializedEvents) {
+        return serializedEvents.stream()
+                .map(se -> new SequencedEvent<>(se.getAggregateId(), se.getSequenceNumber(), se.getTransactionId(), deserialize(se.getPayload())))
+                .collect(Collectors.toList());
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@t")

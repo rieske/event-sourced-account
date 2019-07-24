@@ -1,68 +1,59 @@
-buildscript {
-    ext {
-        grpcVersion = '1.21.0'
-    }
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.10'
-    }
-}
-
 plugins {
     id 'java'
     id 'application'
-    id 'com.google.protobuf' version '0.8.10'
-    id 'idea'
 }
 
 sourceCompatibility = 11
 targetCompatibility = 11
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 test {
+    useJUnitPlatform {
+        excludeTags 'integration'
+    }
     maxParallelForks = 8
 }
 
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:3.9.0"
+task integrationTest(type: Test) {
+    useJUnitPlatform {
+        includeTags 'integration'
     }
-    plugins {
-        grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
-        }
-    }
-    generateProtoTasks {
-        all()*.plugins {
-            grpc {}
-        }
-    }
+    maxParallelForks = 8
 }
 
 dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.8'
     implementation 'org.projectlombok:lombok:1.18.8'
 
+    implementation 'com.sparkjava:spark-core:2.9.1'
+
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
-    implementation 'com.google.protobuf:protobuf-java:3.9.0'
     
     implementation 'org.flywaydb:flyway-core:5.2.4'
 
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
+
+    implementation 'net.jodah:failsafe:2.1.0'
+
+    implementation 'com.h2database:h2:1.4.199'
     implementation 'mysql:mysql-connector-java:8.0.16'
 
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.8'
-    testImplementation 'junit:junit:4.12'
     testImplementation 'org.assertj:assertj-core:3.11.1'
-    testImplementation 'com.tngtech.archunit:archunit-junit4:0.10.2'
+    testImplementation 'io.rest-assured:rest-assured:4.0.0'
     testImplementation 'org.slf4j:slf4j-simple:1.7.26'
     testImplementation 'org.reflections:reflections:0.9.11'
 
-    testImplementation "org.testcontainers:mysql:1.11.4"
+    testImplementation 'org.testcontainers:mysql:1.11.4'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+
+    testImplementation 'com.tngtech.archunit:archunit-junit5-api:0.10.2'
+    testRuntimeOnly 'com.tngtech.archunit:archunit-junit5-engine:0.10.2'
 }
 
 mainClassName = 'lt.rieske.accounts.App'

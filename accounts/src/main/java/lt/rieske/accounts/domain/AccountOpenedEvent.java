@@ -7,7 +7,6 @@ import java.util.UUID;
 
 @Value
 public class AccountOpenedEvent implements Event<Account> {
-    private final UUID accountId;
     private final UUID ownerId;
 
     @Override

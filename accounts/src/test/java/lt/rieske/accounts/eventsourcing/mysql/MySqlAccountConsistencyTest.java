@@ -3,20 +3,19 @@ package lt.rieske.accounts.eventsourcing.mysql;
 import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.eventsourcing.AccountConsistencyTest;
 import lt.rieske.accounts.eventsourcing.EventStore;
-import lt.rieske.accounts.infrastructure.MySql;
-import lt.rieske.accounts.infrastructure.MySqlEventStore;
-import lt.rieske.accounts.infrastructure.SerializingEventStore;
-import lt.rieske.accounts.infrastructure.serialization.JsonEventSerializer;
-import org.junit.AfterClass;
+import lt.rieske.accounts.eventstore.Configuration;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Tag;
 
-public class MySqlAccountConsistencyTest extends AccountConsistencyTest {
+@Tag("integration")
+class MySqlAccountConsistencyTest extends AccountConsistencyTest {
 
     private static final MySql MYSQL = new MySql();
 
-    private EventStore<Account> eventStore = new SerializingEventStore<>(new JsonEventSerializer<>(), new MySqlEventStore(MYSQL.dataSource()));
+    private EventStore<Account> eventStore = Configuration.accountEventStore(MYSQL.dataSource());
 
-    @AfterClass
-    public static void stopDatabase() {
+    @AfterAll
+    static void stopDatabase() {
         MYSQL.stop();
     }
 
@@ -25,7 +24,7 @@ public class MySqlAccountConsistencyTest extends AccountConsistencyTest {
         return eventStore;
     }
 
-    protected int depositCount() {
+    protected int operationCount() {
         return 10;
     }
 

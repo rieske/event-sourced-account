@@ -1,24 +1,37 @@
 package lt.rieske.accounts.domain;
 
+import lt.rieske.accounts.eventsourcing.Aggregate;
+import lt.rieske.accounts.eventsourcing.EventStream;
+
 import java.util.UUID;
 
-public class Account {
+
+public class Account implements Aggregate {
     private final EventStream<Account> eventStream;
 
-    private UUID accountId;
+    private final UUID accountId;
+
     private UUID ownerId;
-    private int balance;
+    private long balance;
     private boolean open;
 
-    public Account(EventStream<Account> eventStream) {
+    public Account(EventStream<Account> eventStream, UUID accountId) {
         this.eventStream = eventStream;
+        this.accountId = accountId;
     }
 
-    public void open(UUID accountId, UUID ownerId) {
-        eventStream.append(new AccountOpenedEvent(accountId, ownerId), this);
+    public AccountSnapshot snapshot() {
+        return new AccountSnapshot(accountId, ownerId, balance, open);
     }
 
-    public void deposit(int amount) {
+    public void open(UUID ownerId) {
+        if (this.ownerId != null) {
+            throw new IllegalStateException("Account already has an owner");
+        }
+        eventStream.append(new AccountOpenedEvent(ownerId), this);
+    }
+
+    public void deposit(long amount) {
         if (amount == 0) {
             return;
         }
@@ -29,11 +42,14 @@ public class Account {
         eventStream.append(new MoneyDepositedEvent(amount, balance + amount), this);
     }
 
-    public void withdraw(int amount) {
+    public void withdraw(long amount) {
         if (amount == 0) {
             return;
         }
         requireOpenAccount();
+        if (amount < 0) {
+            throw new IllegalArgumentException("Can not withdraw negative amount: " + amount);
+        }
         if (balance < amount) {
             throw new IllegalArgumentException("Insufficient balance");
         }
@@ -47,6 +63,7 @@ public class Account {
         eventStream.append(new AccountClosedEvent(), this);
     }
 
+    @Override
     public UUID id() {
         return accountId;
     }
@@ -55,7 +72,7 @@ public class Account {
         return ownerId;
     }
 
-    public int balance() {
+    public long balance() {
         return balance;
     }
 
@@ -64,14 +81,12 @@ public class Account {
     }
 
     void applySnapshot(AccountSnapshot snapshot) {
-        this.accountId = snapshot.getAccountId();
         this.ownerId = snapshot.getOwnerId();
         this.balance = snapshot.getBalance();
         this.open = snapshot.isOpen();
     }
 
     void apply(AccountOpenedEvent event) {
-        this.accountId = event.getAccountId();
         this.ownerId = event.getOwnerId();
         this.balance = 0;
         this.open = true;

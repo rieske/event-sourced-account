@@ -1,11 +1,14 @@
 package lt.rieske.accounts.eventsourcing;
 
+import lt.rieske.accounts.api.ApiConfiguration;
 import lt.rieske.accounts.domain.Account;
-import lt.rieske.accounts.domain.AccountSnapshotter;
-import org.junit.Before;
-import org.junit.Test;
+import lt.rieske.accounts.domain.Operation;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ConcurrentModificationException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -14,76 +17,121 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class AccountConsistencyTest {
 
-    private EventStore<Account> eventStore;
     private AggregateRepository<Account> accountRepository;
     private AggregateRepository<Account> snapshottingAccountRepository;
 
-    private UUID accountId;
+    private final Set<UUID> accountIds = new HashSet<>();
+
+    private UUID ownerId = UUID.randomUUID();
 
     protected abstract EventStore<Account> getEventStore();
 
-    protected int depositCount() {
-        return 100;
+    protected int operationCount() {
+        return 50;
     }
 
     protected int threadCount() {
         return 8;
     }
 
-    protected UUID aggregateId() {
-        return accountId;
+    protected Set<UUID> aggregateIds() {
+        return accountIds;
     }
 
-    @Before
-    public void init() {
-        eventStore = getEventStore();
-        accountRepository = new AggregateRepository<>(eventStore, Account::new);
-        snapshottingAccountRepository = new AggregateRepository<>(eventStore, Account::new, new AccountSnapshotter(5));
-    }
-
-    @Test
-    public void accountRemainsConsistentWithConcurrentModifications_noSnapshots() throws InterruptedException {
-        accountRemainsConsistentWithConcurrentModifications(accountRepository);
+    @BeforeEach
+    void init() {
+        var eventStore = getEventStore();
+        accountRepository = ApiConfiguration.accountRepository(eventStore);
+        snapshottingAccountRepository = ApiConfiguration.snapshottingAccountRepository(eventStore, 5);
     }
 
     @Test
-    public void accountRemainsConsistentWithConcurrentModifications_withSnapshotting() throws InterruptedException {
-        accountRemainsConsistentWithConcurrentModifications(snapshottingAccountRepository);
+    protected void accountRemainsConsistentWithConcurrentModifications_noSnapshots() throws InterruptedException {
+        accountRemainsConsistentWithConcurrentDeposits(accountRepository);
+        accountsRemainConsistentWithConcurrentTransfers(accountRepository);
     }
 
-    private void accountRemainsConsistentWithConcurrentModifications(AggregateRepository<Account> repository)
+    @Test
+    protected void accountRemainsConsistentWithConcurrentModifications_withSnapshotting() throws InterruptedException {
+        accountRemainsConsistentWithConcurrentDeposits(snapshottingAccountRepository);
+        accountsRemainConsistentWithConcurrentTransfers(snapshottingAccountRepository);
+    }
+
+    private void accountRemainsConsistentWithConcurrentDeposits(AggregateRepository<Account> repository)
             throws InterruptedException {
-        accountId = UUID.randomUUID();
-        var ownerId = UUID.randomUUID();
+        var accountId = openNewAccount(repository);
 
-        repository.create(accountId, account -> account.open(accountId, ownerId));
-
-        var depositCount = depositCount();
+        var operationCount = operationCount();
         var threadCount = threadCount();
         var executor = Executors.newFixedThreadPool(threadCount);
 
-        for (int i = 0; i < depositCount; i++) {
+        for (int i = 0; i < operationCount; i++) {
             var latch = new CountDownLatch(threadCount);
             for (int j = 0; j < threadCount; j++) {
                 executor.submit(() -> {
-                    while (true) {
-                        try {
-                            repository.transact(accountId, account -> account.deposit(1));
-                            break;
-                        } catch (RuntimeException e) {
-                            if (!e.getClass().equals(ConcurrentModificationException.class)) {
-                                e.printStackTrace();
-                                break;
-                            }
-                        }
-                    }
+                    withRetryOnConcurrentModification(() ->
+                            repository.transact(accountId, UUID.randomUUID(), Operation.deposit(1)));
                     latch.countDown();
                 });
             }
             latch.await();
         }
 
-        assertThat(accountRepository.query(accountId).balance()).isEqualTo(depositCount * threadCount);
-        assertThat(snapshottingAccountRepository.query(accountId).balance()).isEqualTo(depositCount * threadCount);
+        assertThat(accountRepository.query(accountId).balance()).isEqualTo(operationCount * threadCount);
+        assertThat(snapshottingAccountRepository.query(accountId).balance()).isEqualTo(operationCount * threadCount);
+    }
+
+    private void accountsRemainConsistentWithConcurrentTransfers(AggregateRepository<Account> repository)
+            throws InterruptedException {
+        var operationCount = operationCount();
+        var threadCount = threadCount();
+
+        var balance = operationCount * threadCount;
+
+        var sourceAccountId = openNewAccount(repository);
+        repository.transact(sourceAccountId, UUID.randomUUID(), Operation.deposit(balance));
+
+        var targetAccountId = openNewAccount(repository);
+        repository.transact(targetAccountId, UUID.randomUUID(), Operation.deposit(balance));
+
+        var executor = Executors.newFixedThreadPool(threadCount);
+
+        for (int i = 0; i < operationCount; i++) {
+            var latch = new CountDownLatch(threadCount);
+            for (int j = 0; j < threadCount; j++) {
+                executor.submit(() -> {
+                    withRetryOnConcurrentModification(() ->
+                            repository.transact(sourceAccountId, targetAccountId, UUID.randomUUID(), Operation.transfer(1)));
+                    latch.countDown();
+                });
+            }
+            latch.await();
+        }
+
+        executor.shutdown();
+
+        assertThat(accountRepository.query(sourceAccountId).balance()).isZero();
+        assertThat(snapshottingAccountRepository.query(targetAccountId).balance()).isEqualTo(balance * 2);
+    }
+
+    private UUID openNewAccount(AggregateRepository<Account> repository) {
+        var accountId = UUID.randomUUID();
+        repository.create(accountId, UUID.randomUUID(), Operation.open(ownerId));
+        accountIds.add(accountId);
+        return accountId;
+    }
+
+    private void withRetryOnConcurrentModification(Runnable r) {
+        while (true) {
+            try {
+                r.run();
+                break;
+            } catch (ConcurrentModificationException ignored) {
+                // retry operation
+            } catch (RuntimeException e) {
+                e.printStackTrace();
+                break;
+            }
+        }
     }
 }

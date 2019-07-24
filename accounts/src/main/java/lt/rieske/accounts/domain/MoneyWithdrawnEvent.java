@@ -6,8 +6,8 @@ import lt.rieske.accounts.eventsourcing.Event;
 
 @Value
 public class MoneyWithdrawnEvent implements Event<Account> {
-    private final int amountWithdrawn;
-    private final int balance;
+    private final long amountWithdrawn;
+    private final long balance;
 
     @Override
     public void apply(Account aggregate) {
