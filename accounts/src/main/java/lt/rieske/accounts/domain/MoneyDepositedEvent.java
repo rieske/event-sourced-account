@@ -5,12 +5,12 @@ import lt.rieske.accounts.eventsourcing.Event;
 
 
 @Value
-public class MoneyDepositedEvent implements Event<Account> {
+public class MoneyDepositedEvent<T extends AccountEventsVisitor> implements Event<T> {
     private final long amountDeposited;
     private final long balance;
 
     @Override
-    public void apply(Account aggregate) {
-        aggregate.apply(this);
+    public void apply(AccountEventsVisitor aggregate) {
+        aggregate.visit(this);
     }
 }

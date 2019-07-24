@@ -5,10 +5,10 @@ import lt.rieske.accounts.eventsourcing.Event;
 
 
 @Value
-public class AccountClosedEvent implements Event<Account> {
+public class AccountClosedEvent<T extends AccountEventsVisitor> implements Event<T> {
 
     @Override
-    public void apply(Account aggregate) {
-        aggregate.apply(this);
+    public void apply(AccountEventsVisitor aggregate) {
+        aggregate.visit(this);
     }
 }

@@ -6,7 +6,7 @@ import lt.rieske.accounts.eventsourcing.Event;
 import java.util.UUID;
 
 @Value
-public class AccountSnapshot implements Event<Account> {
+public class AccountSnapshot<T extends AccountEventsVisitor> implements Event<T> {
 
     private final UUID accountId;
     private final UUID ownerId;
@@ -14,7 +14,7 @@ public class AccountSnapshot implements Event<Account> {
     private final boolean open;
 
     @Override
-    public void apply(Account aggregate) {
-        aggregate.applySnapshot(this);
+    public void apply(AccountEventsVisitor aggregate) {
+        aggregate.visit(this);
     }
 }

@@ -6,11 +6,11 @@ import lt.rieske.accounts.eventsourcing.Event;
 import java.util.UUID;
 
 @Value
-public class AccountOpenedEvent implements Event<Account> {
+public class AccountOpenedEvent<T extends AccountEventsVisitor> implements Event<T> {
     private final UUID ownerId;
 
     @Override
-    public void apply(Account aggregate) {
-        aggregate.apply(this);
+    public void apply(AccountEventsVisitor aggregate) {
+        aggregate.visit(this);
     }
 }
