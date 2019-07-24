@@ -4,6 +4,51 @@ A simple, frameworkless event sourced Account implementation.
 
 ### Implementation
 
+The service is test driven bottom up.
+
+I started with the basic operations in the account - deposit and withdrawal, open and close.
+This captures the basic business rules of when an account can be interacted with, what amounts
+can be deposited and withdrawn and under what circumstances.
+Then follows the event sourcing part - I'm aware of consistency issues when concurrent
+modifications are attempted and event sourced implementation can easily prevent those
+as well as providing a transaction log and potential to emit certain external events
+for other systems to react to.
+
+Firstly, a naive in-memory event store backed by Maps and Lists - after basic logic
+was in place and events were emitted from operations with account, I had to test for potential
+concurrency issues that might arise as the system can be called by many external clients at
+the same time. The not-so-nice account consistency test where a single account is hammered
+by multiple threads was quick to reveal some of the things that will go wrong.
+
+After patching the in-memory event store, I drove the implementation for a
+sql event store, initially serializing the payloads to json. Extended the same tests
+that I used with in-memory event store to also run with H2 embedded database. And then with
+MySql just to be sure (those are slow ones and are not part of the main build). I am sure
+there is a better way to parameterize those tests than test inheritance, but this works
+for now. All in all, I found this pretty cool as I was able to validate all the core
+functionality, including consistency very quickly with multiple event store implementations.
+And event store here is key to ensuring consistency in a multithreaded environment.
+
+Next came the API, repeated some of the same tests for basic functions with RestAssured,
+plugged in H2 event store and drove the implementation with the help of Spark.
+
+What can be important when dealing with money and especially when requests come over an
+unreliable network (and network is unreliable by definition) is idempotency. When a client
+request gets interrupted due to whatever reason, the client might not know whether the
+request was handled or not and might retry. This might result in a double transfer, double
+deposit or withdrawal had the original request been handled successfully. To prevent such
+cases, the client should supply a unique transaction id (a UUID in our case) for each 
+distinct operation. This id is persisted and in case a duplicate request comes in, it will
+be accepted, but no action taken since we know we already handled it. Transaction ids
+can not be reused. Current implementation is a bit naive as it does not take into account
+the type of operation in context of idempotency, just the transaction id together with 
+affected account id, meaning that given a transaction id that was used for a deposit
+would be used for a withdrawal, the service would respond that it accepted the request.
+Maybe a better way would be to conflict on such cases.
+
+
+### API
+
 
 ### Tests
 
@@ -23,6 +68,14 @@ the currency, prevent deposits/withdrawals if account currency does not match. T
 prevent cross currency transfers right away. Currency conversion for cross currency transfers
 is something I'd have to figure out. This potentially could be out of scope for accounts
 service itself.
+
+- Exception types in domain - probably would make sense to create specific types for
+InsufficientBalance, AccountClosed exceptions etc. Kept it simple with IllegalArgument/State
+exceptions for the sake of avoiding unneeded class count explosion.
+
+- Didn't use Jackson for serializing events in the REST API. Just for fun - wanted to try out the
+events visitor outside of the aggregate. Similar approach should work nicely to manually
+map the event classes to protobufs for storage. No reflection needed.
 
 
 ### Building
@@ -53,6 +106,7 @@ or, packaged in a docker container and connected to a mysql container using:
 ./gradlew build
 docker-compose up --build
 ```
+Either way - service will start on localhost:8080
 
 ### Dependencies
 
