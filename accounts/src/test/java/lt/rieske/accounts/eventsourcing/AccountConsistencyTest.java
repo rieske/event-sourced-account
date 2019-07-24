@@ -68,18 +68,19 @@ public abstract class AccountConsistencyTest {
 
         for (int i = 0; i < operationCount; i++) {
             var latch = new CountDownLatch(threadCount);
+            var transactionId = UUID.randomUUID();
             for (int j = 0; j < threadCount; j++) {
                 executor.submit(() -> {
                     withRetryOnConcurrentModification(() ->
-                            repository.transact(accountId, UUID.randomUUID(), Operation.deposit(1)));
+                            repository.transact(accountId, transactionId, Operation.deposit(1)));
                     latch.countDown();
                 });
             }
             latch.await();
         }
 
-        assertThat(accountRepository.query(accountId).balance()).isEqualTo(operationCount * threadCount);
-        assertThat(snapshottingAccountRepository.query(accountId).balance()).isEqualTo(operationCount * threadCount);
+        assertThat(accountRepository.query(accountId).balance()).isEqualTo(operationCount);
+        assertThat(snapshottingAccountRepository.query(accountId).balance()).isEqualTo(operationCount);
     }
 
     private void accountsRemainConsistentWithConcurrentTransfers(AggregateRepository<Account, AccountEventsVisitor> repository)
@@ -87,22 +88,21 @@ public abstract class AccountConsistencyTest {
         var operationCount = operationCount();
         var threadCount = threadCount();
 
-        var balance = operationCount * threadCount;
-
         var sourceAccountId = openNewAccount(repository);
-        repository.transact(sourceAccountId, UUID.randomUUID(), Operation.deposit(balance));
+        repository.transact(sourceAccountId, UUID.randomUUID(), Operation.deposit(operationCount));
 
         var targetAccountId = openNewAccount(repository);
-        repository.transact(targetAccountId, UUID.randomUUID(), Operation.deposit(balance));
+        repository.transact(targetAccountId, UUID.randomUUID(), Operation.deposit(operationCount));
 
         var executor = Executors.newFixedThreadPool(threadCount);
 
         for (int i = 0; i < operationCount; i++) {
             var latch = new CountDownLatch(threadCount);
+            var transactionId = UUID.randomUUID();
             for (int j = 0; j < threadCount; j++) {
                 executor.submit(() -> {
                     withRetryOnConcurrentModification(() ->
-                            repository.transact(sourceAccountId, targetAccountId, UUID.randomUUID(), Operation.transfer(1)));
+                            repository.transact(sourceAccountId, targetAccountId, transactionId, Operation.transfer(1)));
                     latch.countDown();
                 });
             }
@@ -112,7 +112,7 @@ public abstract class AccountConsistencyTest {
         executor.shutdown();
 
         assertThat(accountRepository.query(sourceAccountId).balance()).isZero();
-        assertThat(snapshottingAccountRepository.query(targetAccountId).balance()).isEqualTo(balance * 2);
+        assertThat(snapshottingAccountRepository.query(targetAccountId).balance()).isEqualTo(operationCount * 2);
     }
 
     private UUID openNewAccount(AggregateRepository<Account, AccountEventsVisitor> repository) {

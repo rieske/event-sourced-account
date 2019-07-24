@@ -39,7 +39,7 @@ public class AggregateRepository<A extends E, E> {
     }
 
     public void transact(UUID aggregateId1, UUID aggregateId2, UUID transactionId, BiConsumer<A, A> transaction) {
-        if (eventStore.transactionExists(aggregateId1, transactionId) &&
+        if (eventStore.transactionExists(aggregateId1, transactionId) ||
                 eventStore.transactionExists(aggregateId2, transactionId)) {
             return;
         }

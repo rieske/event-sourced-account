@@ -40,7 +40,7 @@ public abstract class AccountEventSourcingTest {
         for (int i = 0; i < events.length; i++) {
             sequencedEvents.add(new SequencedEvent<>(accountId, i + 1, null, events[i]));
         }
-        eventStore.append(sequencedEvents, null, transactionId);
+        eventStore.append(sequencedEvents, List.of(), transactionId);
     }
 
     @Test
@@ -298,7 +298,7 @@ public abstract class AccountEventSourcingTest {
         var ownerId = UUID.randomUUID();
 
         eventStore.append(List.of(),
-                new SequencedEvent<>(accountId, 10, null, new AccountSnapshot<>(accountId, ownerId, 42, true)),
+                List.of(new SequencedEvent<>(accountId, 10, null, new AccountSnapshot<>(accountId, ownerId, 42, true))),
                 null);
 
         var account = snapshottingAccountRepository.query(accountId);
@@ -314,7 +314,7 @@ public abstract class AccountEventSourcingTest {
 
         eventStore.append(
                 List.of(new SequencedEvent<>(accountId, 10, null, new MoneyDepositedEvent<>(10, 11))),
-                new SequencedEvent<>(accountId, 10, null, new AccountSnapshot<>(accountId, ownerId, 42, true)),
+                List.of(new SequencedEvent<>(accountId, 10, null, new AccountSnapshot<>(accountId, ownerId, 42, true))),
                 UUID.randomUUID());
 
         var account = snapshottingAccountRepository.query(accountId);
@@ -331,7 +331,7 @@ public abstract class AccountEventSourcingTest {
         eventStore.append(
                 List.of(new SequencedEvent<>(accountId, 10, null, new MoneyDepositedEvent<>(10, 11)),
                         new SequencedEvent<>(accountId, 11, null, new MoneyDepositedEvent<>(1, 43))),
-                new SequencedEvent<>(accountId, 10, null, new AccountSnapshot<>(accountId, ownerId, 42, true)),
+                List.of(new SequencedEvent<>(accountId, 10, null, new AccountSnapshot<>(accountId, ownerId, 42, true))),
                 UUID.randomUUID());
 
         var account = snapshottingAccountRepository.query(accountId);

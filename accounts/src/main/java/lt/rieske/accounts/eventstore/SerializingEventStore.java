@@ -4,6 +4,7 @@ import lt.rieske.accounts.eventsourcing.EventStore;
 import lt.rieske.accounts.eventsourcing.SequencedEvent;
 import lt.rieske.accounts.eventstore.serialization.EventSerializer;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -20,16 +21,17 @@ class SerializingEventStore<T> implements EventStore<T> {
     }
 
     @Override
-    public void append(List<SequencedEvent<T>> uncomittedEvents, SequencedEvent<T> uncomittedSnapshot, UUID transactionId) {
+    public void append(
+            Collection<SequencedEvent<T>> uncomittedEvents,
+            Collection<SequencedEvent<T>> uncommittedSnapshots,
+            UUID transactionId) {
         var serializedEvents = uncomittedEvents.stream()
                 .map(e -> serialize(e, transactionId))
-                .collect(Collectors.toList());
-        SerializedEvent serializedSnapshot = null;
-        if (uncomittedSnapshot != null) {
-            serializedSnapshot = serialize(uncomittedSnapshot, null);
-        }
+                .collect(Collectors.toUnmodifiableList());
+        var serializedSnapshots = uncommittedSnapshots.stream()
+                .map(s -> serialize(s, null)).collect(Collectors.toUnmodifiableList());
 
-        blobStore.append(serializedEvents, serializedSnapshot);
+        blobStore.append(serializedEvents, serializedSnapshots, transactionId);
     }
 
     @Override

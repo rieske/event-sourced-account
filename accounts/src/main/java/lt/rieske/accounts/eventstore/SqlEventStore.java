@@ -9,9 +9,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 class SqlEventStore implements BlobEventStore {
@@ -26,8 +29,10 @@ class SqlEventStore implements BlobEventStore {
     private static final String SELECT_LATEST_SNAPSHOT_SQL =
             "SELECT sequenceNumber, payload FROM event_store.Snapshot WHERE aggregateId = ? ORDER BY sequenceNumber DESC LIMIT 1";
 
+    private static final String INSERT_TRANSACTION_SQL =
+            "INSERT INTO event_store.Transaction(aggregateId, transactionId) VALUES(?, ?)";
     private static final String SELECT_TRANSACTION_SQL =
-            "SELECT sequenceNumber FROM event_store.Event WHERE aggregateId = ? AND transactionId = ?";
+            "SELECT aggregateId FROM event_store.Transaction WHERE aggregateId = ? AND transactionId = ?";
 
     private final DataSource dataSource;
 
@@ -36,14 +41,23 @@ class SqlEventStore implements BlobEventStore {
     }
 
     @Override
-    public void append(List<SerializedEvent> serializedEvents, SerializedEvent serializedSnapshot) {
+    public void append(
+            Collection<SerializedEvent> serializedEvents,
+            Collection<SerializedEvent> serializedSnapshots,
+            UUID transactionId) {
+
+        Set<UUID> aggregateIds = serializedEvents.stream().map(SerializedEvent::getAggregateId).collect(Collectors.toSet());
+
         try (var connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
+            for (var aggregateId : aggregateIds) {
+                insertTransaction(connection, aggregateId, transactionId);
+            }
             for (var e : serializedEvents) {
                 insertEvent(connection, e);
             }
-            if (serializedSnapshot != null) {
-                insertSnapshot(connection, serializedSnapshot);
+            for (var s : serializedSnapshots) {
+                insertSnapshot(connection, s);
             }
             connection.commit();
         } catch (SQLIntegrityConstraintViolationException e) {
@@ -108,8 +122,15 @@ class SqlEventStore implements BlobEventStore {
         }
     }
 
-    private void insertEvent(Connection connection, SerializedEvent event)
-            throws SQLException {
+    private void insertTransaction(Connection connection, UUID aggregateId, UUID transactionId) throws SQLException {
+        try (var statement = connection.prepareStatement(INSERT_TRANSACTION_SQL)) {
+            statement.setBytes(1, uuidToBytes(aggregateId));
+            statement.setBytes(2, uuidToBytes(transactionId));
+            statement.executeUpdate();
+        }
+    }
+
+    private void insertEvent(Connection connection, SerializedEvent event) throws SQLException {
         try (var statement = connection.prepareStatement(APPEND_EVENT_SQL)) {
             statement.setBytes(1, uuidToBytes(event.getAggregateId()));
             statement.setLong(2, event.getSequenceNumber());
@@ -119,8 +140,7 @@ class SqlEventStore implements BlobEventStore {
         }
     }
 
-    private void insertSnapshot(Connection connection, SerializedEvent event)
-            throws SQLException {
+    private void insertSnapshot(Connection connection, SerializedEvent event) throws SQLException {
         try (var statement = connection.prepareStatement(APPEND_SNAPSHOT_SQL)) {
             statement.setBytes(1, uuidToBytes(event.getAggregateId()));
             statement.setLong(2, event.getSequenceNumber());
