@@ -17,7 +17,7 @@ class AccountResource {
     }
 
     String createAccount(Request request, Response response) {
-        var accountId = UUID.fromString(request.params("accountId"));
+        var accountId = accountIdPathParam(request);
         var ownerId = UUID.fromString(getMandatoryQueryParameter(request, "owner"));
 
         accountService.openAccount(accountId, ownerId);
@@ -28,7 +28,7 @@ class AccountResource {
     }
 
     String getAccount(Request request, Response response) {
-        var accountId = UUID.fromString(request.params("accountId"));
+        var accountId = accountIdPathParam(request);
 
         var account = accountService.queryAccount(accountId);
 
@@ -37,9 +37,9 @@ class AccountResource {
     }
 
     String deposit(Request request, Response response) {
-        var accountId = UUID.fromString(request.params("accountId"));
-        int amount = Integer.parseInt(getMandatoryQueryParameter(request, "amount"));
-        var transactionId = UUID.fromString(getMandatoryQueryParameter(request, "transactionId"));
+        var accountId = accountIdPathParam(request);
+        long amount = amountQueryParam(request);
+        var transactionId = transactionIdQueryParam(request);
 
         accountService.deposit(accountId, amount, transactionId);
 
@@ -48,9 +48,9 @@ class AccountResource {
     }
 
     String withdraw(Request request, Response response) {
-        var accountId = UUID.fromString(request.params("accountId"));
-        int amount = Integer.parseInt(getMandatoryQueryParameter(request, "amount"));
-        var transactionId = UUID.fromString(getMandatoryQueryParameter(request, "transactionId"));
+        var accountId = accountIdPathParam(request);
+        long amount = amountQueryParam(request);
+        var transactionId = transactionIdQueryParam(request);
 
         accountService.withdraw(accountId, amount, transactionId);
 
@@ -59,10 +59,10 @@ class AccountResource {
     }
 
     String transfer(Request request, Response response) {
-        var sourceAccountId = UUID.fromString(request.params("accountId"));
+        var sourceAccountId = accountIdPathParam(request);
         var targetAccountId = UUID.fromString(getMandatoryQueryParameter(request, "targetAccount"));
-        int amount = Integer.parseInt(getMandatoryQueryParameter(request, "amount"));
-        var transactionId = UUID.fromString(getMandatoryQueryParameter(request, "transactionId"));
+        long amount = amountQueryParam(request);
+        var transactionId = transactionIdQueryParam(request);
 
         accountService.transfer(sourceAccountId, targetAccountId, amount, transactionId);
 
@@ -71,7 +71,7 @@ class AccountResource {
     }
 
     String close(Request request, Response response) {
-        var accountId = UUID.fromString(request.params("accountId"));
+        var accountId = accountIdPathParam(request);
 
         accountService.close(accountId);
 
@@ -90,6 +90,18 @@ class AccountResource {
     <T extends Exception> void conflict(T e, Request request, Response response) {
         response.status(409);
         response.body("");
+    }
+
+    private UUID accountIdPathParam(Request request) {
+        return UUID.fromString(request.params("accountId"));
+    }
+
+    private long amountQueryParam(Request request) {
+        return Long.parseLong(getMandatoryQueryParameter(request, "amount"));
+    }
+
+    private UUID transactionIdQueryParam(Request request) {
+        return UUID.fromString(getMandatoryQueryParameter(request, "transactionId"));
     }
 
     private String getMandatoryQueryParameter(Request request, String paramName) {

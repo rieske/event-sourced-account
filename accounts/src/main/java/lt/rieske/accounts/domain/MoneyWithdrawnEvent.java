@@ -8,8 +8,8 @@ import java.util.UUID;
 
 @Value
 public class MoneyWithdrawnEvent implements Event<Account> {
-    private final int amountWithdrawn;
-    private final int balance;
+    private final long amountWithdrawn;
+    private final long balance;
     private final UUID transactionId;
 
     @Override

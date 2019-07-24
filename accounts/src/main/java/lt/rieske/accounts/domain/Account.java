@@ -10,7 +10,7 @@ public class Account implements Aggregate {
     private final UUID accountId;
 
     private UUID ownerId;
-    private int balance;
+    private long balance;
     private boolean open;
 
     public Account(EventStream<Account> eventStream, UUID accountId) {
@@ -29,7 +29,7 @@ public class Account implements Aggregate {
         eventStream.append(new AccountOpenedEvent(ownerId), this);
     }
 
-    public void deposit(int amount, UUID transactionId) {
+    public void deposit(long amount, UUID transactionId) {
         if (amount == 0) {
             return;
         }
@@ -40,7 +40,7 @@ public class Account implements Aggregate {
         eventStream.append(new MoneyDepositedEvent(amount, balance + amount, transactionId), this);
     }
 
-    public void withdraw(int amount, UUID transactionId) {
+    public void withdraw(long amount, UUID transactionId) {
         if (amount == 0) {
             return;
         }
@@ -70,7 +70,7 @@ public class Account implements Aggregate {
         return ownerId;
     }
 
-    public int balance() {
+    public long balance() {
         return balance;
     }
 

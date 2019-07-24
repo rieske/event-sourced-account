@@ -10,7 +10,7 @@ public class AccountSnapshot implements Event<Account> {
 
     private final UUID accountId;
     private final UUID ownerId;
-    private final int balance;
+    private final long balance;
     private final boolean open;
 
     @Override

@@ -19,15 +19,15 @@ class AccountService {
         accountRepository.create(accountId, account -> account.open(ownerId));
     }
 
-    void deposit(UUID accountId, int amount, UUID transactionId) {
+    void deposit(UUID accountId, long amount, UUID transactionId) {
         accountRepository.transact(accountId, Operation.deposit(amount, transactionId));
     }
 
-    void withdraw(UUID accountId, int amount, UUID transactionId) {
+    void withdraw(UUID accountId, long amount, UUID transactionId) {
         accountRepository.transact(accountId, Operation.withdraw(amount, transactionId));
     }
 
-    void transfer(UUID sourceAccountId, UUID targetAccountId, int amount, UUID transactionId) {
+    void transfer(UUID sourceAccountId, UUID targetAccountId, long amount, UUID transactionId) {
         accountRepository.transact(sourceAccountId, targetAccountId, Operation.transfer(amount, transactionId));
     }
 
