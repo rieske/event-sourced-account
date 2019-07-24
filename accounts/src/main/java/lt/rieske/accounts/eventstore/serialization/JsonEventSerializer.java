@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 public class JsonEventSerializer<T> implements EventSerializer<T> {
 
     private final ObjectMapper objectMapper = new ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .addMixIn(Event.class, PolymorphicEventMixIn.class);
 
     @Override
