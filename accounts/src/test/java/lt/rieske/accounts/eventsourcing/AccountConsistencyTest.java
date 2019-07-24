@@ -101,7 +101,7 @@ public abstract class AccountConsistencyTest {
             for (int j = 0; j < threadCount; j++) {
                 executor.submit(() -> {
                     withRetryOnConcurrentModification(() ->
-                            repository.transact(sourceAccountId, targetAccountId, Operation.transfer(1)));
+                            repository.transact(sourceAccountId, targetAccountId, Operation.transfer(1, UUID.randomUUID())));
                     latch.countDown();
                 });
             }

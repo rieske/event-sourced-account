@@ -12,10 +12,11 @@ public final class Operation {
         return new Transaction<>(transactionId, a -> a.withdraw(amount, transactionId));
     }
 
-    public static BiTransaction<Account> transfer(int amount) {
-        return new BiTransaction<>(UUID.randomUUID(), (source, target) -> {
-            source.withdraw(amount, UUID.randomUUID());
-            target.deposit(amount, UUID.randomUUID());
+    public static BiTransaction<Account> transfer(int amount, UUID transactionId) {
+        return new BiTransaction<>(transactionId, (source, target) -> {
+            source.withdraw(amount, transactionId);
+            target.deposit(amount, transactionId);
         });
     }
 }
+

@@ -1,9 +1,9 @@
 package lt.rieske.accounts.eventsourcing;
 
+import lt.rieske.accounts.domain.BiTransaction;
 import lt.rieske.accounts.domain.Transaction;
 
 import java.util.UUID;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 
@@ -44,7 +44,12 @@ public class AggregateRepository<T extends Aggregate> {
         eventStream.commit();
     }
 
-    public void transact(UUID aggregateId1, UUID aggregateId2, BiConsumer<T, T> transaction) {
+    public void transact(UUID aggregateId1, UUID aggregateId2, BiTransaction<T> transaction) {
+        if (eventStore.transactionExists(aggregateId1, transaction.transactionId()) &&
+                eventStore.transactionExists(aggregateId2, transaction.transactionId())) {
+            return;
+        }
+
         var eventStream = transactionalEventStream();
         transaction.accept(loadAggregate(eventStream, aggregateId1), loadAggregate(eventStream, aggregateId2));
         eventStream.commit();

@@ -17,15 +17,10 @@ public abstract class IdempotencyTest {
     protected abstract EventStore<Account> getEventStore();
 
     private final UUID ownerId = UUID.randomUUID();
-    private final UUID sourceAccountId = UUID.randomUUID();
-    private final UUID targetAccountId = UUID.randomUUID();
 
     @BeforeEach
     void init() {
         accountRepository = Configuration.accountRepository(getEventStore());
-
-        accountRepository.create(sourceAccountId, account -> account.open(ownerId));
-        accountRepository.create(targetAccountId, account -> account.open(ownerId));
     }
 
     @Test
@@ -38,7 +33,6 @@ public abstract class IdempotencyTest {
         accountRepository.transact(accountId, Operation.deposit(10, transactionId));
 
         var account = accountRepository.query(accountId);
-
         assertThat(account.balance()).isEqualTo(10);
     }
 
@@ -53,7 +47,26 @@ public abstract class IdempotencyTest {
         accountRepository.transact(accountId, Operation.withdraw(10, transactionId));
 
         var account = accountRepository.query(accountId);
-
         assertThat(account.balance()).isEqualTo(90);
+    }
+
+    @Test
+    void moneyTransferTransactionShouldBeIdempotent() {
+        var sourceAccountId = UUID.randomUUID();
+        accountRepository.create(sourceAccountId, account -> account.open(ownerId));
+        accountRepository.transact(sourceAccountId, Operation.deposit(100, UUID.randomUUID()));
+
+        var targetAccountId = UUID.randomUUID();
+        accountRepository.create(targetAccountId, account -> account.open(ownerId));
+
+        var transactionId = UUID.randomUUID();
+        accountRepository.transact(sourceAccountId, targetAccountId, Operation.transfer(60, transactionId));
+        accountRepository.transact(sourceAccountId, targetAccountId, Operation.transfer(60, transactionId));
+
+        var sourceAccount = accountRepository.query(sourceAccountId);
+        assertThat(sourceAccount.balance()).isEqualTo(40);
+
+        var targetAccount = accountRepository.query(targetAccountId);
+        assertThat(targetAccount.balance()).isEqualTo(60);
     }
 }

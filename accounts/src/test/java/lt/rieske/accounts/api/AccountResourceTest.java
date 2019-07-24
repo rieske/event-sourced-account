@@ -325,7 +325,8 @@ class AccountResourceTest {
         createAccount(targetAccountId, ownerId);
         deposit(targetAccountId, 1);
 
-        when().put("/account/" + sourceAccountId + "/transfer?targetAccount=" + targetAccountId + "&amount=" + 2)
+        when().put("/account/" + sourceAccountId + "/transfer?targetAccount="
+                + targetAccountId + "&amount=2&transactionId=" + UUID.randomUUID())
                 .then()
                 .statusCode(204);
 
@@ -334,6 +335,32 @@ class AccountResourceTest {
 
         var targetAccountJsonPath = queryAccount(targetAccountId);
         assertThat(targetAccountJsonPath.getInt("balance")).isEqualTo(3);
+    }
+
+    @Test
+    void moneyTransferTransactionsShouldBeIdempotent() {
+
+        var ownerId = UUID.randomUUID();
+        var sourceAccountId = UUID.randomUUID();
+        createAccount(sourceAccountId, ownerId);
+        deposit(sourceAccountId, 100);
+
+        var targetAccountId = UUID.randomUUID();
+        createAccount(targetAccountId, ownerId);
+
+        var txId = UUID.randomUUID();
+        when().put("/account/" + sourceAccountId + "/transfer?targetAccount=" + targetAccountId + "&amount=60&transactionId=" + txId)
+                .then()
+                .statusCode(204);
+        when().put("/account/" + sourceAccountId + "/transfer?targetAccount=" + targetAccountId + "&amount=60&transactionId=" + txId)
+                .then()
+                .statusCode(204);
+
+        var sourceAccountJsonPath = queryAccount(sourceAccountId);
+        assertThat(sourceAccountJsonPath.getInt("balance")).isEqualTo(40);
+
+        var targetAccountJsonPath = queryAccount(targetAccountId);
+        assertThat(targetAccountJsonPath.getInt("balance")).isEqualTo(60);
     }
 
     @Test

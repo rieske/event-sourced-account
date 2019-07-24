@@ -62,8 +62,9 @@ class AccountResource {
         var sourceAccountId = UUID.fromString(request.params("accountId"));
         var targetAccountId = UUID.fromString(getMandatoryQueryParameter(request, "targetAccount"));
         int amount = Integer.parseInt(getMandatoryQueryParameter(request, "amount"));
+        var transactionId = UUID.fromString(getMandatoryQueryParameter(request, "transactionId"));
 
-        accountService.transfer(sourceAccountId, targetAccountId, amount);
+        accountService.transfer(sourceAccountId, targetAccountId, amount, transactionId);
 
         response.status(204);
         return "";

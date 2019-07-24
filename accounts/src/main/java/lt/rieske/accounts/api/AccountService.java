@@ -27,8 +27,8 @@ class AccountService {
         accountRepository.transact(accountId, Operation.withdraw(amount, transactionId));
     }
 
-    void transfer(UUID sourceAccountId, UUID targetAccountId, int amount) {
-        accountRepository.transact(sourceAccountId, targetAccountId, Operation.transfer(amount));
+    void transfer(UUID sourceAccountId, UUID targetAccountId, int amount, UUID transactionId) {
+        accountRepository.transact(sourceAccountId, targetAccountId, Operation.transfer(amount, transactionId));
     }
 
     void close(UUID accountId) {
