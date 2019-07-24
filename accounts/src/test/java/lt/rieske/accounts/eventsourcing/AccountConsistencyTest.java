@@ -116,7 +116,7 @@ public abstract class AccountConsistencyTest {
 
     private UUID openNewAccount(AggregateRepository<Account> repository) {
         var accountId = UUID.randomUUID();
-        repository.create(accountId, account -> account.open(ownerId));
+        repository.create(accountId, Operation.open(ownerId));
         accountIds.add(accountId);
         return accountId;
     }

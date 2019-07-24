@@ -4,7 +4,6 @@ import lt.rieske.accounts.domain.BiTransaction;
 import lt.rieske.accounts.domain.Transaction;
 
 import java.util.UUID;
-import java.util.function.Consumer;
 
 
 public class AggregateRepository<T extends Aggregate> {
@@ -22,15 +21,11 @@ public class AggregateRepository<T extends Aggregate> {
         this.snapshotter = snapshotter;
     }
 
-    public void create(UUID aggregateId, Consumer<T> transaction) {
+    public void create(UUID aggregateId, Transaction<T> transaction) {
         var eventStream = transactionalEventStream();
         var aggregate = aggregateFactory.makeAggregate(eventStream, aggregateId);
         transaction.accept(aggregate);
         eventStream.commit();
-    }
-
-    public void transact(UUID aggregateId, Consumer<T> transaction) {
-        transact(aggregateId, new Transaction<>(UUID.randomUUID(), transaction));
     }
 
     public void transact(UUID aggregateId, Transaction<T> transaction) {

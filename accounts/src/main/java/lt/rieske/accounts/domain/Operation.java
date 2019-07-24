@@ -4,6 +4,10 @@ import java.util.UUID;
 
 public final class Operation {
 
+    public static Transaction<Account> open(UUID ownerId) {
+        return new Transaction<>(UUID.randomUUID(), a -> a.open(ownerId));
+    }
+
     public static Transaction<Account> deposit(long amount, UUID transactionId) {
         return new Transaction<>(transactionId, a -> a.deposit(amount, transactionId));
     }
@@ -17,6 +21,10 @@ public final class Operation {
             source.withdraw(amount, transactionId);
             target.deposit(amount, transactionId);
         });
+    }
+
+    public static Transaction<Account> close() {
+        return new Transaction<>(UUID.randomUUID(), Account::close);
     }
 }
 

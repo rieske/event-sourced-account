@@ -25,8 +25,8 @@ public abstract class MoneyTransferTest {
     void init() {
         accountRepository = Configuration.accountRepository(getEventStore());
 
-        accountRepository.create(sourceAccountId, account -> account.open(ownerId));
-        accountRepository.create(targetAccountId, account -> account.open(ownerId));
+        accountRepository.create(sourceAccountId, Operation.open(ownerId));
+        accountRepository.create(targetAccountId, Operation.open(ownerId));
     }
 
     @Test
@@ -63,7 +63,7 @@ public abstract class MoneyTransferTest {
     void shouldFailMoneyTransferWhenTargetAccountIsClosed() {
         int transferAmount = 42;
         accountRepository.transact(sourceAccountId, Operation.deposit(transferAmount, UUID.randomUUID()));
-        accountRepository.transact(targetAccountId, Account::close);
+        accountRepository.transact(targetAccountId, Operation.close());
 
         assertThatThrownBy(() -> accountRepository.transact(sourceAccountId, targetAccountId,
                 Operation.transfer(transferAmount, UUID.randomUUID())))
@@ -80,7 +80,7 @@ public abstract class MoneyTransferTest {
     @Test
     void shouldFailMoneyTransferWhenSourceAccountIsClosed() {
         int transferAmount = 42;
-        accountRepository.transact(sourceAccountId, Account::close);
+        accountRepository.transact(sourceAccountId, Operation.close());
 
         assertThatThrownBy(() -> accountRepository.transact(sourceAccountId, targetAccountId,
                 Operation.transfer(transferAmount, UUID.randomUUID())))

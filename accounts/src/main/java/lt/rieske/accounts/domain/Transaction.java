@@ -12,7 +12,7 @@ public class Transaction<T> implements Consumer<T> {
         return transactionId;
     }
 
-    public Transaction(UUID transactionId, Consumer<T> consumer) {
+    Transaction(UUID transactionId, Consumer<T> consumer) {
         this.transactionId = transactionId;
         this.consumer = consumer;
     }
