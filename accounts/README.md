@@ -49,6 +49,18 @@ Maybe a better way would be to conflict on such cases.
 
 ### API
 
+- open account: `POST /api/account/{accountId}?owner={ownerId}` should respond with `201`
+  and a `Location` header pointing to the created resource if successful
+- get account's current state: `GET /api/account/{accountId}` should respond with `200`
+  and a json body if account is found, otherwise `404`
+- deposit: `PUT /api/account/{accountId}?deposit={amount}&transactionId={uuid}` 
+  should respond with `204` if successful
+- withdraw: `PUT /api/account/{accountId}?withdraw={amount}&transactionId={uuid}` 
+  should respond with `204` if successful
+- transfer: `PUT /api/account/{accountId}?transfer={targetAccountId}&amount={amount}&transactionId={uuid}` 
+  should respond with `204` if successful
+- close account: `DELETE /api/account/{accountId}` should respond with `204` if successful
+
 
 ### Tests
 

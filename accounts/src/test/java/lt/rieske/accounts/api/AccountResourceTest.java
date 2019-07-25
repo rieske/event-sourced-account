@@ -393,6 +393,27 @@ class AccountResourceTest {
     }
 
     @Test
+    void should404WhenTransferringToNonExistentAccount() {
+
+        var ownerId = UUID.randomUUID();
+        var sourceAccountId = UUID.randomUUID();
+        createAccount(sourceAccountId, ownerId);
+        deposit(sourceAccountId, 6);
+
+        var targetAccountId = UUID.randomUUID();
+
+        given().baseUri(baseUri())
+                .when().put("/account/" + sourceAccountId + "/transfer?targetAccount="
+                + targetAccountId + "&amount=2&transactionId=" + UUID.randomUUID())
+                .then()
+                .statusCode(404)
+                .body("message", equalTo("Aggregate not found, aggregateId: " + targetAccountId));
+
+        var sourceAccountJsonPath = queryAccount(sourceAccountId);
+        assertThat(sourceAccountJsonPath.getInt("balance")).isEqualTo(6);
+    }
+
+    @Test
     void shouldCloseAccount() {
 
         var accountId = UUID.randomUUID();
@@ -406,6 +427,14 @@ class AccountResourceTest {
 
         var accountJsonPath = queryAccount(accountId);
         assertThat(accountJsonPath.getBoolean("open")).isFalse();
+    }
+
+    @Test
+    void should404WhenClosingNonExistentAccount() {
+        given().baseUri(baseUri())
+                .when().delete("/account/" + UUID.randomUUID())
+                .then()
+                .statusCode(404);
     }
 
     @Test
