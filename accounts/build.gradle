@@ -13,13 +13,25 @@ repositories {
 test {
     useJUnitPlatform {
         excludeTags 'integration'
+        excludeTags 'e2e'
     }
     maxParallelForks = 8
 }
 
 task integrationTest(type: Test) {
+    dependsOn test
     useJUnitPlatform {
         includeTags 'integration'
+    }
+    maxParallelForks = 8
+}
+
+task e2eTest(type: Test) {
+    dependsOn test
+    dependsOn integrationTest
+    dependsOn assemble
+    useJUnitPlatform {
+        includeTags 'e2e'
     }
     maxParallelForks = 8
 }

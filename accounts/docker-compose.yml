@@ -3,10 +3,27 @@ version: '3.7'
 
 services:
 
-  accounts:
-    build: .
+  lb:
+    build: src/test/resources/load-balancer
+    depends_on:
+      - accounts-1
+      - accounts-2
     ports:
       - 8080:8080
+
+  accounts-1:
+    build: .
+    ports:
+      - 8080
+    environment:
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+      MYSQL_JDBC_URL: jdbc:mysql://database:3306/event_store
+
+  accounts-2:
+    build: .
+    ports:
+      - 8080
     environment:
       MYSQL_USER: test
       MYSQL_PASSWORD: test
