@@ -1,6 +1,5 @@
 package lt.rieske.accounts.e2e;
 
-import io.restassured.RestAssured;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -16,7 +15,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
-import static io.restassured.RestAssured.when;
+import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
 @Tag("e2e")
@@ -46,9 +45,6 @@ class ConsistencyTest {
     @BeforeAll
     static void setup() {
         environment.start();
-        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
-        RestAssured.baseURI = lbUrl();
-        RestAssured.basePath = "/api/";
     }
 
     @AfterAll
@@ -56,8 +52,8 @@ class ConsistencyTest {
         environment.stop();
     }
 
-    private static String lbUrl() {
-        return String.format("http://%s:%d",
+    private static String apiUrl() {
+        return String.format("http://%s:%d/api",
                 environment.getServiceHost(LB_CONTAINER, LB_PORT),
                 environment.getServicePort(LB_CONTAINER, LB_PORT));
     }
@@ -66,13 +62,15 @@ class ConsistencyTest {
     void canCreateAndQueryAccount() {
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
-        when().post("/account/" + accountId + "?owner=" + ownerId)
+        given().baseUri(apiUrl())
+                .when().post("/account/" + accountId + "?owner=" + ownerId)
                 .then()
                 .statusCode(201)
                 .header("Location", equalTo("/account/" + accountId))
                 .body(equalTo(""));
 
-        when().get("/account/" + accountId)
+        given().baseUri(apiUrl())
+                .when().get("/account/" + accountId)
                 .then()
                 .statusCode(200)
                 .header("Content-Type", equalTo("application/json"))
@@ -85,7 +83,8 @@ class ConsistencyTest {
     @Test
     void accountsRemainConsistentInDistrubutedEnvironmentUnderLoad() throws InterruptedException {
         var accountId = UUID.randomUUID();
-        when().post("/account/" + accountId + "?owner=" + UUID.randomUUID())
+        given().baseUri(apiUrl())
+                .when().post("/account/" + accountId + "?owner=" + UUID.randomUUID())
                 .then()
                 .statusCode(201)
                 .header("Location", equalTo("/account/" + accountId))
@@ -101,7 +100,8 @@ class ConsistencyTest {
             for (int j = 0; j < threadCount; j++) {
                 executor.submit(() -> {
                     withRetryOnConcurrentModification(() ->
-                            when().put("/account/" + accountId + "/deposit?amount=1&transactionId=" + transactionId)
+                            given().baseUri(apiUrl())
+                                    .when().put("/account/" + accountId + "/deposit?amount=1&transactionId=" + transactionId)
                                     .thenReturn().statusCode());
                     latch.countDown();
                 });
@@ -109,7 +109,8 @@ class ConsistencyTest {
             latch.await();
         }
 
-        when().get("/account/" + accountId)
+        given().baseUri(apiUrl())
+                .when().get("/account/" + accountId)
                 .then()
                 .statusCode(200)
                 .header("Content-Type", equalTo("application/json"))

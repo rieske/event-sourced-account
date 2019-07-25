@@ -1,6 +1,5 @@
 package lt.rieske.accounts.api;
 
-import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import lt.rieske.accounts.eventsourcing.h2.H2;
 import org.junit.jupiter.api.AfterAll;
@@ -9,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
-import static io.restassured.RestAssured.when;
+import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
@@ -19,16 +18,20 @@ class AccountResourceTest {
     private static final H2 H2 = new H2();
 
     private static final Server SERVER = ApiConfiguration.server(H2.dataSource());
+    private static int serverPort;
 
     @BeforeAll
     static void startServer() {
-        RestAssured.port = SERVER.start(0);
-        RestAssured.basePath = "/api/";
+        serverPort = SERVER.start(0);
     }
 
     @AfterAll
-    static void stopServer() {
+    static void tearDown() {
         SERVER.stop();
+    }
+
+    private static String baseUri() {
+        return String.format("http://localhost:%d/api", serverPort);
     }
 
     @Test
@@ -36,7 +39,8 @@ class AccountResourceTest {
 
         var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
-        when().post("/account/" + accountId + "?owner=" + ownerId)
+        given().baseUri(baseUri())
+                .when().post("/account/" + accountId + "?owner=" + ownerId)
                 .then()
                 .statusCode(201)
                 .header("Location", equalTo("/account/" + accountId))
@@ -47,7 +51,8 @@ class AccountResourceTest {
     void shouldRequireValidUUIDForAccountId() {
 
         var ownerId = UUID.randomUUID();
-        when().post("/account/foobar?owner=" + ownerId)
+        given().baseUri(baseUri())
+                .when().post("/account/foobar?owner=" + ownerId)
                 .then()
                 .statusCode(400)
                 .body("message", equalTo("Invalid UUID string: foobar"));
@@ -57,7 +62,8 @@ class AccountResourceTest {
     void shouldRequireValidUUIDForOwnerId() {
 
         var accountId = UUID.randomUUID();
-        when().post("/account/" + accountId + "?owner=foobar")
+        given().baseUri(baseUri())
+                .when().post("/account/" + accountId + "?owner=foobar")
                 .then()
                 .statusCode(400)
                 .body("message", equalTo("Invalid UUID string: foobar"));
@@ -67,7 +73,8 @@ class AccountResourceTest {
     void shouldRespondWithBadRequestOnMissingQueryParam() {
 
         var accountId = UUID.randomUUID();
-        when().post("/account/" + accountId)
+        given().baseUri(baseUri())
+                .when().post("/account/" + accountId)
                 .then()
                 .statusCode(400)
                 .body("message", equalTo("'owner' query parameter is required"));
@@ -79,7 +86,8 @@ class AccountResourceTest {
         var accountId = UUID.randomUUID();
         createAccount(accountId, UUID.randomUUID());
 
-        when().post("/account/" + accountId + "?owner=" + UUID.randomUUID())
+        given().baseUri(baseUri())
+                .when().post("/account/" + accountId + "?owner=" + UUID.randomUUID())
                 .then()
                 .statusCode(409);
     }
@@ -91,7 +99,8 @@ class AccountResourceTest {
         var ownerId = UUID.randomUUID();
         var accountResource = createAccount(accountId, ownerId);
 
-        when().get(accountResource)
+        given().baseUri(baseUri())
+                .when().get(accountResource)
                 .then()
                 .statusCode(200)
                 .header("Content-Type", equalTo("application/json"))
@@ -105,7 +114,8 @@ class AccountResourceTest {
     void should404WhenQueryingNonExistentAccount() {
 
         var accountId = UUID.randomUUID();
-        when().get("/account/" + accountId)
+        given().baseUri(baseUri())
+                .when().get("/account/" + accountId)
                 .then()
                 .statusCode(404);
     }
@@ -117,7 +127,8 @@ class AccountResourceTest {
         var ownerId = UUID.randomUUID();
         createAccount(accountId, ownerId);
 
-        when().put("/account/" + accountId + "/deposit?amount=" + 42 + "&transactionId=" + UUID.randomUUID())
+        given().baseUri(baseUri())
+                .when().put("/account/" + accountId + "/deposit?amount=" + 42 + "&transactionId=" + UUID.randomUUID())
                 .then()
                 .statusCode(204);
 
@@ -132,10 +143,12 @@ class AccountResourceTest {
         var ownerId = UUID.randomUUID();
         createAccount(accountId, ownerId);
 
-        when().put("/account/" + accountId + "/deposit?amount=" + 42 + "&transactionId=" + UUID.randomUUID())
+        given().baseUri(baseUri())
+                .when().put("/account/" + accountId + "/deposit?amount=" + 42 + "&transactionId=" + UUID.randomUUID())
                 .then()
                 .statusCode(204);
-        when().put("/account/" + accountId + "/deposit?amount=" + 42 + "&transactionId=" + UUID.randomUUID())
+        given().baseUri(baseUri())
+                .when().put("/account/" + accountId + "/deposit?amount=" + 42 + "&transactionId=" + UUID.randomUUID())
                 .then()
                 .statusCode(204);
 
@@ -151,10 +164,12 @@ class AccountResourceTest {
         createAccount(accountId, ownerId);
 
         var txId = UUID.randomUUID();
-        when().put("/account/" + accountId + "/deposit?amount=" + 42 + "&transactionId=" + txId)
+        given().baseUri(baseUri())
+                .when().put("/account/" + accountId + "/deposit?amount=" + 42 + "&transactionId=" + txId)
                 .then()
                 .statusCode(204);
-        when().put("/account/" + accountId + "/deposit?amount=" + 42 + "&transactionId=" + txId)
+        given().baseUri(baseUri())
+                .when().put("/account/" + accountId + "/deposit?amount=" + 42 + "&transactionId=" + txId)
                 .then()
                 .statusCode(204);
 
@@ -169,7 +184,8 @@ class AccountResourceTest {
         var ownerId = UUID.randomUUID();
         createAccount(accountId, ownerId);
 
-        when().put("/account/" + accountId + "/deposit?amount=42.4&transactionId=" + UUID.randomUUID())
+        given().baseUri(baseUri())
+                .when().put("/account/" + accountId + "/deposit?amount=42.4&transactionId=" + UUID.randomUUID())
                 .then()
                 .statusCode(400)
                 .body("message", equalTo("For input string: '42.4'"));
@@ -185,7 +201,8 @@ class AccountResourceTest {
         var ownerId = UUID.randomUUID();
         createAccount(accountId, ownerId);
 
-        when().put("/account/" + accountId + "/deposit?amount=banana&transactionId=" + UUID.randomUUID())
+        given().baseUri(baseUri())
+                .when().put("/account/" + accountId + "/deposit?amount=banana&transactionId=" + UUID.randomUUID())
                 .then()
                 .statusCode(400)
                 .body("message", equalTo("For input string: 'banana'"));
@@ -201,7 +218,8 @@ class AccountResourceTest {
         var ownerId = UUID.randomUUID();
         createAccount(accountId, ownerId);
 
-        when().put("/account/" + accountId + "/deposit?amount=-1&transactionId=" + UUID.randomUUID())
+        given().baseUri(baseUri())
+                .when().put("/account/" + accountId + "/deposit?amount=-1&transactionId=" + UUID.randomUUID())
                 .then()
                 .statusCode(400)
                 .body("message", equalTo("Can not deposit negative amount: -1"));
@@ -218,7 +236,8 @@ class AccountResourceTest {
         createAccount(accountId, ownerId);
         deposit(accountId, 42);
 
-        when().put("/account/" + accountId + "/withdraw?amount=" + 11 + "&transactionId=" + UUID.randomUUID())
+        given().baseUri(baseUri())
+                .when().put("/account/" + accountId + "/withdraw?amount=" + 11 + "&transactionId=" + UUID.randomUUID())
                 .then()
                 .statusCode(204);
 
@@ -235,10 +254,12 @@ class AccountResourceTest {
         deposit(accountId, 42);
 
         var txId = UUID.randomUUID();
-        when().put("/account/" + accountId + "/withdraw?amount=" + 30 + "&transactionId=" + txId)
+        given().baseUri(baseUri())
+                .when().put("/account/" + accountId + "/withdraw?amount=" + 30 + "&transactionId=" + txId)
                 .then()
                 .statusCode(204);
-        when().put("/account/" + accountId + "/withdraw?amount=" + 30 + "&transactionId=" + txId)
+        given().baseUri(baseUri())
+                .when().put("/account/" + accountId + "/withdraw?amount=" + 30 + "&transactionId=" + txId)
                 .then()
                 .statusCode(204);
 
@@ -254,7 +275,8 @@ class AccountResourceTest {
         createAccount(accountId, ownerId);
         deposit(accountId, 42);
 
-        when().put("/account/" + accountId + "/withdraw?amount=" + 43 + "&transactionId=" + UUID.randomUUID())
+        given().baseUri(baseUri())
+                .when().put("/account/" + accountId + "/withdraw?amount=" + 43 + "&transactionId=" + UUID.randomUUID())
                 .then()
                 .statusCode(400)
                 .body("message", equalTo("Insufficient balance"));
@@ -271,7 +293,8 @@ class AccountResourceTest {
         createAccount(accountId, ownerId);
         deposit(accountId, 42);
 
-        when().put("/account/" + accountId + "/withdraw?amount=42.4")
+        given().baseUri(baseUri())
+                .when().put("/account/" + accountId + "/withdraw?amount=42.4")
                 .then()
                 .statusCode(400)
                 .body("message", equalTo("For input string: '42.4'"));
@@ -288,7 +311,8 @@ class AccountResourceTest {
         createAccount(accountId, ownerId);
         deposit(accountId, 42);
 
-        when().put("/account/" + accountId + "/withdraw?amount=banana")
+        given().baseUri(baseUri())
+                .when().put("/account/" + accountId + "/withdraw?amount=banana")
                 .then()
                 .statusCode(400)
                 .body("message", equalTo("For input string: 'banana'"));
@@ -305,7 +329,8 @@ class AccountResourceTest {
         createAccount(accountId, ownerId);
         deposit(accountId, 42);
 
-        when().put("/account/" + accountId + "/withdraw?amount=-1&transactionId=" + UUID.randomUUID())
+        given().baseUri(baseUri())
+                .when().put("/account/" + accountId + "/withdraw?amount=-1&transactionId=" + UUID.randomUUID())
                 .then()
                 .statusCode(400)
                 .body("message", equalTo("Can not withdraw negative amount: -1"));
@@ -326,7 +351,8 @@ class AccountResourceTest {
         createAccount(targetAccountId, ownerId);
         deposit(targetAccountId, 1);
 
-        when().put("/account/" + sourceAccountId + "/transfer?targetAccount="
+        given().baseUri(baseUri())
+                .when().put("/account/" + sourceAccountId + "/transfer?targetAccount="
                 + targetAccountId + "&amount=2&transactionId=" + UUID.randomUUID())
                 .then()
                 .statusCode(204);
@@ -350,10 +376,12 @@ class AccountResourceTest {
         createAccount(targetAccountId, ownerId);
 
         var txId = UUID.randomUUID();
-        when().put("/account/" + sourceAccountId + "/transfer?targetAccount=" + targetAccountId + "&amount=60&transactionId=" + txId)
+        given().baseUri(baseUri())
+                .when().put("/account/" + sourceAccountId + "/transfer?targetAccount=" + targetAccountId + "&amount=60&transactionId=" + txId)
                 .then()
                 .statusCode(204);
-        when().put("/account/" + sourceAccountId + "/transfer?targetAccount=" + targetAccountId + "&amount=60&transactionId=" + txId)
+        given().baseUri(baseUri())
+                .when().put("/account/" + sourceAccountId + "/transfer?targetAccount=" + targetAccountId + "&amount=60&transactionId=" + txId)
                 .then()
                 .statusCode(204);
 
@@ -371,7 +399,8 @@ class AccountResourceTest {
         var ownerId = UUID.randomUUID();
         createAccount(accountId, ownerId);
 
-        when().delete("/account/" + accountId)
+        given().baseUri(baseUri())
+                .when().delete("/account/" + accountId)
                 .then()
                 .statusCode(204);
 
@@ -387,7 +416,8 @@ class AccountResourceTest {
         deposit(accountId, 5);
         deposit(accountId, 12);
 
-        when().get("/account/" + accountId + "/events")
+        given().baseUri(baseUri())
+                .when().get("/account/" + accountId + "/events")
                 .then()
                 .statusCode(200)
                 .header("Content-Type", equalTo("application/json"))
@@ -414,7 +444,8 @@ class AccountResourceTest {
     void nonExistingAccountShouldNotHaveEvents() {
         var accountId = UUID.randomUUID();
 
-        when().get("/account/" + accountId + "/events")
+        given().baseUri(baseUri())
+                .when().get("/account/" + accountId + "/events")
                 .then()
                 .statusCode(200)
                 .header("Content-Type", equalTo("application/json"))
@@ -422,18 +453,21 @@ class AccountResourceTest {
     }
 
     private void deposit(UUID accountId, int amount) {
-        when().put("/account/" + accountId + "/deposit?amount=" + amount + "&transactionId=" + UUID.randomUUID())
+        given().baseUri(baseUri())
+                .when().put("/account/" + accountId + "/deposit?amount=" + amount + "&transactionId=" + UUID.randomUUID())
                 .then()
                 .statusCode(204);
     }
 
     private JsonPath queryAccount(UUID accountId) {
-        return when().get("/account/" + accountId)
+        return given().baseUri(baseUri())
+                .when().get("/account/" + accountId)
                 .getBody().jsonPath();
     }
 
     private String createAccount(UUID accountId, UUID ownerId) {
-        return when().post("/account/" + accountId + "?owner=" + ownerId)
+        return given().baseUri(baseUri())
+                .when().post("/account/" + accountId + "?owner=" + ownerId)
                 .getHeader("Location");
     }
 
