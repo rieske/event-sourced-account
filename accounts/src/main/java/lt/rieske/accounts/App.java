@@ -44,7 +44,7 @@ public class App {
         dataSource.setUser(username);
         dataSource.setPassword(password);
 
-        RetryPolicy<Object> retryPolicy = new RetryPolicy<>()
+        var retryPolicy = new RetryPolicy<>()
                 .handle(CommunicationsException.class)
                 .withDelay(Duration.ofSeconds(1))
                 .withMaxRetries(10);
