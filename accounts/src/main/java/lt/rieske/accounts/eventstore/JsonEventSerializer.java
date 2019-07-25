@@ -3,6 +3,7 @@ package lt.rieske.accounts.eventstore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lt.rieske.accounts.domain.AccountClosedEvent;
 import lt.rieske.accounts.domain.AccountOpenedEvent;
@@ -35,7 +36,7 @@ class JsonEventSerializer<T> implements EventSerializer<T> {
     @Override
     public Event<T> deserialize(byte[] serializedEvent) {
         try {
-            return objectMapper.readValue(serializedEvent, Event.class);
+            return objectMapper.readValue(serializedEvent, new TypeReference<Event<T>>(){});
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
