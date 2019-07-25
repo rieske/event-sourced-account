@@ -3,7 +3,6 @@ package lt.rieske.accounts.eventsourcing;
 import lt.rieske.accounts.domain.AccountEventsVisitor;
 import lt.rieske.accounts.eventstore.Configuration;
 import lt.rieske.accounts.eventstore.SqlEventStoreTest;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 
 import javax.sql.DataSource;

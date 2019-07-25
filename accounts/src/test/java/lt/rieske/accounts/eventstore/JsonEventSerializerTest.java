@@ -1,4 +1,4 @@
-package lt.rieske.accounts.eventstore.serialization;
+package lt.rieske.accounts.eventstore;
 
 import lt.rieske.accounts.domain.AccountOpenedEvent;
 import lt.rieske.accounts.eventsourcing.Event;

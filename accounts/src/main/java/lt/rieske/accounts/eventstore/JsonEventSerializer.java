@@ -1,4 +1,4 @@
-package lt.rieske.accounts.eventstore.serialization;
+package lt.rieske.accounts.eventstore;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -11,7 +11,6 @@ import lt.rieske.accounts.domain.MoneyDepositedEvent;
 import lt.rieske.accounts.domain.MoneyWithdrawnEvent;
 import lt.rieske.accounts.eventsourcing.Event;
 import lt.rieske.accounts.eventsourcing.SequencedEvent;
-import lt.rieske.accounts.eventstore.SerializedEvent;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -19,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-public class JsonEventSerializer<T> implements EventSerializer<T> {
+class JsonEventSerializer<T> implements EventSerializer<T> {
 
     private final ObjectMapper objectMapper = new ObjectMapper()
             .addMixIn(Event.class, PolymorphicEventMixIn.class);

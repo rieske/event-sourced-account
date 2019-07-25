@@ -2,7 +2,6 @@ package lt.rieske.accounts.eventstore;
 
 import lt.rieske.accounts.eventsourcing.EventStore;
 import lt.rieske.accounts.eventsourcing.SequencedEvent;
-import lt.rieske.accounts.eventstore.serialization.EventSerializer;
 
 import java.util.Collection;
 import java.util.List;

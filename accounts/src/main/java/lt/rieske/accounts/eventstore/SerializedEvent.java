@@ -6,7 +6,7 @@ import java.util.UUID;
 
 
 @Value
-public class SerializedEvent {
+class SerializedEvent {
     private final UUID aggregateId;
     private final long sequenceNumber;
     private final UUID transactionId;
