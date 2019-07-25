@@ -12,7 +12,8 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public abstract class MoneyTransferTest {
+
+abstract class MoneyTransferTest {
 
     private AggregateRepository<Account, AccountEventsVisitor> accountRepository;
 

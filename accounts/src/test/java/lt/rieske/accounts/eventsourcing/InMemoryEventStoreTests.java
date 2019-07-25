@@ -1,7 +1,8 @@
-package lt.rieske.accounts.eventsourcing.inmemory;
+package lt.rieske.accounts.eventsourcing;
 
-import lt.rieske.accounts.eventsourcing.EventStore;
-import lt.rieske.accounts.eventsourcing.SequencedEvent;
+import lt.rieske.accounts.domain.AccountEventsVisitor;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,6 +13,72 @@ import java.util.Map;
 import java.util.UUID;
 
 import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
+
+class InMemoryEventStoreTests {
+
+    private final InMemoryEventStore<AccountEventsVisitor> eventStore = new InMemoryEventStore<>();
+
+    @Nested
+    class InMemoryAccountEventSourcingTest extends AccountEventSourcingTest {
+
+        @Override
+        protected EventStore<AccountEventsVisitor> getEventStore() {
+            return eventStore;
+        }
+    }
+
+    @Nested
+    class InMemoryMoneyTransferTest extends MoneyTransferTest {
+
+        @Override
+        protected EventStore<AccountEventsVisitor> getEventStore() {
+            return eventStore;
+        }
+    }
+
+    @Nested
+    class InMemoryAccountConsistencyTest extends AccountConsistencyTest {
+
+        @Override
+        protected EventStore<AccountEventsVisitor> getEventStore() {
+            return eventStore;
+        }
+
+        @Test
+        @Override
+        protected void accountRemainsConsistentWithConcurrentModifications_noSnapshots() throws InterruptedException {
+            super.accountRemainsConsistentWithConcurrentModifications_noSnapshots();
+            assertConsistency();
+        }
+
+        @Test
+        @Override
+        protected void accountRemainsConsistentWithConcurrentModifications_withSnapshotting() throws InterruptedException {
+            super.accountRemainsConsistentWithConcurrentModifications_withSnapshotting();
+            assertConsistency();
+        }
+
+        private void assertConsistency() {
+            for (var aggregateId : aggregateIds()) {
+                var events = eventStore.getSequencedEvents(aggregateId);
+                for (int i = 0; i < events.size(); i++) {
+                    assertThat(events.get(i).getSequenceNumber()).isEqualTo(i + 1);
+                }
+            }
+        }
+    }
+
+    @Nested
+    class InMemoryIdempotencyTest extends IdempotencyTest {
+
+        @Override
+        protected EventStore<AccountEventsVisitor> getEventStore() {
+            return eventStore;
+        }
+    }
+
+}
 
 class InMemoryEventStore<T> implements EventStore<T> {
     private final Map<UUID, List<SequencedEvent<T>>> aggregateEvents = new HashMap<>();

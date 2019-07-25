@@ -1,4 +1,4 @@
-package lt.rieske.accounts.eventsourcing.h2;
+package lt.rieske.accounts.eventsourcing;
 
 import org.flywaydb.core.Flyway;
 import org.h2.jdbcx.JdbcDataSource;

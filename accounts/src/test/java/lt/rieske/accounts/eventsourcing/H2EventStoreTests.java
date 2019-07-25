@@ -1,10 +1,8 @@
-package lt.rieske.accounts.eventsourcing.h2;
-
-import lt.rieske.accounts.eventstore.SqlEventStoreTest;
+package lt.rieske.accounts.eventsourcing;
 
 import javax.sql.DataSource;
 
-class H2SqlEventStoreTest extends SqlEventStoreTest {
+public class H2EventStoreTests extends SqlEventStoreIntegrationTests {
 
     private static final H2 H2 = new H2();
 
@@ -12,5 +10,4 @@ class H2SqlEventStoreTest extends SqlEventStoreTest {
     protected DataSource dataSource() {
         return H2.dataSource();
     }
-
 }

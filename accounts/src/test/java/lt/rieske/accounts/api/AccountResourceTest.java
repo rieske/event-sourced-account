@@ -1,7 +1,7 @@
 package lt.rieske.accounts.api;
 
 import io.restassured.path.json.JsonPath;
-import lt.rieske.accounts.eventsourcing.h2.H2;
+import lt.rieske.accounts.eventsourcing.H2;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

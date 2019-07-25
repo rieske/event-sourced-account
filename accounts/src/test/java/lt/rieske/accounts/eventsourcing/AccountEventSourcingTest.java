@@ -19,7 +19,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public abstract class AccountEventSourcingTest {
+abstract class AccountEventSourcingTest {
 
     private EventStore<AccountEventsVisitor> eventStore;
     private AggregateRepository<Account, AccountEventsVisitor> accountRepository;

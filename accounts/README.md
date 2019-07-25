@@ -85,7 +85,8 @@ service itself.
 InsufficientBalance, AccountClosed exceptions etc. Kept it simple with IllegalArgument/State
 exceptions for the sake of avoiding unneeded class count explosion.
 
-- Didn't use Jackson for serializing events in the REST API. Just for fun - wanted to try out the
+- Didn't use Jackson for serializing events in the REST API despite already having it in
+the classpath. Just for fun - wanted to try out the
 events visitor outside of the aggregate. Similar approach should work nicely to manually
 map the event classes to protobufs for storage. No reflection needed.
 
