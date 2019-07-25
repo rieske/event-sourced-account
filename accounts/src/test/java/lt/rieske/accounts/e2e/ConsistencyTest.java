@@ -47,7 +47,8 @@ class ConsistencyTest {
     static void setup() {
         environment.start();
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
-        RestAssured.baseURI = lbUrl() + "/api";
+        RestAssured.baseURI = lbUrl();
+        RestAssured.basePath = "/api/";
     }
 
     @AfterAll
