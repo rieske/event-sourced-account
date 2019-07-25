@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class InMemoryEventStoreTests {
@@ -104,7 +104,7 @@ class InMemoryEventStore<T> implements EventStore<T> {
         return aggregateEvents.getOrDefault(aggregateId, List.of())
                 .stream()
                 .filter(e -> e.getSequenceNumber() > fromVersion)
-                .collect(toList());
+                .collect(toUnmodifiableList());
     }
 
     @Override

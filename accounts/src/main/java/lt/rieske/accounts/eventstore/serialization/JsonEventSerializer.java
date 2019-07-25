@@ -46,7 +46,7 @@ public class JsonEventSerializer<T> implements EventSerializer<T> {
     public List<SequencedEvent<T>> deserialize(List<SerializedEvent> serializedEvents) {
         return serializedEvents.stream()
                 .map(se -> new SequencedEvent<>(se.getAggregateId(), se.getSequenceNumber(), se.getTransactionId(), deserialize(se.getPayload())))
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@t")
