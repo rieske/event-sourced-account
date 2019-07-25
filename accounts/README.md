@@ -105,6 +105,13 @@ In order to run the same set of tests targeting MySql, run
 Those will be much slower - they spawn the actual mysql instance using testcontainers and thus
 require a running docker daemon.
 
+And another round of slow tests that test for consistency in a distributed environment:
+```
+./gradlew e2eTest
+```
+Those will spawn a docker-composed environment with two service instances connected to
+a mysql container and a load balancer on top. Tests will be executed against the load balancer,
+simulating an environment and asserting that the service can scale and remain consistent.
 
 ### Running
 

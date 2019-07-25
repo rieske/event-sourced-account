@@ -48,6 +48,7 @@ public class Server {
             });
         });
 
+        get("/ping", (req, res) -> "");
 
         exception(IllegalArgumentException.class, accountResource::badRequest);
         exception(AggregateNotFoundException.class, accountResource::notFound);

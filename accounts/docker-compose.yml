@@ -9,7 +9,7 @@ services:
       - accounts-1
       - accounts-2
     ports:
-      - 8080:8080
+      - 8080:80
 
   accounts-1:
     build: .
