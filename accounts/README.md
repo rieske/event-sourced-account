@@ -100,13 +100,16 @@ Service can be started with h2 in memory database using
 ```
 ./gradlew run
 ```
+Service will start on localhost:8080
 
-or, packaged in a docker container and connected to a mysql container using:
+Alternatively, two instances packaged in a docker container, connected to a mysql container and
+exposed via HAProxy load balancer using:
 ```
 ./gradlew build
 docker-compose up --build
 ```
-Either way - service will start on localhost:8080
+This time the service will also be accessible on localhost:8080, just that this time requests
+will go via a load balancer to two service instances in a round robin fashion.
 
 ### Dependencies
 
