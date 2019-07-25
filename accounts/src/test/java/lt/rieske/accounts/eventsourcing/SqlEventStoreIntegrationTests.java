@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Nested;
 
 import javax.sql.DataSource;
 
-public abstract class SqlEventStoreIntegrationTests {
+abstract class SqlEventStoreIntegrationTests {
 
     private final EventStore<AccountEventsVisitor> eventStore = Configuration.accountEventStore(dataSource());
 
