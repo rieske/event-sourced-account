@@ -7,7 +7,7 @@ import java.util.UUID;
 
 class ReplayingEventStream<A extends E, E> implements EventStream<A, E> {
 
-    protected final EventStore<E> eventStore;
+    final EventStore<E> eventStore;
 
     final Map<UUID, Long> aggregateVersions = new HashMap<>();
 
