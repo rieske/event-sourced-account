@@ -102,19 +102,19 @@ class AccountResource {
         response.body("");
     }
 
-    private UUID accountIdPathParam(Request request) {
+    private static UUID accountIdPathParam(Request request) {
         return UUID.fromString(request.params("accountId"));
     }
 
-    private long amountQueryParam(Request request) {
+    private static long amountQueryParam(Request request) {
         return Long.parseLong(getMandatoryQueryParameter(request, "amount"));
     }
 
-    private UUID transactionIdQueryParam(Request request) {
+    private static UUID transactionIdQueryParam(Request request) {
         return UUID.fromString(getMandatoryQueryParameter(request, "transactionId"));
     }
 
-    private String getMandatoryQueryParameter(Request request, String paramName) {
+    private static String getMandatoryQueryParameter(Request request, String paramName) {
         var param = request.queryParams(paramName);
         if (param == null) {
             throw new IllegalArgumentException(String.format("'%s' query parameter is required", paramName));
@@ -122,7 +122,7 @@ class AccountResource {
         return param;
     }
 
-    private String accountJson(AccountSnapshot account) {
+    private static String accountJson(AccountSnapshot account) {
         return "{" +
                 "\"accountId\":\"" + account.getAccountId() + "\"," +
                 "\"ownerId\":\"" + account.getOwnerId() + "\"," +
@@ -131,7 +131,7 @@ class AccountResource {
                 "}";
     }
 
-    private void errorJson(Response response, int status, String message) {
+    private static void errorJson(Response response, int status, String message) {
         response.status(status);
         response.type(APPLICATION_JSON);
         response.body("{\"message\":\"" + message.replaceAll("\"", "'") + "\"}");

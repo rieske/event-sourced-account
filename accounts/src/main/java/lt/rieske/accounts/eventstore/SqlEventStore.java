@@ -122,7 +122,7 @@ class SqlEventStore implements BlobEventStore {
         }
     }
 
-    private void insertTransaction(Connection connection, UUID aggregateId, UUID transactionId) throws SQLException {
+    private static void insertTransaction(Connection connection, UUID aggregateId, UUID transactionId) throws SQLException {
         try (var statement = connection.prepareStatement(INSERT_TRANSACTION_SQL)) {
             statement.setBytes(1, uuidToBytes(aggregateId));
             statement.setBytes(2, uuidToBytes(transactionId));
@@ -130,7 +130,7 @@ class SqlEventStore implements BlobEventStore {
         }
     }
 
-    private void insertEvent(Connection connection, SerializedEvent event) throws SQLException {
+    private static void insertEvent(Connection connection, SerializedEvent event) throws SQLException {
         try (var statement = connection.prepareStatement(APPEND_EVENT_SQL)) {
             statement.setBytes(1, uuidToBytes(event.getAggregateId()));
             statement.setLong(2, event.getSequenceNumber());
@@ -140,7 +140,7 @@ class SqlEventStore implements BlobEventStore {
         }
     }
 
-    private void insertSnapshot(Connection connection, SerializedEvent event) throws SQLException {
+    private static void insertSnapshot(Connection connection, SerializedEvent event) throws SQLException {
         try (var statement = connection.prepareStatement(APPEND_SNAPSHOT_SQL)) {
             statement.setBytes(1, uuidToBytes(event.getAggregateId()));
             statement.setLong(2, event.getSequenceNumber());

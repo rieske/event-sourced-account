@@ -12,13 +12,6 @@ public class SequencedEvent<T> {
     private final UUID transactionId;
     private final Event<T> event;
 
-    public SequencedEvent(UUID aggregateId, long sequenceNumber, UUID transactionId, Event<T> event) {
-        this.aggregateId = aggregateId;
-        this.sequenceNumber = sequenceNumber;
-        this.transactionId = transactionId;
-        this.event = event;
-    }
-
     void apply(T aggregate) {
         event.apply(aggregate);
     }
