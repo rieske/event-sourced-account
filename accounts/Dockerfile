@@ -1,4 +1,4 @@
-FROM openjdk:11.0.3-jdk-stretch
+FROM openjdk:11.0.4-jdk-stretch
 
 EXPOSE 8080
 

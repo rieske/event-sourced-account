@@ -24,7 +24,7 @@ public class EventStreamJsonSerializer implements AccountEventsVisitor {
             appendJsonLong("sequenceNumber", e.getSequenceNumber());
             sb.append(",");
             appendJsonString("transactionId", e.getTransactionId().toString());
-            e.getEvent().apply(this);
+            e.getEvent().accept(this);
             sb.append("},");
         });
         if (!events.isEmpty()) {

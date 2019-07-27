@@ -122,7 +122,7 @@ class AccountTest {
     }
 
     void apply(Event<AccountEventsVisitor> event, Account aggregate, UUID aggregateId) {
-        event.apply(aggregate);
+        event.accept(aggregate);
     }
 
 }

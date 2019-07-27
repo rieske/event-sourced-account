@@ -13,6 +13,6 @@ public class SequencedEvent<T> {
     private final Event<T> event;
 
     void apply(T aggregate) {
-        event.apply(aggregate);
+        event.accept(aggregate);
     }
 }

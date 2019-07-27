@@ -8,7 +8,7 @@ import lt.rieske.accounts.eventsourcing.Event;
 public class AccountClosedEvent<T extends AccountEventsVisitor> implements Event<T> {
 
     @Override
-    public void apply(AccountEventsVisitor aggregate) {
-        aggregate.visit(this);
+    public void accept(AccountEventsVisitor visitor) {
+        visitor.visit(this);
     }
 }

@@ -10,7 +10,7 @@ public class AccountOpenedEvent<T extends AccountEventsVisitor> implements Event
     private final UUID ownerId;
 
     @Override
-    public void apply(AccountEventsVisitor aggregate) {
-        aggregate.visit(this);
+    public void accept(AccountEventsVisitor visitor) {
+        visitor.visit(this);
     }
 }

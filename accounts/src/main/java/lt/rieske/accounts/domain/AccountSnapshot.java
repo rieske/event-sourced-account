@@ -14,7 +14,7 @@ public class AccountSnapshot<T extends AccountEventsVisitor> implements Event<T>
     private final boolean open;
 
     @Override
-    public void apply(AccountEventsVisitor aggregate) {
-        aggregate.visit(this);
+    public void accept(AccountEventsVisitor visitor) {
+        visitor.visit(this);
     }
 }

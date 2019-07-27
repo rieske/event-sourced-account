@@ -10,7 +10,7 @@ public class MoneyDepositedEvent<T extends AccountEventsVisitor> implements Even
     private final long balance;
 
     @Override
-    public void apply(AccountEventsVisitor aggregate) {
-        aggregate.visit(this);
+    public void accept(AccountEventsVisitor visitor) {
+        visitor.visit(this);
     }
 }

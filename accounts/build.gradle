@@ -48,6 +48,8 @@ dependencies {
 
     implementation 'com.sparkjava:spark-core:2.9.1'
 
+    implementation 'org.msgpack:msgpack-core:0.8.17'
+
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
     
     implementation 'org.flywaydb:flyway-core:5.2.4'

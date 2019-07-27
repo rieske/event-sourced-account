@@ -157,7 +157,11 @@ Kept external dependencies to a minimum, here's what's used and what for:
   no unwanted transitive dependencies.
 - Lombok - for reducing boilerplate code and providing value objects. I'm not sure I like it.
 - Logback - logging
-- Jackson - for serializing events for storage. Not the best way of doing it. Would like to replace with protobuf.
+- msgpack - for serializing events for storage. This is the faster and more compact way of storing events at a cost
+  of some boilerplate serialization code.
+- Jackson - for serializing events for storage. Started with this one initially to avoid boilerplate serialization
+  code. Left the json serializer as I plan to benchmark and compare size/performance of multiple
+  serialization strategies.
 - H2 - in memory database
 - MySql connector - since the storage part is tested in mysql, might as well want to spawn the
   service connected to mysql.
@@ -165,6 +169,7 @@ Kept external dependencies to a minimum, here's what's used and what for:
 Here is the actual runtime dependency tree, excluding Spark (which brings a bunch of Jetty ones):
 ```
 +--- org.projectlombok:lombok:1.18.8
++--- org.msgpack:msgpack-core:0.8.17
 +--- com.fasterxml.jackson.core:jackson-databind:2.9.8
 |    +--- com.fasterxml.jackson.core:jackson-annotations:2.9.0
 |    \--- com.fasterxml.jackson.core:jackson-core:2.9.8
