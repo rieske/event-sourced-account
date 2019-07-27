@@ -1,5 +1,6 @@
 package lt.rieske.accounts.eventstore;
 
+import lt.rieske.accounts.domain.AccountEventsVisitor;
 import lt.rieske.accounts.domain.AccountOpenedEvent;
 import lt.rieske.accounts.eventsourcing.Event;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class JsonEventSerializerTest {
 
-    private final JsonEventSerializer serializer = new JsonEventSerializer();
+    private final JsonEventSerializer<AccountEventsVisitor> serializer = new JsonEventSerializer<>();
 
     @Test
     void canDeserializeAccountEvents() {
@@ -25,7 +26,7 @@ class JsonEventSerializerTest {
 
     @Test
     void serializesAndDeserializesAnEvent() {
-        var event = new AccountOpenedEvent(UUID.randomUUID());
+        var event = new AccountOpenedEvent<>(UUID.randomUUID());
 
         var serializedEvent = serializer.serialize(event);
         var deserializedEvent = serializer.deserialize(serializedEvent);

@@ -2,7 +2,6 @@ package lt.rieske.accounts.eventstore;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lt.rieske.accounts.domain.AccountClosedEvent;
@@ -11,12 +10,9 @@ import lt.rieske.accounts.domain.AccountSnapshot;
 import lt.rieske.accounts.domain.MoneyDepositedEvent;
 import lt.rieske.accounts.domain.MoneyWithdrawnEvent;
 import lt.rieske.accounts.eventsourcing.Event;
-import lt.rieske.accounts.eventsourcing.SequencedEvent;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.List;
-import java.util.stream.Stream;
 
 
 class JsonEventSerializer<T> implements EventSerializer<T> {
@@ -25,10 +21,10 @@ class JsonEventSerializer<T> implements EventSerializer<T> {
             .addMixIn(Event.class, PolymorphicEventMixIn.class);
 
     @Override
-    public byte[] serialize(Event event) {
+    public byte[] serialize(Event<T> event) {
         try {
             return objectMapper.writeValueAsBytes(event);
-        } catch (JsonProcessingException e) {
+        } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
@@ -36,16 +32,10 @@ class JsonEventSerializer<T> implements EventSerializer<T> {
     @Override
     public Event<T> deserialize(byte[] serializedEvent) {
         try {
-            return objectMapper.readValue(serializedEvent, new TypeReference<Event<T>>(){});
+            return objectMapper.readValue(serializedEvent, new TypeReference<Event<T>>() {});
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    @Override
-    public Stream<SequencedEvent<T>> deserialize(List<SerializedEvent> serializedEvents) {
-        return serializedEvents.stream()
-                .map(se -> new SequencedEvent<>(se.getAggregateId(), se.getSequenceNumber(), se.getTransactionId(), deserialize(se.getPayload())));
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@t")

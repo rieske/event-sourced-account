@@ -4,6 +4,7 @@ import lt.rieske.accounts.eventsourcing.EventStore;
 import lt.rieske.accounts.eventsourcing.SequencedEvent;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,7 +29,8 @@ class SerializingEventStore<T> implements EventStore<T> {
                 .map(e -> serialize(e, transactionId))
                 .collect(Collectors.toUnmodifiableList());
         var serializedSnapshots = uncommittedSnapshots.stream()
-                .map(s -> serialize(s, null)).collect(Collectors.toUnmodifiableList());
+                .map(s -> serialize(s, null))
+                .collect(Collectors.toUnmodifiableList());
 
         blobStore.append(serializedEvents, serializedSnapshots, transactionId);
     }
@@ -36,7 +38,7 @@ class SerializingEventStore<T> implements EventStore<T> {
     @Override
     public Stream<SequencedEvent<T>> getEvents(UUID aggregateId, long fromVersion) {
         var serializedEvents = blobStore.getEvents(aggregateId, fromVersion);
-        return serializer.deserialize(serializedEvents);
+        return deserialize(serializedEvents);
     }
 
     @Override
@@ -45,8 +47,20 @@ class SerializingEventStore<T> implements EventStore<T> {
         if (serializedSnapshot == null) {
             return null;
         }
-        return new SequencedEvent<>(aggregateId, serializedSnapshot.getSequenceNumber(), null,
-                serializer.deserialize(serializedSnapshot.getPayload()));
+        return deserialize(serializedSnapshot);
+    }
+
+    private Stream<SequencedEvent<T>> deserialize(List<SerializedEvent> serializedEvents) {
+        return serializedEvents.stream()
+                .map(this::deserialize);
+    }
+
+    private SequencedEvent<T> deserialize(SerializedEvent serializedEvent) {
+        return new SequencedEvent<>(
+                serializedEvent.getAggregateId(),
+                serializedEvent.getSequenceNumber(),
+                serializedEvent.getTransactionId(),
+                serializer.deserialize(serializedEvent.getPayload()));
     }
 
     @Override
@@ -54,7 +68,11 @@ class SerializingEventStore<T> implements EventStore<T> {
         return blobStore.transactionExists(aggregateId, transactionId);
     }
 
-    private SerializedEvent serialize(SequencedEvent<T> e, UUID transactionId) {
-        return new SerializedEvent(e.getAggregateId(), e.getSequenceNumber(), transactionId, serializer.serialize(e.getEvent()));
+    private SerializedEvent serialize(SequencedEvent<T> event, UUID transactionId) {
+        return new SerializedEvent(
+                event.getAggregateId(),
+                event.getSequenceNumber(),
+                transactionId,
+                serializer.serialize(event.getEvent()));
     }
 }
