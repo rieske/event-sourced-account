@@ -57,6 +57,7 @@ public class App {
             try (var conn = dataSource.getConnection()) {
                 break;
             } catch (SQLRecoverableException e) {
+                log.info("Could not establish connection to the database: attempt {}, sleeping for {}ms", i, retryPeriod.toMillis());
                 Thread.sleep(retryPeriod.toMillis());
             } catch (SQLException e) {
                 throw new IllegalStateException("Can not connect to the database, aborting", e);

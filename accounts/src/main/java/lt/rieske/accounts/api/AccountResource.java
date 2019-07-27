@@ -80,7 +80,7 @@ class AccountResource {
         return "";
     }
 
-    public Object getEvents(Request request, Response response) {
+    String getEvents(Request request, Response response) {
         var accountId = accountIdPathParam(request);
 
         var events = accountService.getEvents(accountId);
