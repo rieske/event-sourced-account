@@ -155,8 +155,6 @@ Kept external dependencies to a minimum, here's what's used and what for:
 - Spark for spawning an embedded Jetty and glue for http request routing.
 - Flyway - for DB migrations. Could have been done by hand, however Flyway is lightweight and brings
   no unwanted transitive dependencies.
-- Failsafe for retrying mysql connections on startup. No brainer to implement by hand, however
-  this library is lightweight and comes dependency-free.
 - Lombok - for reducing boilerplate code and providing value objects. I'm not sure I like it.
 - Logback - logging
 - Jackson - for serializing events for storage. Not the best way of doing it. Would like to replace with protobuf.
@@ -174,7 +172,6 @@ Here is the actual runtime dependency tree, excluding Spark (which brings a bunc
 +--- ch.qos.logback:logback-classic:1.2.3
 |    +--- ch.qos.logback:logback-core:1.2.3
 |    \--- org.slf4j:slf4j-api:1.7.25
-+--- net.jodah:failsafe:2.1.0
 +--- com.h2database:h2:1.4.199
 \--- mysql:mysql-connector-java:8.0.16
      \--- com.google.protobuf:protobuf-java:3.6.1

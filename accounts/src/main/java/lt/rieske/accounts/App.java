@@ -1,29 +1,32 @@
 package lt.rieske.accounts;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
-import com.mysql.cj.jdbc.exceptions.CommunicationsException;
+import lombok.extern.slf4j.Slf4j;
 import lt.rieske.accounts.api.ApiConfiguration;
-import net.jodah.failsafe.Failsafe;
-import net.jodah.failsafe.RetryPolicy;
 import org.flywaydb.core.Flyway;
 import org.h2.jdbcx.JdbcDataSource;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
+import java.sql.SQLRecoverableException;
 import java.time.Duration;
 
+
+@Slf4j
 public class App {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         var dataSource = getDataSource();
 
         var flyway = Flyway.configure().dataSource(dataSource).schemas("event_store").load();
         flyway.migrate();
 
         var server = ApiConfiguration.server(dataSource);
-        server.start(8080);
+        var port = server.start(8080);
+        log.info("Server started on port: {}", port);
     }
 
-    private static DataSource getDataSource() {
+    private static DataSource getDataSource() throws InterruptedException {
         var mysqlUrl = System.getenv("MYSQL_JDBC_URL");
         if (mysqlUrl != null) {
             return mysqlDataSource(mysqlUrl, System.getenv("MYSQL_USER"), System.getenv("MYSQL_PASSWORD"));
@@ -38,21 +41,26 @@ public class App {
         return dataSource;
     }
 
-    private static DataSource mysqlDataSource(String jdbcUrl, String username, String password) {
+    private static DataSource mysqlDataSource(String jdbcUrl, String username, String password) throws InterruptedException {
         var dataSource = new MysqlDataSource();
         dataSource.setUrl(jdbcUrl);
         dataSource.setUser(username);
         dataSource.setPassword(password);
 
-        var retryPolicy = new RetryPolicy<>()
-                .handle(CommunicationsException.class)
-                .withDelay(Duration.ofSeconds(1))
-                .withMaxRetries(10);
-        Failsafe.with(retryPolicy).run(() -> {
-            var c = dataSource.getConnection();
-            c.close();
-        });
+        waitForDatabaseToBeAvailable(dataSource, 20, Duration.ofSeconds(1));
 
         return dataSource;
+    }
+
+    private static void waitForDatabaseToBeAvailable(DataSource dataSource, int maxRetries, Duration retryPeriod) throws InterruptedException {
+        for (int i = 0; i < maxRetries; i++) {
+            try (var conn = dataSource.getConnection()) {
+                break;
+            } catch (SQLRecoverableException e) {
+                Thread.sleep(retryPeriod.toMillis());
+            } catch (SQLException e) {
+                throw new IllegalStateException("Can not connect to the database, aborting", e);
+            }
+        }
     }
 }
