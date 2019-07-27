@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
 abstract class AccountConsistencyTest {
 
     private AggregateRepository<Account, AccountEventsVisitor> accountRepository;
@@ -47,18 +48,60 @@ abstract class AccountConsistencyTest {
     }
 
     @Test
-    protected void accountRemainsConsistentWithConcurrentModifications_noSnapshots() throws InterruptedException {
-        accountRemainsConsistentWithConcurrentDeposits(accountRepository);
+    void accountsRemainConsistentWithConcurrentTransfers() throws InterruptedException {
         accountsRemainConsistentWithConcurrentTransfers(accountRepository);
     }
 
     @Test
-    protected void accountRemainsConsistentWithConcurrentModifications_withSnapshotting() throws InterruptedException {
-        accountRemainsConsistentWithConcurrentDeposits(snapshottingAccountRepository);
+    void accountsRemainConsistentWithConcurrentTransfers_withSnapshotting() throws InterruptedException {
         accountsRemainConsistentWithConcurrentTransfers(snapshottingAccountRepository);
     }
 
-    private void accountRemainsConsistentWithConcurrentDeposits(AggregateRepository<Account, AccountEventsVisitor> repository)
+    @Test
+    void accountRemainsConsistentWithConcurrentDeposits() throws InterruptedException {
+        accountRemainsConsistentWithConcurrentDeposits(accountRepository);
+    }
+
+    @Test
+    void accountRemainsConsistentWithConcurrentDeposits_withSnapshotting() throws InterruptedException {
+        accountRemainsConsistentWithConcurrentDeposits(snapshottingAccountRepository);
+    }
+
+    @Test
+    void accountRemainsConsistentWithConcurrentIdempotentDeposits() throws InterruptedException {
+        accountRemainsConsistentWithConcurrentIdempotentDeposits(accountRepository);
+    }
+
+    @Test
+    void accountRemainsConsistentWithConcurrentIdempotentDeposits_withSnapshotting() throws InterruptedException {
+        accountRemainsConsistentWithConcurrentIdempotentDeposits(snapshottingAccountRepository);
+    }
+
+    void accountRemainsConsistentWithConcurrentDeposits(AggregateRepository<Account, AccountEventsVisitor> repository)
+            throws InterruptedException {
+        var accountId = openNewAccount(repository);
+
+        var operationCount = operationCount();
+        var threadCount = threadCount();
+        var executor = Executors.newFixedThreadPool(threadCount);
+
+        for (int i = 0; i < operationCount; i++) {
+            var latch = new CountDownLatch(threadCount);
+            for (int j = 0; j < threadCount; j++) {
+                executor.submit(() -> {
+                    withRetryOnConcurrentModification(() ->
+                            repository.transact(accountId, UUID.randomUUID(), Operation.deposit(1)));
+                    latch.countDown();
+                });
+            }
+            latch.await();
+        }
+
+        assertThat(accountRepository.query(accountId).balance()).isEqualTo(operationCount * threadCount);
+        assertThat(snapshottingAccountRepository.query(accountId).balance()).isEqualTo(operationCount * threadCount);
+    }
+
+    private void accountRemainsConsistentWithConcurrentIdempotentDeposits(AggregateRepository<Account, AccountEventsVisitor> repository)
             throws InterruptedException {
         var accountId = openNewAccount(repository);
 

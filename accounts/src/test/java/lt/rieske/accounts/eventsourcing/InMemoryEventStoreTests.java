@@ -1,8 +1,8 @@
 package lt.rieske.accounts.eventsourcing;
 
 import lt.rieske.accounts.domain.AccountEventsVisitor;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,21 +45,8 @@ class InMemoryEventStoreTests {
             return eventStore;
         }
 
-        @Test
-        @Override
-        protected void accountRemainsConsistentWithConcurrentModifications_noSnapshots() throws InterruptedException {
-            super.accountRemainsConsistentWithConcurrentModifications_noSnapshots();
-            assertConsistency();
-        }
-
-        @Test
-        @Override
-        protected void accountRemainsConsistentWithConcurrentModifications_withSnapshotting() throws InterruptedException {
-            super.accountRemainsConsistentWithConcurrentModifications_withSnapshotting();
-            assertConsistency();
-        }
-
-        private void assertConsistency() {
+        @AfterEach
+        void assertConsistency() {
             for (var aggregateId : aggregateIds()) {
                 var events = eventStore.getSequencedEvents(aggregateId);
                 for (int i = 0; i < events.size(); i++) {

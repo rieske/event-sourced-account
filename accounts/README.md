@@ -4,34 +4,48 @@ A simple, frameworkless event sourced Account implementation.
 
 ### Implementation
 
-The service is test driven bottom up.
+The service is test driven bottom up: domain -> event sourcing -> external API.
 
+
+#### The basics
 I started with the basic operations in the account - deposit and withdrawal, open and close.
 This captures the basic business rules of when an account can be interacted with, what amounts
 can be deposited and withdrawn and under what circumstances.
+Money transfer is nothing but a withdrawal from one account and deposit to another that has
+to happen within a transaction.
+
+
+#### Concurrency
 Then follows the event sourcing part - I'm aware of consistency issues when concurrent
 modifications are attempted and event sourced implementation can easily prevent those
-as well as providing a transaction log and potential to emit certain external events
-for other systems to react to.
+as well as provide a transaction log, potential to build custom projections of past events
+and potential to emit certain external events for other systems to react to.
 
 Firstly, a naive in-memory event store backed by Maps and Lists - after basic logic
 was in place and events were emitted from operations with account, I had to test for potential
-concurrency issues that might arise as the system can be called by many external clients at
+concurrency issues that might arise as the service can be called by many external clients at
 the same time. The not-so-nice account consistency test where a single account is hammered
-by multiple threads was quick to reveal some of the things that will go wrong.
+by multiple threads was quick to reveal some of the things that will go wrong in a multithreaded
+environment.
 
 After patching the in-memory event store, I drove the implementation for a
-sql event store, initially serializing the payloads to json. Extended the same tests
+sql event store, initially serializing the payloads to json and later to msgpack - both to
+ensure extensibility and to be as lightweight as possible. Then, extended the same tests
 that I used with in-memory event store to also run with H2 embedded database. And then with
-MySql just to be sure (those are slow ones and are not part of the main build). I am sure
-there is a better way to parameterize those tests than test inheritance, but this works
-for now. All in all, I found this pretty cool as I was able to validate all the core
-functionality, including consistency very quickly with multiple event store implementations.
+MySql just to be sure (those are slow ones and are not part of the main build). At this point,
+I was able to validate all the core functionality, including consistency very quickly with 
+multiple event store implementations. No mocks, all the tests exercise the full functionality via
+the eventstore API.
 And event store here is key to ensuring consistency in a multithreaded environment.
+Specifically the constraints that the database provides - remove the (aggregateId, sequenceNumber)
+primary key and all but consistency tests will pass.
 
-Next came the API, repeated some of the same tests for basic functions with RestAssured,
+#### External API
+Next came the external API, repeated some of the same tests for basic functions with RestAssured,
 plugged in H2 event store and drove the implementation with the help of Spark.
 
+
+#### Idempotency
 What can be important when dealing with money and especially when requests come over an
 unreliable network (and network is unreliable by definition) is idempotency. When a client
 request gets interrupted due to whatever reason, the client might not know whether the
@@ -39,8 +53,11 @@ request was handled or not and might retry. This might result in a double transf
 deposit or withdrawal had the original request been handled successfully. To prevent such
 cases, the client should supply a unique transaction id (a UUID in our case) for each 
 distinct operation. This id is persisted and in case a duplicate request comes in, it will
-be accepted, but no action taken since we know we already handled it. Transaction ids
-can not be reused. Current implementation is a bit naive as it does not take into account
+be accepted, but no action taken since we know we already handled it.
+Again - consistent idempotency in a multithreaded environment is guaranteed by a database constraint 
+- remove the primary key on Transaction table and all but the consistency tests testing for idempotency 
+will pass.
+Transaction ids can not be reused. Current implementation is a bit naive as it does not take into account
 the type of operation in context of idempotency, just the transaction id together with 
 affected account id, meaning that given a transaction id that was used for a deposit
 would be used for a withdrawal, the service would respond that it accepted the request.
@@ -104,9 +121,9 @@ InsufficientBalance, AccountClosed exceptions etc. Kept it simple with IllegalAr
 exceptions for the sake of avoiding unneeded class count explosion.
 
 - Didn't use Jackson for serializing events in the REST API despite already having it in
-the classpath. Just for fun - wanted to try out the
-events visitor outside of the aggregate. Similar approach should work nicely to manually
-map the event classes to protobufs for storage. No reflection needed.
+the classpath. Just for fun - wanted to try out the events visitor outside of the aggregate. 
+Later applied a similar pattern to serialize events for storage using msgpack. No reflection
+needed.
 
 
 ### Building
