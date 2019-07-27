@@ -64,6 +64,24 @@ Maybe a better way would be to conflict on such cases.
 
 ### Tests
 
+Tests without any tag are the fast unit tests and are the ones that run during the build phase.
+Normally, I would hook the remaining tests to the build, however since integration and end to end
+tests depend on docker daemon, I wanted to avoid broken builds on machines that might not have it set up.
+
+Next level are the integration tests that use MySql backed event store. Tagged with `integration`.
+
+Finally, a couple of end to end tests that focus mainly on sanity testing consistency in a distributed 
+environment. Tagged with `e2e`.
+
+Since I was test driving this service from the domain up to the event sourcing infrastructure and lastly
+up to the API, some of the tests might be redundant and functionality might be tested several times.
+With in-memory event store and h2 event store, the unit tests exercise the whole module really fast
+and it might even be possible to move the remaining lower level tests higher up. This would allow
+to test the functionality solely via the API and not have any implementation details tests. 
+Which can in turn make changes to internal implementation details easier to make with absence of 
+implementation oriented tests. I did not use any mocking framework to avoid testing implementation
+and focus solely on the functionality.
+
 
 ### Potential red flags
 
@@ -112,7 +130,7 @@ And another round of slow tests that test for consistency in a distributed envir
 ```
 Those will spawn a docker-composed environment with two service instances connected to
 a mysql container and a load balancer on top. Tests will be executed against the load balancer,
-simulating an environment and asserting that the service can scale and remain consistent.
+simulating a distributed environment and asserting that the service can scale and remain consistent.
 
 ### Running
 
