@@ -11,8 +11,8 @@ The service is test driven bottom up: domain -> event sourcing -> external API.
 I started with the basic operations in the account - deposit and withdrawal, open and close.
 This captures the basic business rules of when an account can be interacted with, what amounts
 can be deposited and withdrawn and under what circumstances.
-Money transfer is nothing but a withdrawal from one account and deposit to another that has
-to happen within a transaction.
+Money transfer between accounts is nothing but a withdrawal from one account and deposit to 
+another that has to happen within a transaction.
 
 
 #### Concurrency
