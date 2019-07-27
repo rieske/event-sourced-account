@@ -11,8 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class InMemoryEventStoreTests {
@@ -100,11 +100,10 @@ class InMemoryEventStore<T> implements EventStore<T> {
     }
 
     @Override
-    public List<SequencedEvent<T>> getEvents(UUID aggregateId, long fromVersion) {
+    public Stream<SequencedEvent<T>> getEvents(UUID aggregateId, long fromVersion) {
         return aggregateEvents.getOrDefault(aggregateId, List.of())
                 .stream()
-                .filter(e -> e.getSequenceNumber() > fromVersion)
-                .collect(toUnmodifiableList());
+                .filter(e -> e.getSequenceNumber() > fromVersion);
     }
 
     @Override

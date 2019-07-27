@@ -1,8 +1,8 @@
 package lt.rieske.accounts.eventsourcing;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 public interface EventStore<T> {
 
@@ -13,7 +13,7 @@ public interface EventStore<T> {
     // - appends must be transactional - either all get written or none
     void append(Collection<SequencedEvent<T>> uncommittedEvents, Collection<SequencedEvent<T>> uncommittedSnapshots, UUID transactionId);
 
-    List<SequencedEvent<T>> getEvents(UUID aggregateId, long fromVersion);
+    Stream<SequencedEvent<T>> getEvents(UUID aggregateId, long fromVersion);
     SequencedEvent<T> loadSnapshot(UUID aggregateId);
 
     boolean transactionExists(UUID aggregateId, UUID transactionId);

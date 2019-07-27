@@ -4,9 +4,9 @@ import lt.rieske.accounts.eventsourcing.EventStore;
 import lt.rieske.accounts.eventsourcing.SequencedEvent;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 class SerializingEventStore<T> implements EventStore<T> {
@@ -34,7 +34,7 @@ class SerializingEventStore<T> implements EventStore<T> {
     }
 
     @Override
-    public List<SequencedEvent<T>> getEvents(UUID aggregateId, long fromVersion) {
+    public Stream<SequencedEvent<T>> getEvents(UUID aggregateId, long fromVersion) {
         var serializedEvents = blobStore.getEvents(aggregateId, fromVersion);
         return serializer.deserialize(serializedEvents);
     }

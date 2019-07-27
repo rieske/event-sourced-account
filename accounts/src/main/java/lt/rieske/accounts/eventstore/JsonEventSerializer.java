@@ -16,7 +16,7 @@ import lt.rieske.accounts.eventsourcing.SequencedEvent;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 class JsonEventSerializer<T> implements EventSerializer<T> {
@@ -43,10 +43,9 @@ class JsonEventSerializer<T> implements EventSerializer<T> {
     }
 
     @Override
-    public List<SequencedEvent<T>> deserialize(List<SerializedEvent> serializedEvents) {
+    public Stream<SequencedEvent<T>> deserialize(List<SerializedEvent> serializedEvents) {
         return serializedEvents.stream()
-                .map(se -> new SequencedEvent<>(se.getAggregateId(), se.getSequenceNumber(), se.getTransactionId(), deserialize(se.getPayload())))
-                .collect(Collectors.toUnmodifiableList());
+                .map(se -> new SequencedEvent<>(se.getAggregateId(), se.getSequenceNumber(), se.getTransactionId(), deserialize(se.getPayload())));
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@t")

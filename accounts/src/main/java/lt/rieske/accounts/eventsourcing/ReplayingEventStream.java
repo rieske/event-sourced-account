@@ -3,6 +3,7 @@ package lt.rieske.accounts.eventsourcing;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 
 
 class ReplayingEventStream<A extends E, E> implements EventStream<A, E> {
@@ -42,11 +43,11 @@ class ReplayingEventStream<A extends E, E> implements EventStream<A, E> {
 
     private long replayEvents(A aggregate, long startingVersion, UUID aggregateId) {
         var events = eventStore.getEvents(aggregateId, startingVersion);
-        long currentVersion = startingVersion;
-        for (var event : events) {
+        var currentVersion = new AtomicLong(startingVersion);
+        events.forEach(event -> {
             event.apply(aggregate);
-            currentVersion = event.getSequenceNumber();
-        }
-        return currentVersion;
+            currentVersion.set(event.getSequenceNumber());
+        });
+        return currentVersion.get();
     }
 }

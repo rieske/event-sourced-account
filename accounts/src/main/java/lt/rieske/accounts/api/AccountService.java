@@ -10,6 +10,7 @@ import lt.rieske.accounts.eventsourcing.SequencedEvent;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 class AccountService {
 
@@ -46,6 +47,6 @@ class AccountService {
     }
 
     List<SequencedEvent<AccountEventsVisitor>> getEvents(UUID accountId) {
-        return eventStore.getEvents(accountId, 0);
+        return eventStore.getEvents(accountId, 0).collect(Collectors.toUnmodifiableList());
     }
 }
