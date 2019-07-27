@@ -4,6 +4,7 @@ import lt.rieske.accounts.api.ApiConfiguration;
 import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.domain.AccountEventsVisitor;
 import lt.rieske.accounts.domain.Operation;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -12,6 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,6 +23,8 @@ abstract class AccountConsistencyTest {
 
     private AggregateRepository<Account, AccountEventsVisitor> accountRepository;
     private AggregateRepository<Account, AccountEventsVisitor> snapshottingAccountRepository;
+
+    private ExecutorService executor;
 
     private final Set<UUID> accountIds = new HashSet<>();
 
@@ -45,6 +49,12 @@ abstract class AccountConsistencyTest {
         var eventStore = getEventStore();
         accountRepository = ApiConfiguration.accountRepository(eventStore);
         snapshottingAccountRepository = ApiConfiguration.snapshottingAccountRepository(eventStore, 5);
+        executor = Executors.newFixedThreadPool(threadCount());
+    }
+
+    @AfterEach
+    void tearDown() {
+        executor.shutdown();
     }
 
     @Test
@@ -83,7 +93,6 @@ abstract class AccountConsistencyTest {
 
         var operationCount = operationCount();
         var threadCount = threadCount();
-        var executor = Executors.newFixedThreadPool(threadCount);
 
         for (int i = 0; i < operationCount; i++) {
             var latch = new CountDownLatch(threadCount);
@@ -107,7 +116,6 @@ abstract class AccountConsistencyTest {
 
         var operationCount = operationCount();
         var threadCount = threadCount();
-        var executor = Executors.newFixedThreadPool(threadCount);
 
         for (int i = 0; i < operationCount; i++) {
             var latch = new CountDownLatch(threadCount);
@@ -137,8 +145,6 @@ abstract class AccountConsistencyTest {
         var targetAccountId = openNewAccount(repository);
         repository.transact(targetAccountId, UUID.randomUUID(), Operation.deposit(operationCount));
 
-        var executor = Executors.newFixedThreadPool(threadCount);
-
         for (int i = 0; i < operationCount; i++) {
             var latch = new CountDownLatch(threadCount);
             var transactionId = UUID.randomUUID();
@@ -151,8 +157,6 @@ abstract class AccountConsistencyTest {
             }
             latch.await();
         }
-
-        executor.shutdown();
 
         assertThat(accountRepository.query(sourceAccountId).balance()).isZero();
         assertThat(snapshottingAccountRepository.query(targetAccountId).balance()).isEqualTo(operationCount * 2);

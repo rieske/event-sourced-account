@@ -111,6 +111,7 @@ class ConsistencyTest {
             }
             latch.await();
         }
+        executor.shutdown();
 
         given().baseUri(apiUrl())
                 .when().get("/account/" + accountId)
