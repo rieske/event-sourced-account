@@ -1,5 +1,12 @@
 package lt.rieske.accounts.api;
 
+import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
+import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
+import io.micrometer.prometheus.PrometheusConfig;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import lt.rieske.accounts.eventsourcing.AggregateNotFoundException;
 import org.slf4j.MDC;
@@ -26,9 +33,15 @@ import static spark.Spark.put;
 public class Server {
 
     private final AccountResource accountResource;
+    private final PrometheusMeterRegistry meterRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
 
     Server(AccountResource accountResource) {
         this.accountResource = accountResource;
+        new ClassLoaderMetrics().bindTo(meterRegistry);
+        new JvmMemoryMetrics().bindTo(meterRegistry);
+        new JvmGcMetrics().bindTo(meterRegistry);
+        new ProcessorMetrics().bindTo(meterRegistry);
+        new JvmThreadMetrics().bindTo(meterRegistry);
     }
 
     public int start(int port) {
@@ -49,6 +62,8 @@ public class Server {
         });
 
         get("/ping", (req, res) -> "");
+
+        get("/prometheus", (req, res) -> meterRegistry.scrape());
 
         exception(IllegalArgumentException.class, accountResource::badRequest);
         exception(AggregateNotFoundException.class, accountResource::notFound);

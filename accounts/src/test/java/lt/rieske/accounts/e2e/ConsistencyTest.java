@@ -31,7 +31,7 @@ class ConsistencyTest {
     private static final int LB_PORT = 80;
 
     private static DockerComposeContainer environment =
-            new DockerComposeContainer(new File("docker-compose.yml"))
+            new DockerComposeContainer(new File("e2e-test.yml"))
                     .withLocalCompose(true)
 
                     .withLogConsumer(SERVICE_CONTAINER1, new Slf4jLogConsumer(log).withPrefix(SERVICE_CONTAINER1))

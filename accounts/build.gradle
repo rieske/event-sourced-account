@@ -55,6 +55,7 @@ dependencies {
     implementation 'org.flywaydb:flyway-core:5.2.4'
 
     implementation 'ch.qos.logback:logback-classic:1.2.3'
+    implementation 'io.micrometer:micrometer-registry-prometheus:1.2.0'
 
     implementation 'com.h2database:h2:1.4.199'
     implementation 'mysql:mysql-connector-java:8.0.16'
