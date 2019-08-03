@@ -1,4 +1,4 @@
-package account
+package main
 
 import (
 	"fmt"
@@ -8,8 +8,8 @@ import (
 func TestOpenAccount(t *testing.T) {
 	a := Account{}
 
-	accountId := uuid{1}
-	ownerId := uuid{42}
+	accountId := AccountId{1}
+	ownerId := OwnerId{42}
 	event, err := a.Open(accountId, ownerId)
 	if err != nil {
 		t.Error(err)
@@ -37,8 +37,8 @@ func TestOpenAccount(t *testing.T) {
 func TestOpenAccountAlreadyOpen(t *testing.T) {
 	a := Account{}
 
-	accountId := uuid{1}
-	ownerId := uuid{42}
+	accountId := AccountId{1}
+	ownerId := OwnerId{42}
 	_, _ = a.Open(accountId, ownerId)
 	event, err := a.Open(accountId, ownerId)
 	if err == nil || err.Error() != "Account already open" {
@@ -52,8 +52,8 @@ func TestOpenAccountAlreadyOpen(t *testing.T) {
 func TestDeposit(t *testing.T) {
 	a := Account{}
 
-	accountId := uuid{1}
-	ownerId := uuid{42}
+	accountId := AccountId{1}
+	ownerId := OwnerId{42}
 	_, _ = a.Open(accountId, ownerId)
 
 	event, err := a.Deposit(42)
@@ -72,8 +72,8 @@ func TestDeposit(t *testing.T) {
 func TestDepositAccumulatesBalance(t *testing.T) {
 	a := Account{}
 
-	accountId := uuid{1}
-	ownerId := uuid{42}
+	accountId := AccountId{1}
+	ownerId := OwnerId{42}
 	_, _ = a.Open(accountId, ownerId)
 
 	_, _ = a.Deposit(1)
@@ -87,8 +87,8 @@ func TestDepositAccumulatesBalance(t *testing.T) {
 func TestCanNotDepositNegativeAmount(t *testing.T) {
 	a := Account{}
 
-	accountId := uuid{1}
-	ownerId := uuid{42}
+	accountId := AccountId{1}
+	ownerId := OwnerId{42}
 	_, _ = a.Open(accountId, ownerId)
 
 	_, err := a.Deposit(-1)
@@ -104,8 +104,8 @@ func TestCanNotDepositNegativeAmount(t *testing.T) {
 func TestZeroDepositShouldNotEmitEvent(t *testing.T) {
 	a := Account{}
 
-	accountId := uuid{1}
-	ownerId := uuid{42}
+	accountId := AccountId{1}
+	ownerId := OwnerId{42}
 	_, _ = a.Open(accountId, ownerId)
 
 	event, err := a.Deposit(0)

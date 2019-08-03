@@ -1,18 +1,21 @@
-package account
+package main
 
 import (
 	"errors"
 	"fmt"
 )
 
+type AccountId UUID
+type OwnerId UUID
+
 type Account struct {
-	id      *uuid
-	ownerId *uuid
+	id      *AccountId
+	ownerId *OwnerId
 	balance int64
 	open    bool
 }
 
-func (a *Account) Open(accountId, ownerId uuid) (Event, error) {
+func (a *Account) Open(accountId AccountId, ownerId OwnerId) (Event, error) {
 	if a.id != nil || a.ownerId != nil {
 		return nil, errors.New("Account already open")
 	}
@@ -50,12 +53,21 @@ func (a *Account) applyMoneyDeposited(event MoneyDepositedEvent) {
 }
 
 type Event interface {
+	apply(account *Account)
 	//Serialize() []byte
 }
 
 type AccountOpenedEvent struct {
-	accountId uuid
-	ownerId   uuid
+	accountId AccountId
+	ownerId   OwnerId
+}
+
+func (e AccountOpenedEvent) String() string {
+	return fmt.Sprintf("AccountOpenedEvent{ownerId: %s}", e.ownerId)
+}
+
+func (e AccountOpenedEvent) apply(account *Account) {
+	account.applyAccountOpened(e)
 }
 
 type MoneyDepositedEvent struct {
@@ -63,8 +75,8 @@ type MoneyDepositedEvent struct {
 	balance         int64
 }
 
-func (e AccountOpenedEvent) String() string {
-	return fmt.Sprintf("AccountOpenedEvent{ownerId: %s}", e.ownerId)
+func (e MoneyDepositedEvent) apply(account *Account) {
+	account.applyMoneyDeposited(e)
 }
 
 /*func (e AccountOpenedEvent) Serialize() []byte {
