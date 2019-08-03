@@ -56,7 +56,7 @@ func TestDeposit(t *testing.T) {
 	ownerId := uuid{42}
 	_, _ = a.Open(accountId, ownerId)
 
-	event, err := a.deposit(42)
+	event, err := a.Deposit(42)
 	if err != nil {
 		t.Error(err)
 	}
@@ -76,10 +76,57 @@ func TestDepositAccumulatesBalance(t *testing.T) {
 	ownerId := uuid{42}
 	_, _ = a.Open(accountId, ownerId)
 
-	_, _ = a.deposit(1)
-	_, _ = a.deposit(2)
+	_, _ = a.Deposit(1)
+	_, _ = a.Deposit(2)
 
 	if a.balance != 3 {
 		t.Error("balance should be accumulated")
+	}
+}
+
+func TestCanNotDepositNegativeAmount(t *testing.T) {
+	a := Account{}
+
+	accountId := uuid{1}
+	ownerId := uuid{42}
+	_, _ = a.Open(accountId, ownerId)
+
+	_, err := a.Deposit(-1)
+
+	if err == nil || err.Error() != "Can not deposit negative amount" {
+		t.Error("error expected - can not deposit negative amount")
+	}
+	if a.balance != 0 {
+		t.Error("balance should be zero")
+	}
+}
+
+func TestZeroDepositShouldNotEmitEvent(t *testing.T) {
+	a := Account{}
+
+	accountId := uuid{1}
+	ownerId := uuid{42}
+	_, _ = a.Open(accountId, ownerId)
+
+	event, err := a.Deposit(0)
+
+	if err != nil {
+		t.Error("no error expected")
+	}
+	if event != nil {
+		t.Error("no event expected")
+	}
+}
+
+func TestShouldRequireOpenAccountForDeposit(t *testing.T) {
+	a := Account{}
+
+	event, err := a.Deposit(0)
+
+	if err == nil || err.Error() != "Account not open" {
+		t.Error("error expected - can not deposit to not open account")
+	}
+	if event != nil {
+		t.Error("no event expected")
 	}
 }

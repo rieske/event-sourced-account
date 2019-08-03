@@ -22,7 +22,16 @@ func (a *Account) Open(accountId, ownerId uuid) (Event, error) {
 	return event, nil
 }
 
-func (a *Account) deposit(amount int64) (Event, error) {
+func (a *Account) Deposit(amount int64) (Event, error) {
+	if amount < 0 {
+		return nil, errors.New("Can not deposit negative amount")
+	}
+	if !a.open {
+		return nil, errors.New("Account not open")
+	}
+	if amount == 0 {
+		return nil, nil
+	}
 
 	event := MoneyDepositedEvent{amount, a.balance + amount}
 	a.applyMoneyDeposited(event)
