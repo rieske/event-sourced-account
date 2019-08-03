@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -15,11 +14,7 @@ func TestOpenAccount(t *testing.T) {
 		t.Error(err)
 	}
 
-	fmt.Println(event)
-
-	if event == nil {
-		t.Error("event expected")
-	}
+	expectEvent(t, event)
 	if *a.id != accountId {
 		t.Error("account id should be set")
 	}
@@ -39,12 +34,8 @@ func TestOpenAccountAlreadyOpen(t *testing.T) {
 	ownerId := OwnerId{42}
 	_, _ = a.Open(accountId, ownerId)
 	event, err := a.Open(accountId, ownerId)
-	if err == nil || err.Error() != "Account already open" {
-		t.Error("account already open expected")
-	}
-	if event != nil {
-		t.Error("event not expected")
-	}
+	expectError(t, err, "Account already open")
+	expectNoEvent(t, event)
 }
 
 func TestDeposit(t *testing.T) {
@@ -59,9 +50,7 @@ func TestDeposit(t *testing.T) {
 		t.Error(err)
 	}
 
-	if event == nil {
-		t.Error("event expected")
-	}
+	expectEvent(t, event)
 	expectBalance(t, a, 42)
 }
 
@@ -87,9 +76,7 @@ func TestCanNotDepositNegativeAmount(t *testing.T) {
 
 	_, err := a.Deposit(-1)
 
-	if err == nil || err.Error() != "Can not deposit negative amount" {
-		t.Error("error expected - can not deposit negative amount")
-	}
+	expectError(t, err, "Can not deposit negative amount")
 	expectBalance(t, a, 0)
 }
 
@@ -102,12 +89,8 @@ func TestZeroDepositShouldNotEmitEvent(t *testing.T) {
 
 	event, err := a.Deposit(0)
 
-	if err != nil {
-		t.Error("no error expected")
-	}
-	if event != nil {
-		t.Error("no event expected")
-	}
+	expectNoError(t, err)
+	expectNoEvent(t, event)
 }
 
 func TestShouldRequireOpenAccountForDeposit(t *testing.T) {
@@ -115,12 +98,8 @@ func TestShouldRequireOpenAccountForDeposit(t *testing.T) {
 
 	event, err := a.Deposit(0)
 
-	if err == nil || err.Error() != "Account not open" {
-		t.Error("error expected - can not deposit to not open account")
-	}
-	if event != nil {
-		t.Error("no event expected")
-	}
+	expectError(t, err, "Account not open")
+	expectNoEvent(t, event)
 }
 
 func TestShouldApplyEvents(t *testing.T) {
@@ -149,6 +128,30 @@ func TestShouldApplyEvents(t *testing.T) {
 		t.Error("account should be open")
 	}
 	expectBalance(t, a, 3)
+}
+
+func expectError(t *testing.T, err error, message string) {
+	if err == nil || err.Error() != message {
+		t.Errorf("error expected - %s", message)
+	}
+}
+
+func expectNoError(t *testing.T, err error) {
+	if err != nil {
+		t.Error("no error expected")
+	}
+}
+
+func expectEvent(t *testing.T, event Event) {
+	if event == nil {
+		t.Error("event expected")
+	}
+}
+
+func expectNoEvent(t *testing.T, event Event) {
+	if event != nil {
+		t.Error("no event expected")
+	}
 }
 
 func expectBalance(t *testing.T, a Account, balance int64) {
