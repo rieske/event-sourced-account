@@ -5,18 +5,18 @@ import (
 	"fmt"
 )
 
-type AccountId UUID
+type AggregateId UUID
 type OwnerId UUID
 
 type account struct {
-	id      *AccountId
+	id      *AggregateId
 	ownerId *OwnerId
 	balance int64
 	open    bool
 }
 
 type AccountSnapshot struct {
-	id      AccountId
+	id      AggregateId
 	ownerId OwnerId
 	balance int64
 	open    bool
@@ -26,7 +26,7 @@ func NewAccount() *account {
 	return &account{}
 }
 
-func (a account) Id() AccountId {
+func (a account) Id() AggregateId {
 	return *a.id
 }
 
@@ -38,7 +38,7 @@ func (a *account) Snapshot() (*AccountSnapshot, error) {
 	return &AccountSnapshot{*a.id, *a.ownerId, a.balance, a.open}, nil
 }
 
-func (a *account) Open(accountId AccountId, ownerId OwnerId) (Event, error) {
+func (a *account) Open(accountId AggregateId, ownerId OwnerId) (Event, error) {
 	if a.id != nil || a.ownerId != nil {
 		return nil, errors.New("account already open")
 	}
@@ -81,7 +81,7 @@ type Event interface {
 }
 
 type AccountOpenedEvent struct {
-	accountId AccountId
+	accountId AggregateId
 	ownerId   OwnerId
 }
 

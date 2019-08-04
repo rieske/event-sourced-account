@@ -7,7 +7,7 @@ import (
 func TestOpenAccount(t *testing.T) {
 	a := account{}
 
-	accountId := AccountId{1}
+	accountId := AggregateId{1}
 	ownerId := OwnerId{42}
 	event, err := a.Open(accountId, ownerId)
 	if err != nil {
@@ -30,7 +30,7 @@ func TestOpenAccount(t *testing.T) {
 func TestOpenAccountAlreadyOpen(t *testing.T) {
 	a := account{}
 
-	accountId := AccountId{1}
+	accountId := AggregateId{1}
 	ownerId := OwnerId{42}
 	_, _ = a.Open(accountId, ownerId)
 	event, err := a.Open(accountId, ownerId)
@@ -41,7 +41,7 @@ func TestOpenAccountAlreadyOpen(t *testing.T) {
 func TestDeposit(t *testing.T) {
 	a := account{}
 
-	accountId := AccountId{1}
+	accountId := AggregateId{1}
 	ownerId := OwnerId{42}
 	_, _ = a.Open(accountId, ownerId)
 
@@ -57,7 +57,7 @@ func TestDeposit(t *testing.T) {
 func TestDepositAccumulatesBalance(t *testing.T) {
 	a := account{}
 
-	accountId := AccountId{1}
+	accountId := AggregateId{1}
 	ownerId := OwnerId{42}
 	_, _ = a.Open(accountId, ownerId)
 
@@ -70,7 +70,7 @@ func TestDepositAccumulatesBalance(t *testing.T) {
 func TestCanNotDepositNegativeAmount(t *testing.T) {
 	a := account{}
 
-	accountId := AccountId{1}
+	accountId := AggregateId{1}
 	ownerId := OwnerId{42}
 	_, _ = a.Open(accountId, ownerId)
 
@@ -83,7 +83,7 @@ func TestCanNotDepositNegativeAmount(t *testing.T) {
 func TestZeroDepositShouldNotEmitEvent(t *testing.T) {
 	a := account{}
 
-	accountId := AccountId{1}
+	accountId := AggregateId{1}
 	ownerId := OwnerId{42}
 	_, _ = a.Open(accountId, ownerId)
 
@@ -105,7 +105,7 @@ func TestShouldRequireOpenAccountForDeposit(t *testing.T) {
 func TestShouldApplyEvents(t *testing.T) {
 	a := account{}
 
-	accountId := AccountId{1}
+	accountId := AggregateId{1}
 	ownerId := OwnerId{42}
 
 	events := []Event{

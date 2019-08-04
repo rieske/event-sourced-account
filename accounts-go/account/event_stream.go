@@ -5,28 +5,28 @@ import (
 )
 
 type sequencedEvent struct {
-	aggregateId AccountId
+	aggregateId AggregateId
 	seq         int
 	event       Event
 }
 
 type eventStore interface {
-	events(id AccountId, version int) []Event
-	append(events []sequencedEvent)
+	Events(id AggregateId, version int) []Event
+	Append(events []sequencedEvent)
 }
 
 type eventStream struct {
 	eventStore       *eventStore
-	versions         map[AccountId]int
+	versions         map[AggregateId]int
 	uncomittedEvents []sequencedEvent
 }
 
 func NewEventStream(es eventStore) *eventStream {
-	return &eventStream{&es, map[AccountId]int{}, nil}
+	return &eventStream{&es, map[AggregateId]int{}, nil}
 }
 
-func (s *eventStream) replay(id AccountId) (*account, error) {
-	events := (*s.eventStore).events(id, 0)
+func (s *eventStream) replay(id AggregateId) (*account, error) {
+	events := (*s.eventStore).Events(id, 0)
 	var currentVersion = 0
 
 	a := NewAccount()
@@ -43,13 +43,13 @@ func (s *eventStream) replay(id AccountId) (*account, error) {
 	return a, nil
 }
 
-func (s *eventStream) append(e Event, id AccountId) {
+func (s *eventStream) append(e Event, id AggregateId) {
 	currentVersion := s.versions[id] + 1
 	se := sequencedEvent{id, currentVersion, e}
 	s.uncomittedEvents = append(s.uncomittedEvents, se)
 }
 
 func (s *eventStream) commit() {
-	(*s.eventStore).append(s.uncomittedEvents)
+	(*s.eventStore).Append(s.uncomittedEvents)
 	s.uncomittedEvents = nil
 }

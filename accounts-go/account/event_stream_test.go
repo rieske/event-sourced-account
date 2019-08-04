@@ -2,25 +2,15 @@ package account
 
 import "testing"
 
-type testEventStore struct {
-	e []Event
-}
-
-func (es *testEventStore) events(id AccountId, version int) []Event {
-	return es.e
-}
-
-func (es *testEventStore) append(events []sequencedEvent) {
-	panic("implement me")
-}
-
 func TestReplayEvents(t *testing.T) {
-	id := AccountId{1}
+	id := AggregateId{1}
 	ownerId := OwnerId{2}
-	store := testEventStore{[]Event{
-		AccountOpenedEvent{id, ownerId},
-		MoneyDepositedEvent{42, 42},
-	}}
+	store := inmemoryEeventstore{}
+	store.Append([]sequencedEvent{
+		{id, 1, AccountOpenedEvent{id, ownerId}},
+		{id, 1, MoneyDepositedEvent{42, 42}},
+	})
+
 	es := NewEventStream(&store)
 
 	a, err := es.replay(id)
@@ -47,10 +37,10 @@ func TestReplayEvents(t *testing.T) {
 }
 
 func TestAppendEvent(t *testing.T) {
-	store := testEventStore{[]Event{}}
+	store := inmemoryEeventstore{}
 	es := NewEventStream(&store)
 
-	id := AccountId{1}
+	id := AggregateId{1}
 	ownerId := OwnerId{2}
 	event := AccountOpenedEvent{id, ownerId}
 	es.append(event, id)
