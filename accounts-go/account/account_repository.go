@@ -1,4 +1,4 @@
-package main
+package account
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ func main() {
 	events := loadEvents(10, UUID{})
 	fmt.Println(events)
 
-	account := Account{}
+	account := account{}
 	for _, e := range events {
 		e.apply(&account)
 	}

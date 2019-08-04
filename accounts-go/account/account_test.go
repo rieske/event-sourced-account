@@ -1,11 +1,11 @@
-package main
+package account
 
 import (
 	"testing"
 )
 
 func TestOpenAccount(t *testing.T) {
-	a := Account{}
+	a := account{}
 
 	accountId := AccountId{1}
 	ownerId := OwnerId{42}
@@ -28,18 +28,18 @@ func TestOpenAccount(t *testing.T) {
 }
 
 func TestOpenAccountAlreadyOpen(t *testing.T) {
-	a := Account{}
+	a := account{}
 
 	accountId := AccountId{1}
 	ownerId := OwnerId{42}
 	_, _ = a.Open(accountId, ownerId)
 	event, err := a.Open(accountId, ownerId)
-	expectError(t, err, "Account already open")
+	expectError(t, err, "account already open")
 	expectNoEvent(t, event)
 }
 
 func TestDeposit(t *testing.T) {
-	a := Account{}
+	a := account{}
 
 	accountId := AccountId{1}
 	ownerId := OwnerId{42}
@@ -55,7 +55,7 @@ func TestDeposit(t *testing.T) {
 }
 
 func TestDepositAccumulatesBalance(t *testing.T) {
-	a := Account{}
+	a := account{}
 
 	accountId := AccountId{1}
 	ownerId := OwnerId{42}
@@ -68,7 +68,7 @@ func TestDepositAccumulatesBalance(t *testing.T) {
 }
 
 func TestCanNotDepositNegativeAmount(t *testing.T) {
-	a := Account{}
+	a := account{}
 
 	accountId := AccountId{1}
 	ownerId := OwnerId{42}
@@ -81,7 +81,7 @@ func TestCanNotDepositNegativeAmount(t *testing.T) {
 }
 
 func TestZeroDepositShouldNotEmitEvent(t *testing.T) {
-	a := Account{}
+	a := account{}
 
 	accountId := AccountId{1}
 	ownerId := OwnerId{42}
@@ -94,16 +94,16 @@ func TestZeroDepositShouldNotEmitEvent(t *testing.T) {
 }
 
 func TestShouldRequireOpenAccountForDeposit(t *testing.T) {
-	a := Account{}
+	a := account{}
 
 	event, err := a.Deposit(0)
 
-	expectError(t, err, "Account not open")
+	expectError(t, err, "account not open")
 	expectNoEvent(t, event)
 }
 
 func TestShouldApplyEvents(t *testing.T) {
-	a := Account{}
+	a := account{}
 
 	accountId := AccountId{1}
 	ownerId := OwnerId{42}
@@ -138,7 +138,7 @@ func expectError(t *testing.T, err error, message string) {
 
 func expectNoError(t *testing.T, err error) {
 	if err != nil {
-		t.Error("no error expected")
+		t.Error("no error expected, got:", err)
 	}
 }
 
@@ -154,7 +154,7 @@ func expectNoEvent(t *testing.T, event Event) {
 	}
 }
 
-func expectBalance(t *testing.T, a Account, balance int64) {
+func expectBalance(t *testing.T, a account, balance int64) {
 	if a.balance != balance {
 		t.Errorf("balance should be %d", balance)
 	}

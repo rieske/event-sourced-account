@@ -1,4 +1,4 @@
-package main
+package account
 
 import (
 	"errors"
@@ -8,16 +8,39 @@ import (
 type AccountId UUID
 type OwnerId UUID
 
-type Account struct {
+type account struct {
 	id      *AccountId
 	ownerId *OwnerId
 	balance int64
 	open    bool
 }
 
-func (a *Account) Open(accountId AccountId, ownerId OwnerId) (Event, error) {
+type AccountSnapshot struct {
+	id      AccountId
+	ownerId OwnerId
+	balance int64
+	open    bool
+}
+
+func NewAccount() *account {
+	return &account{}
+}
+
+func (a account) Id() AccountId {
+	return *a.id
+}
+
+func (a *account) Snapshot() (*AccountSnapshot, error) {
+	if !a.open {
+		return nil, errors.New("account not open")
+	}
+
+	return &AccountSnapshot{*a.id, *a.ownerId, a.balance, a.open}, nil
+}
+
+func (a *account) Open(accountId AccountId, ownerId OwnerId) (Event, error) {
 	if a.id != nil || a.ownerId != nil {
-		return nil, errors.New("Account already open")
+		return nil, errors.New("account already open")
 	}
 
 	event := AccountOpenedEvent{accountId, ownerId}
@@ -25,12 +48,12 @@ func (a *Account) Open(accountId AccountId, ownerId OwnerId) (Event, error) {
 	return event, nil
 }
 
-func (a *Account) Deposit(amount int64) (Event, error) {
+func (a *account) Deposit(amount int64) (Event, error) {
 	if amount < 0 {
 		return nil, errors.New("Can not deposit negative amount")
 	}
 	if !a.open {
-		return nil, errors.New("Account not open")
+		return nil, errors.New("account not open")
 	}
 	if amount == 0 {
 		return nil, nil
@@ -41,19 +64,19 @@ func (a *Account) Deposit(amount int64) (Event, error) {
 	return event, nil
 }
 
-func (a *Account) applyAccountOpened(event AccountOpenedEvent) {
+func (a *account) applyAccountOpened(event AccountOpenedEvent) {
 	a.id = &event.accountId
 	a.ownerId = &event.ownerId
 	a.balance = 0
 	a.open = true
 }
 
-func (a *Account) applyMoneyDeposited(event MoneyDepositedEvent) {
+func (a *account) applyMoneyDeposited(event MoneyDepositedEvent) {
 	a.balance = event.balance
 }
 
 type Event interface {
-	apply(account *Account)
+	apply(account *account)
 	//Serialize() []byte
 }
 
@@ -66,7 +89,7 @@ func (e AccountOpenedEvent) String() string {
 	return fmt.Sprintf("AccountOpenedEvent{ownerId: %s}", e.ownerId)
 }
 
-func (e AccountOpenedEvent) apply(account *Account) {
+func (e AccountOpenedEvent) apply(account *account) {
 	account.applyAccountOpened(e)
 }
 
@@ -75,7 +98,7 @@ type MoneyDepositedEvent struct {
 	balance         int64
 }
 
-func (e MoneyDepositedEvent) apply(account *Account) {
+func (e MoneyDepositedEvent) apply(account *account) {
 	account.applyMoneyDeposited(e)
 }
 
