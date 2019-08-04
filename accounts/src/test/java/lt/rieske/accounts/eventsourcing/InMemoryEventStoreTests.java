@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,7 +69,7 @@ class InMemoryEventStoreTests {
 }
 
 class InMemoryEventStore<T> implements EventStore<T> {
-    private final Map<UUID, List<SequencedEvent<T>>> aggregateEvents = new HashMap<>();
+    private final List<SequencedEvent<T>> events = new ArrayList<>();
     private final Map<UUID, SequencedEvent<T>> snapshots = new HashMap<>();
 
     private final Map<UUID, UUID> aggregateTransactions = new HashMap<>();
@@ -88,9 +89,9 @@ class InMemoryEventStore<T> implements EventStore<T> {
 
     @Override
     public Stream<SequencedEvent<T>> getEvents(UUID aggregateId, long fromVersion) {
-        return aggregateEvents.getOrDefault(aggregateId, List.of())
+        return events
                 .stream()
-                .filter(e -> e.getSequenceNumber() > fromVersion);
+                .filter(e -> e.getAggregateId().equals(aggregateId) && e.getSequenceNumber() > fromVersion);
     }
 
     @Override
@@ -104,13 +105,14 @@ class InMemoryEventStore<T> implements EventStore<T> {
     }
 
     List<SequencedEvent<T>> getSequencedEvents(UUID aggregateId) {
-        return aggregateEvents.getOrDefault(aggregateId, List.of());
+        return events
+                .stream()
+                .filter(e -> e.getAggregateId().equals(aggregateId))
+                .collect(Collectors.toList());
     }
 
     private void append(SequencedEvent<T> event, UUID transactionId) {
-        var currentEvents = aggregateEvents.computeIfAbsent(event.getAggregateId(), id -> new ArrayList<>());
-        currentEvents.add(new SequencedEvent<>(event.getAggregateId(), event.getSequenceNumber(), transactionId, event.getEvent()));
-
+        events.add(new SequencedEvent<>(event.getAggregateId(), event.getSequenceNumber(), transactionId, event.getEvent()));
         aggregateTransactions.put(event.getAggregateId(), transactionId);
     }
 
@@ -132,10 +134,11 @@ class InMemoryEventStore<T> implements EventStore<T> {
     }
 
     private Long getLatestAggregateVersion(UUID aggregateId) {
-        var currentEvents = aggregateEvents.get(aggregateId);
-        if (currentEvents == null || currentEvents.isEmpty()) {
+        var aggregateEvents = getSequencedEvents(aggregateId);
+
+        if (aggregateEvents.isEmpty()) {
             return 0L;
         }
-        return currentEvents.get(currentEvents.size() - 1).getSequenceNumber();
+        return aggregateEvents.get(aggregateEvents.size() - 1).getSequenceNumber();
     }
 }
