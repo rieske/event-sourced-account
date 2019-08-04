@@ -4,22 +4,30 @@ import (
 	"errors"
 )
 
+type sequencedEvent struct {
+	aggregateId AccountId
+	seq         int
+	event       Event
+}
+
 type eventStore interface {
-	events(id AccountId, version int64) []Event
+	events(id AccountId, version int) []Event
+	append(events []sequencedEvent)
 }
 
 type eventStream struct {
-	eventStore *eventStore
-	versions   map[AccountId]int64
+	eventStore       *eventStore
+	versions         map[AccountId]int
+	uncomittedEvents []sequencedEvent
 }
 
 func NewEventStream(es eventStore) *eventStream {
-	return &eventStream{&es, make(map[AccountId]int64)}
+	return &eventStream{&es, map[AccountId]int{}, nil}
 }
 
-func (stream *eventStream) replay(id AccountId) (*account, error) {
-	events := (*stream.eventStore).events(id, 0)
-	var currentVersion int64 = 0
+func (s *eventStream) replay(id AccountId) (*account, error) {
+	events := (*s.eventStore).events(id, 0)
+	var currentVersion = 0
 
 	a := NewAccount()
 	for _, e := range events {
@@ -31,26 +39,17 @@ func (stream *eventStream) replay(id AccountId) (*account, error) {
 		return nil, errors.New("Aggregate not found")
 	}
 
-	stream.versions[id] = currentVersion
+	s.versions[id] = currentVersion
 	return a, nil
 }
 
-func (stream *eventStream) append(e Event, a *account) {
-
+func (s *eventStream) append(e Event, id AccountId) {
+	currentVersion := s.versions[id] + 1
+	se := sequencedEvent{id, currentVersion, e}
+	s.uncomittedEvents = append(s.uncomittedEvents, se)
 }
 
-/*
-private final List<SequencedEvent<E>> uncommittedEvents = new ArrayList<>();
-
-    @Override
-    public void append(Event<E> event, A aggregate, UUID aggregateId) {
-        event.accept(aggregate);
-        var currentVersion = aggregateVersions.compute(aggregateId, (id, version) -> version != null ? version + 1 : 1);
-        uncommittedEvents.add(new SequencedEvent<>(aggregateId, currentVersion, null, event));
-    }
-
-    void commit(UUID transactionId) {
-        eventStore.append(uncommittedEvents, transactionId);
-        uncommittedEvents.clear();
-    }
-*/
+func (s *eventStream) commit() {
+	(*s.eventStore).append(s.uncomittedEvents)
+	s.uncomittedEvents = nil
+}
