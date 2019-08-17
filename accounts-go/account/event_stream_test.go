@@ -51,6 +51,42 @@ func TestAppendEvent(t *testing.T) {
 	assertEqual(t, seqEvent.seq, 1)
 }
 
+func TestCommitInSequence(t *testing.T) {
+	store := inmemoryEeventstore{}
+	es := NewEventStream(&store)
+
+	id := AggregateId{1}
+	ownerId := OwnerId{2}
+
+	a := account{}
+	accountOpenedEvent, err := a.Open(id, ownerId)
+	if err != nil {
+		t.Error(err)
+	}
+	es.append(accountOpenedEvent, id)
+
+	depositEvent, err := a.Deposit(42)
+	if err != nil {
+		t.Error(err)
+	}
+	es.append(depositEvent, id)
+
+	es.commit()
+
+	assertEqual(t, 0, len(es.uncomittedEvents))
+	assertEqual(t, 2, len(store.events))
+
+	secOpenedEvent := store.events[0]
+	assertEqual(t, secOpenedEvent.event, accountOpenedEvent)
+	assertEqual(t, secOpenedEvent.aggregateId, id)
+	assertEqual(t, secOpenedEvent.seq, 1)
+
+	secDepositedEvent := store.events[1]
+	assertEqual(t, secDepositedEvent.event, depositEvent)
+	assertEqual(t, secDepositedEvent.aggregateId, id)
+	assertEqual(t, secDepositedEvent.seq, 2)
+}
+
 func assertEqual(t *testing.T, a, b interface{}) {
 	if a != b {
 		t.Errorf("Expected %v, got %v", b, a)

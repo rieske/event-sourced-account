@@ -44,8 +44,8 @@ func (s *eventStream) replay(id AggregateId) (*account, error) {
 }
 
 func (s *eventStream) append(e Event, id AggregateId) {
-	currentVersion := s.versions[id] + 1
-	se := sequencedEvent{id, currentVersion, e}
+	s.versions[id] = s.versions[id] + 1
+	se := sequencedEvent{id, s.versions[id], e}
 	s.uncomittedEvents = append(s.uncomittedEvents, se)
 }
 
