@@ -12,7 +12,7 @@ type sequencedEvent struct {
 
 type eventStore interface {
 	Events(id AggregateId, version int) []Event
-	Append(events []sequencedEvent)
+	Append(events []sequencedEvent) error
 }
 
 type eventStream struct {
@@ -49,7 +49,11 @@ func (s *eventStream) append(e Event, id AggregateId) {
 	s.uncomittedEvents = append(s.uncomittedEvents, se)
 }
 
-func (s *eventStream) commit() {
-	(*s.eventStore).Append(s.uncomittedEvents)
+func (s *eventStream) commit() error {
+	err := (*s.eventStore).Append(s.uncomittedEvents)
+	if err != nil {
+		return err
+	}
 	s.uncomittedEvents = nil
+	return nil
 }

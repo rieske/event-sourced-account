@@ -6,10 +6,11 @@ func TestReplayEvents(t *testing.T) {
 	id := AggregateId{1}
 	ownerId := OwnerId{2}
 	store := inmemoryEeventstore{}
-	store.Append([]sequencedEvent{
+	err := store.Append([]sequencedEvent{
 		{id, 1, AccountOpenedEvent{id, ownerId}},
-		{id, 1, MoneyDepositedEvent{42, 42}},
+		{id, 2, MoneyDepositedEvent{42, 42}},
 	})
+	expectNoError(t, err)
 
 	es := NewEventStream(&store)
 
@@ -60,18 +61,15 @@ func TestCommitInSequence(t *testing.T) {
 
 	a := account{}
 	accountOpenedEvent, err := a.Open(id, ownerId)
-	if err != nil {
-		t.Error(err)
-	}
+	expectNoError(t, err)
 	es.append(accountOpenedEvent, id)
 
 	depositEvent, err := a.Deposit(42)
-	if err != nil {
-		t.Error(err)
-	}
+	expectNoError(t, err)
 	es.append(depositEvent, id)
 
-	es.commit()
+	err = es.commit()
+	expectNoError(t, err)
 
 	assertEqual(t, 0, len(es.uncomittedEvents))
 	assertEqual(t, 2, len(store.events))
@@ -85,6 +83,46 @@ func TestCommitInSequence(t *testing.T) {
 	assertEqual(t, secDepositedEvent.event, depositEvent)
 	assertEqual(t, secDepositedEvent.aggregateId, id)
 	assertEqual(t, secDepositedEvent.seq, 2)
+}
+
+func TestCommitOutOfSequence(t *testing.T) {
+	// given account exists
+	store := inmemoryEeventstore{}
+	es := NewEventStream(&store)
+
+	id := AggregateId{1}
+	ownerId := OwnerId{2}
+
+	a := account{}
+	accountOpenedEvent, err := a.Open(id, ownerId)
+	expectNoError(t, err)
+	es.append(accountOpenedEvent, id)
+	err = es.commit()
+	expectNoError(t, err)
+
+	es1 := NewEventStream(&store)
+	a1, err := es1.replay(id)
+	expectNoError(t, err)
+
+	e1, err := a1.Deposit(10)
+	expectNoError(t, err)
+	es1.append(e1, id)
+
+	es2 := NewEventStream(&store)
+	a2, err := es2.replay(id)
+	expectNoError(t, err)
+
+	e2, err := a2.Deposit(10)
+	expectNoError(t, err)
+	es2.append(e2, id)
+
+	err = es1.commit()
+	expectNoError(t, err)
+
+	err = es2.commit()
+	if err == nil {
+		t.Error("Expected concurrent modification error")
+	}
 }
 
 func assertEqual(t *testing.T, a, b interface{}) {
