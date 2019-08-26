@@ -1,4 +1,6 @@
-## Accounts
+## Event Sourced Account
+
+[![Actions Status](https://github.com/rieske/event-sourced-account/workflows/build/badge.svg)](https://github.com/rieske/event-sourced-account/actions)
 
 A simple, frameworkless event sourced Account implementation.
 
@@ -11,7 +13,7 @@ The service is test driven bottom up: domain -> event sourcing -> external API.
 I started with the basic operations in the account - deposit and withdrawal, open and close.
 This captures the basic business rules of when an account can be interacted with, what amounts
 can be deposited and withdrawn and under what circumstances.
-Money transfer between accounts is nothing but a withdrawal from one account and deposit to 
+Money transfer between accounts is nothing but a withdrawal from one account and deposit to
 another that has to happen within a transaction.
 
 
@@ -33,7 +35,7 @@ sql event store, initially serializing the payloads to json and later to msgpack
 ensure extensibility and to be as lightweight as possible. Then, extended the same tests
 that I used with in-memory event store to also run with H2 embedded database. And then with
 MySql just to be sure (those are slow ones and are not part of the main build). At this point,
-I was able to validate all the core functionality, including consistency very quickly with 
+I was able to validate all the core functionality, including consistency very quickly with
 multiple event store implementations. No mocks, all the tests exercise the full functionality via
 the eventstore API.
 And event store here is key to ensuring consistency in a multithreaded environment.
@@ -51,14 +53,14 @@ unreliable network (and network is unreliable by definition) is idempotency. Whe
 request gets interrupted due to whatever reason, the client might not know whether the
 request was handled or not and might retry. This might result in a double transfer, double
 deposit or withdrawal had the original request been handled successfully. To prevent such
-cases, the client should supply a unique transaction id (a UUID in our case) for each 
+cases, the client should supply a unique transaction id (a UUID in our case) for each
 distinct operation. This id is persisted and in case a duplicate request comes in, it will
 be accepted, but no action taken since we know we already handled it.
-Again - consistent idempotency in a multithreaded environment is guaranteed by a database constraint 
-- remove the primary key on Transaction table and all but the consistency tests testing for idempotency 
+Again - consistent idempotency in a multithreaded environment is guaranteed by a database constraint
+- remove the primary key on Transaction table and all but the consistency tests testing for idempotency
 will pass.
 Transaction ids can not be reused. Current implementation is a bit naive as it does not take into account
-the type of operation in context of idempotency, just the transaction id together with 
+the type of operation in context of idempotency, just the transaction id together with
 affected account id, meaning that given a transaction id that was used for a deposit
 would be used for a withdrawal, the service would respond that it accepted the request.
 Maybe a better way would be to conflict on such cases.
@@ -70,11 +72,11 @@ Maybe a better way would be to conflict on such cases.
   and a `Location` header pointing to the created resource if successful
 - get account's current state: `GET /api/account/{accountId}` should respond with `200`
   and a json body if account is found, otherwise `404`
-- deposit: `PUT /api/account/{accountId}?deposit={amount}&transactionId={uuid}` 
+- deposit: `PUT /api/account/{accountId}?deposit={amount}&transactionId={uuid}`
   should respond with `204` if successful
-- withdraw: `PUT /api/account/{accountId}?withdraw={amount}&transactionId={uuid}` 
+- withdraw: `PUT /api/account/{accountId}?withdraw={amount}&transactionId={uuid}`
   should respond with `204` if successful
-- transfer: `PUT /api/account/{accountId}?transfer={targetAccountId}&amount={amount}&transactionId={uuid}` 
+- transfer: `PUT /api/account/{accountId}?transfer={targetAccountId}&amount={amount}&transactionId={uuid}`
   should respond with `204` if successful
 - close account: `DELETE /api/account/{accountId}` should respond with `204` if successful
 
@@ -87,15 +89,15 @@ tests depend on docker daemon, I wanted to avoid broken builds on machines that 
 
 Next level are the integration tests that use MySql backed event store. Tagged with `integration`.
 
-Finally, a couple of end to end tests that focus mainly on sanity testing consistency in a distributed 
+Finally, a couple of end to end tests that focus mainly on sanity testing consistency in a distributed
 environment. Tagged with `e2e`.
 
 Since I was test driving this service from the domain up to the event sourcing infrastructure and lastly
 up to the API, some of the tests might be redundant and functionality might be tested several times.
 With in-memory event store and h2 event store, the unit tests exercise the whole module really fast
 and it might even be possible to move the remaining lower level tests higher up. This would allow
-to test the functionality solely via the API and not have any implementation details tests. 
-Which can in turn make changes to internal implementation details easier to make with absence of 
+to test the functionality solely via the API and not have any implementation details tests.
+Which can in turn make changes to internal implementation details easier to make with absence of
 implementation oriented tests. I did not use any mocking framework to avoid testing implementation
 and focus solely on the functionality.
 
@@ -105,11 +107,11 @@ and focus solely on the functionality.
 - I used longs for monetary amounts, assuming those are in minor units/cents. I am aware that money
 is a delicate matter and extra care is needed when dealing with it in software. Since
 this service performs only basic addition and subtraction, I decided to use cents for now
-and focus on other things. Should I need to deal with floating points, I would at the very 
-least go for BigDecimal and probably do some investigation around current best practices - 
+and focus on other things. Should I need to deal with floating points, I would at the very
+least go for BigDecimal and probably do some investigation around current best practices -
 I know there is a javamoney implementation, also an older joda money one.
 
-- I did not take currency into account - all accounts are same currency for now. Should I 
+- I did not take currency into account - all accounts are same currency for now. Should I
 need to add currency, I'd probably have to refine the type that holds amounts to include
 the currency, prevent deposits/withdrawals if account currency does not match. This would
 prevent cross currency transfers right away. Currency conversion for cross currency transfers
@@ -121,7 +123,7 @@ InsufficientBalance, AccountClosed exceptions etc. Kept it simple with IllegalAr
 exceptions for the sake of avoiding unneeded class count explosion.
 
 - Didn't use Jackson for serializing events in the REST API despite already having it in
-the classpath. Just for fun - wanted to try out the events visitor outside of the aggregate. 
+the classpath. Just for fun - wanted to try out the events visitor outside of the aggregate.
 Later applied a similar pattern to serialize events for storage using msgpack. No reflection
 needed.
 
