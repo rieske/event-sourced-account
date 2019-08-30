@@ -51,7 +51,7 @@ dependencies {
     implementation 'org.msgpack:msgpack-core:0.8.17'
 
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
-    
+
     implementation 'org.flywaydb:flyway-core:5.2.4'
 
     implementation 'ch.qos.logback:logback-classic:1.2.3'
@@ -91,5 +91,5 @@ jar {
 }
 
 wrapper {
-    gradleVersion = '5.5.1'
+    gradleVersion = '5.6.1'
 }
