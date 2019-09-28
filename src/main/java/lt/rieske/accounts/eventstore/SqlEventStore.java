@@ -24,10 +24,12 @@ class SqlEventStore implements BlobEventStore {
     private static final String SELECT_EVENTS_SQL =
             "SELECT sequenceNumber, transactionId, payload FROM event_store.Event WHERE aggregateId = ? AND sequenceNumber > ? ORDER BY sequenceNumber ASC";
 
-    private static final String APPEND_SNAPSHOT_SQL =
+    private static final String REMOVE_SNAPSHOT_SQL =
+            "DELETE FROM event_store.Snapshot WHERE aggregateId = ?";
+    private static final String STORE_SNAPSHOT_SQL =
             "INSERT INTO event_store.Snapshot(aggregateId, sequenceNumber, payload) VALUES(?, ?, ?)";
-    private static final String SELECT_LATEST_SNAPSHOT_SQL =
-            "SELECT sequenceNumber, payload FROM event_store.Snapshot WHERE aggregateId = ? ORDER BY sequenceNumber DESC LIMIT 1";
+    private static final String SELECT_SNAPSHOT_SQL =
+            "SELECT sequenceNumber, payload FROM event_store.Snapshot WHERE aggregateId = ?";
 
     private static final String INSERT_TRANSACTION_SQL =
             "INSERT INTO event_store.Transaction(aggregateId, transactionId) VALUES(?, ?)";
@@ -57,6 +59,7 @@ class SqlEventStore implements BlobEventStore {
                 insertEvent(connection, e);
             }
             for (var s : serializedSnapshots) {
+                removeSnapshot(connection, s.getAggregateId());
                 insertSnapshot(connection, s);
             }
             connection.commit();
@@ -91,7 +94,7 @@ class SqlEventStore implements BlobEventStore {
     @Override
     public SerializedEvent loadLatestSnapshot(UUID aggregateId) {
         try (var connection = dataSource.getConnection();
-             var statement = connection.prepareStatement(SELECT_LATEST_SNAPSHOT_SQL)) {
+             var statement = connection.prepareStatement(SELECT_SNAPSHOT_SQL)) {
             statement.setBytes(1, uuidToBytes(aggregateId));
             try (var resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
@@ -140,8 +143,15 @@ class SqlEventStore implements BlobEventStore {
         }
     }
 
+    private static void removeSnapshot(Connection connection, UUID aggregateId) throws SQLException {
+        try (var statement = connection.prepareStatement(REMOVE_SNAPSHOT_SQL)) {
+            statement.setBytes(1, uuidToBytes(aggregateId));
+            statement.executeUpdate();
+        }
+    }
+
     private static void insertSnapshot(Connection connection, SerializedEvent event) throws SQLException {
-        try (var statement = connection.prepareStatement(APPEND_SNAPSHOT_SQL)) {
+        try (var statement = connection.prepareStatement(STORE_SNAPSHOT_SQL)) {
             statement.setBytes(1, uuidToBytes(event.getAggregateId()));
             statement.setLong(2, event.getSequenceNumber());
             statement.setBytes(3, event.getPayload());

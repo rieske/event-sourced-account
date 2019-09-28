@@ -133,7 +133,7 @@ class InMemoryEventStore<T> implements EventStore<T> {
         });
     }
 
-    private Long getLatestAggregateVersion(UUID aggregateId) {
+    private long getLatestAggregateVersion(UUID aggregateId) {
         var aggregateEvents = getSequencedEvents(aggregateId);
 
         if (aggregateEvents.isEmpty()) {
