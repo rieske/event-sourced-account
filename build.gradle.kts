@@ -12,30 +12,36 @@ repositories {
     mavenCentral()
 }
 
-tasks.test {
-    useJUnitPlatform {
-        excludeTags("integration")
-        excludeTags("e2e")
+tasks {
+    wrapper {
+        gradleVersion = "5.6.3"
     }
-    maxParallelForks = 8
-}
 
-tasks.register<Test>("integrationTest") {
-    dependsOn(tasks.test)
-    useJUnitPlatform {
-        includeTags("integration")
+    test {
+        useJUnitPlatform {
+            excludeTags("integration")
+            excludeTags("e2e")
+        }
+        maxParallelForks = 8
     }
-    maxParallelForks = 8
-}
 
-tasks.register<Test>("e2eTest") {
-    dependsOn(tasks.test)
-    dependsOn("integrationTest")
-    dependsOn(tasks.assemble)
-    useJUnitPlatform {
-        includeTags("e2e")
+    register<Test>("integrationTest") {
+        dependsOn(test)
+        useJUnitPlatform {
+            includeTags("integration")
+        }
+        maxParallelForks = 8
     }
-    maxParallelForks = 8
+
+    register<Test>("e2eTest") {
+        dependsOn(test)
+        dependsOn("integrationTest")
+        dependsOn(assemble)
+        useJUnitPlatform {
+            includeTags("e2e")
+        }
+        maxParallelForks = 8
+    }
 }
 
 configurations.all {
@@ -82,8 +88,4 @@ dependencies {
 
 application {
     mainClassName = "lt.rieske.accounts.App"
-}
-
-tasks.wrapper {
-    gradleVersion = "5.6.3"
 }
