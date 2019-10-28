@@ -80,16 +80,8 @@ dependencies {
     }
 }
 
-val mainClass = "lt.rieske.accounts.App"
-
 application {
-    mainClassName = mainClass
-}
-
-tasks.jar {
-    manifest {
-        attributes["Main-Class"] = mainClass
-    }
+    mainClassName = "lt.rieske.accounts.App"
 }
 
 tasks.wrapper {
