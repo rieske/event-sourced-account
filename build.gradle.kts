@@ -1,37 +1,39 @@
 plugins {
-    id "java"
-    id "application"
+    java
+    application
 }
 
-sourceCompatibility = 11
-targetCompatibility = 11
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
 
 repositories {
     mavenCentral()
 }
 
-test {
+tasks.test {
     useJUnitPlatform {
-        excludeTags = "integration"
-        excludeTags = "e2e"
+        excludeTags("integration")
+        excludeTags("e2e")
     }
     maxParallelForks = 8
 }
 
-task integrationTest(type: Test) {
-    dependsOn(test)
+tasks.register<Test>("integrationTest") {
+    dependsOn(tasks.test)
     useJUnitPlatform {
-        includeTags "integration"
+        includeTags("integration")
     }
     maxParallelForks = 8
 }
 
-task e2eTest(type: Test) {
-    dependsOn(test)
-    dependsOn(integrationTest)
-    dependsOn(assemble)
+tasks.register<Test>("e2eTest") {
+    dependsOn(tasks.test)
+    dependsOn("integrationTest")
+    dependsOn(tasks.assemble)
     useJUnitPlatform {
-        includeTags = "e2e"
+        includeTags("e2e")
     }
     maxParallelForks = 8
 }
@@ -66,10 +68,10 @@ dependencies {
     testImplementation("org.reflections:reflections:0.9.11")
 
     testImplementation("org.testcontainers:mysql:1.11.4") {
-        exclude group: "org.hamcrest", module: "hamcrest-core"
-        exclude group: "org.slf4j", module: "slf4j-api"
-        exclude group: "javax.xml.bind", module: "jaxb-api"
-        exclude group: "net.java.dev.jna", module: "jna-platform"
+        exclude(group = "org.hamcrest", module = "hamcrest-core")
+        exclude(group = "org.slf4j", module = "slf4j-api")
+        exclude(group = "javax.xml.bind", module = "jaxb-api")
+        exclude(group = "net.java.dev.jna", module = "jna-platform")
     }
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.3.1")
@@ -77,19 +79,23 @@ dependencies {
 
     testImplementation("com.tngtech.archunit:archunit-junit5-api:0.10.2")
     testRuntimeOnly("com.tngtech.archunit:archunit-junit5-engine:0.10.2") {
-        exclude group: "org.junit.platform", module: "junit-platform-engine"
-        exclude group: "org.junit.jupiter", module: "junit-jupiter-engine"
+        exclude(group = "org.junit.platform", module = "junit-platform-engine")
+        exclude(group = "org.junit.jupiter", module = "junit-jupiter-engine")
     }
 }
 
-mainClassName = "lt.rieske.accounts.App"
+val mainClass = "lt.rieske.accounts.App"
 
-jar {
+application {
+    mainClassName = mainClass
+}
+
+tasks.jar {
     manifest {
-        attributes "Main-Class": mainClassName
+        attributes["Main-Class"] = mainClass
     }
 }
 
-wrapper {
+tasks.wrapper {
     gradleVersion = "5.6.3"
 }
