@@ -61,7 +61,7 @@ dependencies {
 
     implementation("org.msgpack:msgpack-core:0.8.18")
 
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.10.0")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.10.1")
 
     implementation("org.flywaydb:flyway-core:6.0.8")
 
