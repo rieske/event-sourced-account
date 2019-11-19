@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Tag;
 import org.testcontainers.containers.MySQLContainer;
 
 import javax.sql.DataSource;
+import java.util.Map;
 
 @Tag("integration")
 class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
@@ -27,11 +28,14 @@ class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
 
         private static final String DATABASE = "event_store";
 
-        private final MySQLContainer mysql = new MySQLContainer().withDatabaseName(DATABASE);
+        private final MySQLContainer mysql = new MySQLContainer()
+                .withDatabaseName(DATABASE);
 
         private final DataSource dataSource;
 
         MySql() {
+            mysql.withTmpFs(Map.of("/var/lib/mysql", "rw"));
+
             mysql.start();
 
             var dataSource = new MysqlDataSource();
