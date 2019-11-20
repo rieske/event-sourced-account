@@ -84,7 +84,7 @@ class ConsistencyTest {
     }
 
     @Test
-    void accountsRemainConsistentInDistrubutedEnvironmentUnderLoad() throws InterruptedException {
+    void accountsRemainConsistentInDistributedEnvironmentUnderLoad() throws InterruptedException {
         var accountId = UUID.randomUUID();
         given().baseUri(apiUrl())
                 .when().post("/account/" + accountId + "?owner=" + UUID.randomUUID())
