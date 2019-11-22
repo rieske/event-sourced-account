@@ -30,7 +30,7 @@ services:
       MYSQL_JDBC_URL: jdbc:mysql://database:3306/event_store
 
   database:
-    image: mysql
+    image: mysql:8.0.18
     environment:
       MYSQL_ROOT_PASSWORD: test
       MYSQL_USER: test
