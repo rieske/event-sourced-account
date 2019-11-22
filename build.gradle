@@ -24,6 +24,7 @@ tasks {
         useJUnitPlatform {
             excludeTags("integration")
             excludeTags("e2e")
+            excludeTags("external")
         }
         maxParallelForks = 8
     }
