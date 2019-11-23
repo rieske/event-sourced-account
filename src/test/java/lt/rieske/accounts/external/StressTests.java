@@ -93,16 +93,20 @@ public class StressTests {
                 var latch = new CountDownLatch(testCase.threadCount);
                 for (int j = 0; j < testCase.threadCount; j++) {
                     int threadNo = j;
+                    var txId = UUID.randomUUID();
                     executor.submit(() -> {
-                        try {
-                            given().baseUri(apiUrl())
-                                    .when().put("/account/" + accountIds[threadNo] + "/deposit?amount=1&transactionId=" + UUID.randomUUID())
-                                    .then().statusCode(204);
-                        } catch (RuntimeException e) {
-                            e.printStackTrace();
-                        } finally {
-                            latch.countDown();
+                        while (true) {
+                            try {
+                                given().baseUri(apiUrl())
+                                        .when().put("/account/" + accountIds[threadNo] + "/deposit?amount=1&transactionId=" + txId)
+                                        .then().statusCode(204);
+                            } catch (Exception e) {
+                                System.err.println(e.getMessage());
+                                continue;
+                            }
+                            break;
                         }
+                        latch.countDown();
                     });
                 }
                 latch.await();
@@ -152,9 +156,10 @@ public class StressTests {
         testCase.durationMillis = measure(() -> {
             for (int i = 0; i < testCase.operationCount; i++) {
                 for (int j = 0; j < testCase.threadCount; j++) {
+                    var txId = UUID.randomUUID();
                     threadFutures[j] = executor.submit(() -> withRetryOnConcurrentModification(() ->
                             given().baseUri(apiUrl())
-                                    .when().put("/account/" + accountId + "/deposit?amount=1&transactionId=" + UUID.randomUUID())
+                                    .when().put("/account/" + accountId + "/deposit?amount=1&transactionId=" + txId)
                                     .thenReturn().statusCode()));
                 }
                 for (int j = 0; j < testCase.threadCount; j++) {
@@ -171,15 +176,19 @@ public class StressTests {
         int conflicts = 0;
         concurrentModificationRetryLoop:
         while (true) {
-            int response = s.get();
-            switch (response) {
-                case 204:
-                    break concurrentModificationRetryLoop;
-                case 409:
-                    conflicts++;
-                    continue;
-                default:
-                    System.err.println("Unexpected response from server: " + response);
+            try {
+                int response = s.get();
+                switch (response) {
+                    case 204:
+                        break concurrentModificationRetryLoop;
+                    case 409:
+                        conflicts++;
+                        continue;
+                    default:
+                        System.err.println("Unexpected response from server: " + response);
+                }
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
             }
         }
         return conflicts;
