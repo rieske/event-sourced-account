@@ -1,36 +1,66 @@
 package lt.rieske.accounts.external;
 
-import java.time.Duration;
+import lombok.Data;
+
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.function.Supplier;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
-// External tests meant to be run against an already spawned service for experimentation purposes
+
 public class StressTests {
 
     private static String apiUrl() {
         return "http://localhost:8080/api";
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    @Data
+    private static class TestCase {
+        private final String name;
+        private final TestMethod testMethod;
+        private final int threadCount;
+        private final int operationCount;
+        private int conflicts;
+        private long durationMillis;
+
+        private String formatDurationSeconds() {
+            return durationMillis / 1000.0 + "s";
+        }
+
+        private String throughput() {
+            double opsPerSecond = (threadCount * operationCount) / (durationMillis / 1000.0);
+            return opsPerSecond + " ops/s";
+        }
+
+        private void println() {
+            System.out.printf("%-40s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s\n",
+                    name, threadCount, operationCount, formatDurationSeconds(), conflicts, throughput());
+        }
+
+        void run() throws ExecutionException, InterruptedException {
+            testMethod.run(this);
+            println();
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException, ExecutionException {
         canCreateAndQueryAccount();
         System.out.println("Sanity test passed\n");
 
-        var depositCount = 100;
         var threadCount = 8;
+        var depositCount = 1000;
 
-        System.out.printf("%-40s\t%s\n", "TEST NAME", "DURATION");
+        System.out.printf("%-40s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s\n", "TEST NAME", "THREADS", "OPS", "DURATION", "CONFLICTS", "THROUGHPUT");
         for (int i = 0; i < 5; i++) {
-            var d1 = concurrentNonConflictingDeposits(threadCount, depositCount);
-            System.out.printf("%-40s\t%ss\n", "concurrentNonConflictingDeposits", d1.toMillis() / 1000.0);
-            var d2 = concurrentIdempotentDeposits(threadCount, depositCount);
-            System.out.printf("%-40s\t%ss\n", "concurrentIdempotentDeposits", d2.toMillis() / 1000.0);
-            var d3 = concurrentDistinctDeposits(threadCount, depositCount);
-            System.out.printf("%-40s\t%ss\n", "concurrentDistinctDeposits", d3.toMillis() / 1000.0);
+            new TestCase("concurrentNonConflictingDeposits", StressTests::concurrentNonConflictingDeposits, threadCount, depositCount).run();
+            new TestCase("concurrentIdempotentDeposits", StressTests::concurrentIdempotentDeposits, threadCount, depositCount).run();
+            new TestCase("concurrentDistinctDeposits", StressTests::concurrentDistinctDeposits, threadCount, depositCount).run();
+            System.out.println();
         }
     }
 
@@ -51,23 +81,28 @@ public class StressTests {
 
     // N threads performing M deposits to N accounts.
     // Each thread "owns" an account - no concurrent modifications of an account - no conflicts
-    private static Duration concurrentNonConflictingDeposits(int threadCount, int depositCount) throws InterruptedException {
-        var accountIds = new UUID[threadCount];
-        for (int i = 0; i < threadCount; i++) {
+    private static void concurrentNonConflictingDeposits(TestCase testCase) throws InterruptedException, ExecutionException {
+        var accountIds = new UUID[testCase.threadCount];
+        for (int i = 0; i < testCase.threadCount; i++) {
             accountIds[i] = newAccount();
         }
 
-        var executor = Executors.newFixedThreadPool(threadCount);
-        var testDuration = measure(() -> {
-            for (int i = 0; i < depositCount; i++) {
-                var latch = new CountDownLatch(threadCount);
-                for (int j = 0; j < threadCount; j++) {
+        var executor = Executors.newFixedThreadPool(testCase.threadCount);
+        testCase.durationMillis = measure(() -> {
+            for (int i = 0; i < testCase.operationCount; i++) {
+                var latch = new CountDownLatch(testCase.threadCount);
+                for (int j = 0; j < testCase.threadCount; j++) {
                     int threadNo = j;
                     executor.submit(() -> {
-                        given().baseUri(apiUrl())
-                                .when().put("/account/" + accountIds[threadNo] + "/deposit?amount=1&transactionId=" + UUID.randomUUID())
-                                .then().statusCode(204);
-                        latch.countDown();
+                        try {
+                            given().baseUri(apiUrl())
+                                    .when().put("/account/" + accountIds[threadNo] + "/deposit?amount=1&transactionId=" + UUID.randomUUID())
+                                    .then().statusCode(204);
+                        } catch (RuntimeException e) {
+                            e.printStackTrace();
+                        } finally {
+                            latch.countDown();
+                        }
                     });
                 }
                 latch.await();
@@ -75,69 +110,65 @@ public class StressTests {
         });
         executor.shutdown();
 
-        for (int i = 0; i < threadCount; i++) {
-            assertOpenAccountWithBalance(accountIds[i], depositCount);
+        for (int i = 0; i < testCase.threadCount; i++) {
+            assertOpenAccountWithBalance(accountIds[i], testCase.operationCount);
         }
-
-        return testDuration;
     }
 
     // 1 account, N concurrent threads performing M deposits
     // for each deposit, each of N threads attempts the same transaction - expected amount - M
-    private static Duration concurrentIdempotentDeposits(int threadCount, int depositCount) throws InterruptedException {
+    private static void concurrentIdempotentDeposits(TestCase testCase) throws InterruptedException, ExecutionException {
         var accountId = newAccount();
-        var executor = Executors.newFixedThreadPool(threadCount);
+        var executor = Executors.newFixedThreadPool(testCase.threadCount);
 
-        var testDuration = measure(() -> {
-            for (int i = 0; i < depositCount; i++) {
-                var latch = new CountDownLatch(threadCount);
+        Future<Integer>[] threadFutures = new Future[testCase.threadCount];
+
+        testCase.durationMillis = measure(() -> {
+            for (int i = 0; i < testCase.operationCount; i++) {
                 var transactionId = UUID.randomUUID();
-                for (int j = 0; j < threadCount; j++) {
-                    executor.submit(() -> {
-                        withRetryOnConcurrentModification(() ->
-                                given().baseUri(apiUrl())
-                                        .when().put("/account/" + accountId + "/deposit?amount=1&transactionId=" + transactionId)
-                                        .thenReturn().statusCode());
-                        latch.countDown();
-                    });
+                for (int j = 0; j < testCase.threadCount; j++) {
+                    threadFutures[j] = executor.submit(() -> withRetryOnConcurrentModification(() ->
+                            given().baseUri(apiUrl())
+                                    .when().put("/account/" + accountId + "/deposit?amount=1&transactionId=" + transactionId)
+                                    .thenReturn().statusCode()));
                 }
-                latch.await();
+                for (int j = 0; j < testCase.threadCount; j++) {
+                    testCase.conflicts += threadFutures[j].get();
+                }
             }
         });
         executor.shutdown();
 
-        assertOpenAccountWithBalance(accountId, depositCount);
-        return testDuration;
+        assertOpenAccountWithBalance(accountId, testCase.operationCount);
     }
 
     // 1 account, N concurrent threads, each thread performing M deposits - expected amount - N*M
-    private static Duration concurrentDistinctDeposits(int threadCount, int depositCount) throws InterruptedException {
+    private static void concurrentDistinctDeposits(TestCase testCase) throws InterruptedException, ExecutionException {
         var accountId = newAccount();
-        var executor = Executors.newFixedThreadPool(threadCount);
+        var executor = Executors.newFixedThreadPool(testCase.threadCount);
 
-        var testDuration = measure(() -> {
-            for (int i = 0; i < depositCount; i++) {
-                var latch = new CountDownLatch(threadCount);
-                for (int j = 0; j < threadCount; j++) {
-                    executor.submit(() -> {
-                        withRetryOnConcurrentModification(() ->
-                                given().baseUri(apiUrl())
-                                        .when().put("/account/" + accountId + "/deposit?amount=1&transactionId=" + UUID.randomUUID())
-                                        .thenReturn().statusCode());
-                        latch.countDown();
-                    });
+        Future<Integer>[] threadFutures = new Future[testCase.threadCount];
+
+        testCase.durationMillis = measure(() -> {
+            for (int i = 0; i < testCase.operationCount; i++) {
+                for (int j = 0; j < testCase.threadCount; j++) {
+                    threadFutures[j] = executor.submit(() -> withRetryOnConcurrentModification(() ->
+                            given().baseUri(apiUrl())
+                                    .when().put("/account/" + accountId + "/deposit?amount=1&transactionId=" + UUID.randomUUID())
+                                    .thenReturn().statusCode()));
                 }
-                latch.await();
+                for (int j = 0; j < testCase.threadCount; j++) {
+                    testCase.conflicts += threadFutures[j].get();
+                }
             }
         });
         executor.shutdown();
 
-        assertOpenAccountWithBalance(accountId, depositCount * threadCount);
-
-        return testDuration;
+        assertOpenAccountWithBalance(accountId, testCase.operationCount * testCase.threadCount);
     }
 
-    private static void withRetryOnConcurrentModification(Supplier<Integer> s) {
+    private static int withRetryOnConcurrentModification(Supplier<Integer> s) {
+        int conflicts = 0;
         concurrentModificationRetryLoop:
         while (true) {
             int response = s.get();
@@ -145,11 +176,13 @@ public class StressTests {
                 case 204:
                     break concurrentModificationRetryLoop;
                 case 409:
+                    conflicts++;
                     continue;
                 default:
-                    throw new RuntimeException("Unexpected response: " + response);
+                    System.err.println("Unexpected response from server: " + response);
             }
         }
+        return conflicts;
     }
 
     private static void assertOpenAccountWithBalance(UUID accountId, int balance) {
@@ -177,15 +210,20 @@ public class StressTests {
         return accountId;
     }
 
-    private static Duration measure(InterruptingRunnable r) throws InterruptedException {
-        long startTime = System.nanoTime();
+    private static long measure(InterruptingRunnable r) throws InterruptedException, ExecutionException {
+        long startTime = System.currentTimeMillis();
         r.run();
-        long endTime = System.nanoTime();
-        return Duration.ofNanos(endTime - startTime);
+        long endTime = System.currentTimeMillis();
+        return endTime - startTime;
     }
 
     @FunctionalInterface
     private interface InterruptingRunnable {
-        void run() throws InterruptedException;
+        void run() throws InterruptedException, ExecutionException;
+    }
+
+    @FunctionalInterface
+    private interface TestMethod {
+        void run(TestCase testCase) throws InterruptedException, ExecutionException;
     }
 }
