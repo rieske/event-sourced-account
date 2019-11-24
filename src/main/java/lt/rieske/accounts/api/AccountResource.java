@@ -127,7 +127,7 @@ class AccountResource {
                 "\"accountId\":\"" + account.getAccountId() + "\"," +
                 "\"ownerId\":\"" + account.getOwnerId() + "\"," +
                 "\"balance\":" + account.getBalance() + "," +
-                "\"open\":" + account.isOpen() + "," +
+                "\"open\":" + account.isOpen() +
                 "}";
     }
 
