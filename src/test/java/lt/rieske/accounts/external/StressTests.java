@@ -94,9 +94,9 @@ public class StressTests {
 
         System.out.printf("%-40s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s\n", "TEST NAME", "THREADS", "OPS", "DURATION", "CONFLICTS", "THROUGHPUT");
         for (int i = 0; i < 5; i++) {
-            new TestCase("concurrentNonConflictingDeposits", StressTests::concurrentNonConflictingDeposits, threadCount, depositCount).run();
-            new TestCase("concurrentIdempotentDeposits", StressTests::concurrentIdempotentDeposits, threadCount, depositCount).run();
-            new TestCase("concurrentDistinctDeposits", StressTests::concurrentDistinctDeposits, threadCount, depositCount).run();
+            new TestCase("nonConflictingDeposits", StressTests::nonConflictingDeposits, threadCount, depositCount).run();
+            new TestCase("idempotentDeposits", StressTests::idempotentDeposits, threadCount, depositCount).run();
+            new TestCase("distinctDeposits", StressTests::distinctDeposits, threadCount, depositCount).run();
             System.out.println();
         }
     }
@@ -116,7 +116,7 @@ public class StressTests {
 
     // N threads performing M deposits to N accounts.
     // Each thread "owns" an account - no concurrent modifications of an account - no conflicts
-    private static void concurrentNonConflictingDeposits(TestCase testCase) throws InterruptedException, ExecutionException {
+    private static void nonConflictingDeposits(TestCase testCase) throws InterruptedException, ExecutionException {
         var accountIds = new UUID[testCase.threadCount];
         for (int i = 0; i < testCase.threadCount; i++) {
             accountIds[i] = newAccount();
@@ -155,7 +155,7 @@ public class StressTests {
 
     // 1 account, N concurrent threads performing M deposits
     // for each deposit, each of N threads attempts the same transaction - expected amount - M
-    private static void concurrentIdempotentDeposits(TestCase testCase) throws InterruptedException, ExecutionException {
+    private static void idempotentDeposits(TestCase testCase) throws InterruptedException, ExecutionException {
         var accountId = newAccount();
         var executor = Executors.newFixedThreadPool(testCase.threadCount);
 
@@ -178,7 +178,7 @@ public class StressTests {
     }
 
     // 1 account, N concurrent threads, each thread performing M deposits - expected amount - N*M
-    private static void concurrentDistinctDeposits(TestCase testCase) throws InterruptedException, ExecutionException {
+    private static void distinctDeposits(TestCase testCase) throws InterruptedException, ExecutionException {
         var accountId = newAccount();
         var executor = Executors.newFixedThreadPool(testCase.threadCount);
 
