@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 
 
-class JsonEventSerializer<T> implements EventSerializer<T> {
+class JacksonJsonEventSerializer<T> implements EventSerializer<T> {
 
     private final ObjectMapper objectMapper = new ObjectMapper()
             .addMixIn(Event.class, PolymorphicEventMixIn.class);

@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class JsonEventSerializerTest {
 
-    private final JsonEventSerializer<AccountEventsVisitor> serializer = new JsonEventSerializer<>();
+    private final JacksonJsonEventSerializer<AccountEventsVisitor> serializer = new JacksonJsonEventSerializer<>();
 
     @Test
     void canDeserializeAccountEvents() {
