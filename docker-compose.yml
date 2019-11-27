@@ -3,13 +3,22 @@ version: '3.7'
 
 services:
 
-  lb:
-    build: src/test/resources/load-balancer
+  #lb:
+  #  build: src/test/resources/load-balancer
+  #  depends_on:
+  #    - accounts-1
+  #    - accounts-2
+  #  ports:
+  #    - 8080:80
+
+  lb-envoy:
+    build: src/test/resources/envoy
     depends_on:
       - accounts-1
       - accounts-2
     ports:
-      - 8080:80
+      - 9901
+      - 8080:10000
 
   accounts-1:
     build: .
