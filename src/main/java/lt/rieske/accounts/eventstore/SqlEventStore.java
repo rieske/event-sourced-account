@@ -8,6 +8,7 @@ import java.nio.ByteOrder;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.SQLTransactionRollbackException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
@@ -63,7 +64,7 @@ class SqlEventStore implements BlobEventStore {
                 insertSnapshot(connection, s);
             }
             connection.commit();
-        } catch (SQLIntegrityConstraintViolationException e) {
+        } catch (SQLIntegrityConstraintViolationException | SQLTransactionRollbackException e) {
             throw new ConcurrentModificationException(e);
         } catch (SQLException e) {
             throw new UncheckedIOException(new IOException(e));
