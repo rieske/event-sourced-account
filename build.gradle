@@ -70,6 +70,7 @@ dependencies {
 
     implementation("com.h2database:h2:1.4.200")
     implementation("mysql:mysql-connector-java:8.0.18")
+    implementation("com.zaxxer:HikariCP:3.4.1")
 
     testAnnotationProcessor("org.projectlombok:lombok:1.18.10")
     testImplementation("org.assertj:assertj-core:3.14.0")

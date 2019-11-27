@@ -1,5 +1,7 @@
 package lt.rieske.accounts.api;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.domain.AccountEventsVisitor;
 import lt.rieske.accounts.domain.AccountSnapshotter;

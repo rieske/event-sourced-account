@@ -28,24 +28,30 @@ public class AggregateRepository<A extends E, E> {
     }
 
     public void transact(UUID aggregateId, UUID transactionId, Consumer<A> transaction) {
+        // aggregate has to be loaded fist thing, before checking for transaction existence - otherwise we might operate on stale data
+        var eventStream = transactionalEventStream();
+        var aggregate = loadAggregate(eventStream, aggregateId);
+
         if (eventStore.transactionExists(aggregateId, transactionId)) {
             return;
         }
 
-        var eventStream = transactionalEventStream();
-        var aggregate = loadAggregate(eventStream, aggregateId);
         transaction.accept(aggregate);
         eventStream.commit(transactionId);
     }
 
     public void transact(UUID aggregateId1, UUID aggregateId2, UUID transactionId, BiConsumer<A, A> transaction) {
+        // aggregates have to be loaded fist thing, before checking for transaction existence - otherwise we might operate on stale data
+        var eventStream = transactionalEventStream();
+        var aggregate1 = loadAggregate(eventStream, aggregateId1);
+        var aggregate2 = loadAggregate(eventStream, aggregateId2);
+
         if (eventStore.transactionExists(aggregateId1, transactionId) ||
                 eventStore.transactionExists(aggregateId2, transactionId)) {
             return;
         }
 
-        var eventStream = transactionalEventStream();
-        transaction.accept(loadAggregate(eventStream, aggregateId1), loadAggregate(eventStream, aggregateId2));
+        transaction.accept(aggregate1, aggregate2);
         eventStream.commit(transactionId);
     }
 
