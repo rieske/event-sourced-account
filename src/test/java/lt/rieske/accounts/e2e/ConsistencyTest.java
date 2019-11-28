@@ -3,6 +3,7 @@ package lt.rieske.accounts.e2e;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.DockerComposeContainer;
@@ -15,8 +16,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Tag("e2e")
 @Slf4j
@@ -55,6 +55,13 @@ class ConsistencyTest {
         environment.stop();
     }
 
+    private AccountClient client;
+
+    @BeforeEach
+    void createClient() {
+        this.client = new AccountClient(apiUrl());
+    }
+
     private static String apiUrl() {
         return String.format("http://%s:%d/api",
                 environment.getServiceHost(LB_CONTAINER, LB_PORT),
@@ -63,37 +70,23 @@ class ConsistencyTest {
 
     @Test
     void canCreateAndQueryAccount() {
-        var accountId = UUID.randomUUID();
         var ownerId = UUID.randomUUID();
-        given().baseUri(apiUrl())
-                .when().post("/account/" + accountId + "?owner=" + ownerId)
-                .then()
-                .statusCode(201)
-                .header("Location", equalTo("/account/" + accountId))
-                .body(equalTo(""));
+        var accountId = newAccount(ownerId);
 
-        given().baseUri(apiUrl())
-                .when().get("/account/" + accountId)
-                .then()
-                .statusCode(200)
-                .header("Content-Type", equalTo("application/json"))
-                .body("accountId", equalTo(accountId.toString()))
-                .body("ownerId", equalTo(ownerId.toString()))
-                .body("balance", equalTo(0))
-                .body("open", equalTo(true));
+        var accountJson = client.queryAccount(accountId);
+        assertThat(accountJson).isEqualTo("{" +
+                "\"accountId\":\"" + accountId + "\"," +
+                "\"ownerId\":\"" + ownerId + "\"," +
+                "\"balance\":0," +
+                "\"open\":true" +
+                "}");
     }
 
     @Test
     void accountsRemainConsistentInDistributedEnvironmentUnderLoad() throws InterruptedException {
-        var accountId = UUID.randomUUID();
-        given().baseUri(apiUrl())
-                .when().post("/account/" + accountId + "?owner=" + UUID.randomUUID())
-                .then()
-                .statusCode(201)
-                .header("Location", equalTo("/account/" + accountId))
-                .body(equalTo(""));
+        var accountId = newAccount();
 
-        var operationCount = 20;
+        var operationCount = 1000;
         var threadCount = 8;
         var executor = Executors.newFixedThreadPool(threadCount);
 
@@ -102,10 +95,7 @@ class ConsistencyTest {
             var transactionId = UUID.randomUUID();
             for (int j = 0; j < threadCount; j++) {
                 executor.submit(() -> {
-                    withRetryOnConcurrentModification(() ->
-                            given().baseUri(apiUrl())
-                                    .when().put("/account/" + accountId + "/deposit?amount=1&transactionId=" + transactionId)
-                                    .thenReturn().statusCode());
+                    withRetryOnConflict(() -> client.deposit(accountId, 1, transactionId));
                     latch.countDown();
                 });
             }
@@ -113,16 +103,27 @@ class ConsistencyTest {
         }
         executor.shutdown();
 
-        given().baseUri(apiUrl())
-                .when().get("/account/" + accountId)
-                .then()
-                .statusCode(200)
-                .header("Content-Type", equalTo("application/json"))
-                .body("accountId", equalTo(accountId.toString()))
-                .body("balance", equalTo(operationCount));
+        assertOpenAccountWithBalance(accountId, operationCount);
     }
 
-    private void withRetryOnConcurrentModification(Supplier<Integer> s) {
+    private void assertOpenAccountWithBalance(UUID accountId, int balance) {
+        var accountJson = client.queryAccount(accountId);
+        assertThat(accountJson).contains("\"accountId\":\"" + accountId + "\"");
+        assertThat(accountJson).contains("\"balance\":" + balance);
+        assertThat(accountJson).contains("\"open\":true");
+    }
+
+    private UUID newAccount() {
+        return newAccount(UUID.randomUUID());
+    }
+
+    private UUID newAccount(UUID ownerId) {
+        var accountId = UUID.randomUUID();
+        client.openAccount(accountId, ownerId);
+        return accountId;
+    }
+
+    private static void withRetryOnConflict(Supplier<Integer> s) {
         concurrentModificationRetryLoop:
         while (true) {
             int response = s.get();
@@ -132,7 +133,7 @@ class ConsistencyTest {
                 case 409:
                     continue;
                 default:
-                    throw new RuntimeException("Unexpected response: " + response);
+                    throw new IllegalStateException("Unexpected response from server: " + response);
             }
         }
     }

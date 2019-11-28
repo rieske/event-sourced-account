@@ -1,25 +1,8 @@
 package lt.rieske.accounts.external;
 
 import lombok.Data;
-import lombok.Value;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultConnectionKeepAliveStrategy;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.EntityUtils;
+import lt.rieske.accounts.e2e.AccountClient;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -31,24 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class StressTests {
 
-    private static final String API_URL = "http://localhost:8080/api";
-
-    private static final CloseableHttpClient HTTP_CLIENT;
-
-    static {
-        var connectionManager = new PoolingHttpClientConnectionManager();
-        HTTP_CLIENT = HttpClientBuilder
-                .create()
-                .setConnectionManager(connectionManager)
-                .setKeepAliveStrategy(new DefaultConnectionKeepAliveStrategy() {
-                    @Override
-                    public long getKeepAliveDuration(org.apache.http.HttpResponse response, HttpContext context) {
-                        long duration = super.getKeepAliveDuration(response, context);
-                        return duration > -1 ? duration : 5_000;
-                    }
-                })
-                .build();
-    }
+    private static final AccountClient CLIENT = new AccountClient("http://localhost:8080/api");
 
     @Data
     private static class TestCase {
@@ -79,12 +45,6 @@ public class StressTests {
         }
     }
 
-    @Value
-    private static class HttpResponse {
-        private final int code;
-        private final String body;
-    }
-
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         canCreateAndQueryAccount();
         System.out.println("Sanity test passed\n");
@@ -105,7 +65,7 @@ public class StressTests {
         var ownerId = UUID.randomUUID();
         var accountId = newAccount(ownerId);
 
-        var accountJson = queryAccount(accountId);
+        var accountJson = CLIENT.queryAccount(accountId);
         assertThat(accountJson).isEqualTo("{" +
                 "\"accountId\":\"" + accountId + "\"," +
                 "\"ownerId\":\"" + ownerId + "\"," +
@@ -132,7 +92,7 @@ public class StressTests {
                     executor.submit(() -> {
                         while (true) {
                             try {
-                                int status = deposit(accountIds[threadNo], 1, txId);
+                                int status = CLIENT.deposit(accountIds[threadNo], 1, txId);
                                 assertThat(status).isEqualTo(204);
                             } catch (Exception e) {
                                 System.err.println(e.getMessage());
@@ -165,7 +125,7 @@ public class StressTests {
             for (int i = 0; i < testCase.operationCount; i++) {
                 var txId = UUID.randomUUID();
                 for (int j = 0; j < testCase.threadCount; j++) {
-                    threadFutures[j] = executor.submit(() -> withRetryOnConflict(() -> deposit(accountId, 1, txId)));
+                    threadFutures[j] = executor.submit(() -> withRetryOnConflict(() -> CLIENT.deposit(accountId, 1, txId)));
                 }
                 for (int j = 0; j < testCase.threadCount; j++) {
                     testCase.conflicts += threadFutures[j].get();
@@ -188,7 +148,7 @@ public class StressTests {
             for (int i = 0; i < testCase.operationCount; i++) {
                 for (int j = 0; j < testCase.threadCount; j++) {
                     var txId = UUID.randomUUID();
-                    threadFutures[j] = executor.submit(() -> withRetryOnConflict(() -> deposit(accountId, 1, txId)));
+                    threadFutures[j] = executor.submit(() -> withRetryOnConflict(() -> CLIENT.deposit(accountId, 1, txId)));
                 }
                 for (int j = 0; j < testCase.threadCount; j++) {
                     testCase.conflicts += threadFutures[j].get();
@@ -223,7 +183,7 @@ public class StressTests {
     }
 
     private static void assertOpenAccountWithBalance(UUID accountId, int balance) {
-        var accountJson = queryAccount(accountId);
+        var accountJson = CLIENT.queryAccount(accountId);
         assertThat(accountJson).contains("\"accountId\":\"" + accountId + "\"");
         assertThat(accountJson).contains("\"balance\":" + balance);
         assertThat(accountJson).contains("\"open\":true");
@@ -235,7 +195,7 @@ public class StressTests {
 
     private static UUID newAccount(UUID ownerId) {
         var accountId = UUID.randomUUID();
-        openAccount(accountId, ownerId);
+        CLIENT.openAccount(accountId, ownerId);
         return accountId;
     }
 
@@ -244,62 +204,6 @@ public class StressTests {
         r.run();
         long endTime = System.currentTimeMillis();
         return endTime - startTime;
-    }
-
-    private static String read(InputStream inputStream) {
-        var textBuilder = new StringBuilder();
-        try (var reader = new BufferedReader(new InputStreamReader
-                (inputStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
-            int c;
-            while ((c = reader.read()) != -1) {
-                textBuilder.append((char) c);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        return textBuilder.toString();
-    }
-
-    private static void openAccount(UUID accountId, UUID ownerId) {
-        var response = httpPost("/account/" + accountId + "?owner=" + ownerId);
-        assertThat(response.getCode()).isEqualTo(201);
-    }
-
-    private static String queryAccount(UUID accountId) {
-        var response = httpGet("/account/" + accountId);
-        assertThat(response.getCode()).isEqualTo(200);
-        return response.getBody();
-    }
-
-    private static int deposit(UUID accountId, int amount, UUID txId) {
-        var response = httpPut("/account/" + accountId + "/deposit?amount=" + amount + "&transactionId=" + txId);
-        return response.getCode();
-    }
-
-    private static HttpResponse httpGet(String path) {
-        return executeHttpRequest(new HttpGet(API_URL + path));
-    }
-
-    private static HttpResponse httpPost(String path) {
-        return executeHttpRequest(new HttpPost(API_URL + path));
-    }
-
-    private static HttpResponse httpPut(String path) {
-        return executeHttpRequest(new HttpPut(API_URL + path));
-    }
-
-    private static HttpResponse executeHttpRequest(HttpUriRequest request) {
-        try (var response = HTTP_CLIENT.execute(request)) {
-            var entity = response.getEntity();
-            String body = null;
-            if (entity != null) {
-                body = read(entity.getContent());
-            }
-            EntityUtils.consume(entity);
-            return new HttpResponse(response.getStatusLine().getStatusCode(), body);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 
     @FunctionalInterface
