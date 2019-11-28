@@ -22,25 +22,25 @@ import static org.hamcrest.Matchers.equalTo;
 @Slf4j
 class ConsistencyTest {
 
-    private static final String SERVICE_CONTAINER1 = "accounts-1_1";
-    private static final String SERVICE_CONTAINER2 = "accounts-2_1";
+    private static final String SERVICE_CONTAINER = "account";
 
     private static final int SERVICE_PORT = 8080;
 
     private static final String LB_CONTAINER = "lb_1";
-    private static final int LB_PORT = 80;
+    private static final int LB_PORT = 10000;
 
     private static DockerComposeContainer environment =
             new DockerComposeContainer(new File("e2e-test.yml"))
                     .withLocalCompose(true)
 
-                    .withLogConsumer(SERVICE_CONTAINER1, new Slf4jLogConsumer(log).withPrefix(SERVICE_CONTAINER1))
-                    .withExposedService(SERVICE_CONTAINER1, SERVICE_PORT, Wait.forListeningPort())
-                    .withExposedService(SERVICE_CONTAINER1, SERVICE_PORT, Wait.forHttp("/ping").forStatusCode(200))
+                    .withLogConsumer(SERVICE_CONTAINER, new Slf4jLogConsumer(log).withPrefix(SERVICE_CONTAINER))
 
-                    .withLogConsumer(SERVICE_CONTAINER2, new Slf4jLogConsumer(log).withPrefix(SERVICE_CONTAINER2))
-                    .withExposedService(SERVICE_CONTAINER2, SERVICE_PORT, Wait.forListeningPort())
-                    .withExposedService(SERVICE_CONTAINER2, SERVICE_PORT, Wait.forHttp("/ping").forStatusCode(200))
+                    .withExposedService(SERVICE_CONTAINER, 1, SERVICE_PORT, Wait.forListeningPort())
+                    .withExposedService(SERVICE_CONTAINER, 1, SERVICE_PORT, Wait.forHttp("/ping").forStatusCode(200))
+                    .withExposedService(SERVICE_CONTAINER, 2, SERVICE_PORT, Wait.forListeningPort())
+                    .withExposedService(SERVICE_CONTAINER, 2, SERVICE_PORT, Wait.forHttp("/ping").forStatusCode(200))
+
+                    .withLogConsumer(LB_CONTAINER, new Slf4jLogConsumer(log).withPrefix(LB_CONTAINER))
 
                     .withExposedService(LB_CONTAINER, LB_PORT, Wait.forListeningPort())
                     .withExposedService(LB_CONTAINER, LB_PORT, Wait.forHttp("/ping").forStatusCode(200));

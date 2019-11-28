@@ -1,25 +1,13 @@
 package lt.rieske.accounts.api;
 
-import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
-import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
-import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
-import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
-import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
-import io.micrometer.prometheus.PrometheusConfig;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import lt.rieske.accounts.eventsourcing.AggregateNotFoundException;
-import org.slf4j.MDC;
-import spark.Request;
-import spark.Response;
 import spark.Spark;
 
 import java.util.ConcurrentModificationException;
-import java.util.UUID;
 
-import static spark.Spark.afterAfter;
 import static spark.Spark.awaitInitialization;
-import static spark.Spark.before;
 import static spark.Spark.delete;
 import static spark.Spark.exception;
 import static spark.Spark.get;
@@ -33,15 +21,11 @@ import static spark.Spark.put;
 public class Server {
 
     private final AccountResource accountResource;
-    private final PrometheusMeterRegistry meterRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+    private final PrometheusMeterRegistry meterRegistry;
 
-    Server(AccountResource accountResource) {
+    Server(AccountResource accountResource, PrometheusMeterRegistry meterRegistry) {
         this.accountResource = accountResource;
-        new ClassLoaderMetrics().bindTo(meterRegistry);
-        new JvmMemoryMetrics().bindTo(meterRegistry);
-        new JvmGcMetrics().bindTo(meterRegistry);
-        new ProcessorMetrics().bindTo(meterRegistry);
-        new JvmThreadMetrics().bindTo(meterRegistry);
+        this.meterRegistry = meterRegistry;
     }
 
     public int start(int port) {

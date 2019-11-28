@@ -1,17 +1,17 @@
 ---
-version: '3.7'
+version: '2.4'
 
 services:
 
   lb:
-    build: src/test/resources/load-balancer
+    build: src/test/resources/envoy
     depends_on:
-      - accounts-1
-      - accounts-2
+      - account
     ports:
-      - 8080:80
+      - 9901
+      - 10000
 
-  accounts-1:
+  account:
     build: .
     ports:
       - 8080
@@ -19,15 +19,7 @@ services:
       MYSQL_USER: test
       MYSQL_PASSWORD: test
       MYSQL_JDBC_URL: jdbc:mysql://database:3306/event_store
-
-  accounts-2:
-    build: .
-    ports:
-      - 8080
-    environment:
-      MYSQL_USER: test
-      MYSQL_PASSWORD: test
-      MYSQL_JDBC_URL: jdbc:mysql://database:3306/event_store
+    scale: 2
 
   database:
     image: mysql

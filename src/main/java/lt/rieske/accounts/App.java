@@ -23,7 +23,7 @@ public class App {
         var flyway = Flyway.configure().dataSource(dataSource).schemas("event_store").load();
         flyway.migrate();
 
-        var server = ApiConfiguration.server(pooledDataSource(dataSource));
+        var server = ApiConfiguration.server(dataSource);
         var port = server.start(8080);
         log.info("Server started on port: {}", port);
     }
@@ -65,21 +65,5 @@ public class App {
                 throw new IllegalStateException("Can not connect to the database, aborting", e);
             }
         }
-    }
-
-    private static DataSource pooledDataSource(DataSource dataSource) {
-        var config = new HikariConfig();
-        config.addDataSourceProperty("cachePrepStmts", "true");
-        config.addDataSourceProperty("useServerPrepStmts", "true");
-        config.addDataSourceProperty("useLocalSessionState", "true");
-        config.addDataSourceProperty("rewriteBatchedStatements", "true");
-        config.addDataSourceProperty("cacheResultSetMetadata", "true");
-        config.addDataSourceProperty("cacheServerConfiguration", "true");
-        config.addDataSourceProperty("elideSetAutoCommits", "true");
-        config.addDataSourceProperty("maintainTimeStats", "false");
-        config.addDataSourceProperty("prepStmtCacheSize", "250");
-        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-        config.setDataSource(dataSource);
-        return new HikariDataSource(config);
     }
 }

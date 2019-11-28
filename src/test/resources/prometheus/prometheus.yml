@@ -9,10 +9,16 @@ scrape_configs:
       format: ['prometheus']
     scrape_interval: 5s
     static_configs:
-      - targets: ['lb-envoy:9901']
+      - targets: ['lb:9901']
 
-  - job_name: 'account'
+  - job_name: 'java-services'
     metrics_path: '/prometheus'
     scrape_interval: 5s
-    static_configs:
-      - targets: ['accounts-1:8080', 'accounts-2:8080']
+    dns_sd_configs:
+      - names:
+          - account
+        type: 'A'
+        port: 8080
+    relabel_configs:
+      - source_labels: ['__meta_dns_name']
+        target_label: application
