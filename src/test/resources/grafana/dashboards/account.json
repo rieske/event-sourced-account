@@ -3886,7 +3886,7 @@
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{instance}} active connections",
+          "legendFormat": "{{instance}} {{pool}} active connections",
           "refId": "A"
         },
         {
@@ -3895,7 +3895,7 @@
           "instant": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{instance}} idle connections",
+          "legendFormat": "{{instance}} {{pool}}  idle connections",
           "refId": "B"
         },
         {
@@ -3903,7 +3903,7 @@
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{instance}} max connections",
+          "legendFormat": "{{instance}} {{pool}} max connections",
           "refId": "C"
         },
         {
@@ -3912,7 +3912,7 @@
           "instant": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{instance}} min connections",
+          "legendFormat": "{{instance}} {{pool}} min connections",
           "refId": "D"
         }
       ],

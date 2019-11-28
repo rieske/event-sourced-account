@@ -52,6 +52,8 @@ public class ApiConfiguration {
 
     private static DataSource pooledMeteredDataSource(DataSource dataSource, MeterRegistry meterRegistry) {
         var config = new HikariConfig();
+        config.setPoolName("eventStore");
+        config.setMaximumPoolSize(5);
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("useServerPrepStmts", "true");
         config.addDataSourceProperty("useLocalSessionState", "true");
