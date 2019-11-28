@@ -10,6 +10,7 @@ services:
     ports:
       - 9901:9901
       - 8080:10000
+    mem_limit: 32M
 
   account:
     build: .
@@ -19,6 +20,7 @@ services:
       MYSQL_USER: test
       MYSQL_PASSWORD: test
       MYSQL_JDBC_URL: jdbc:mysql://database:3306/event_store
+    mem_limit: 128M
     scale: 2
 
   database:
@@ -30,6 +32,7 @@ services:
       MYSQL_DATABASE: event_store
     volumes:
       - data:/var/lib/mysql
+    mem_limit: 512M
 
   prometheus:
     image: prom/prometheus:v2.11.1
@@ -37,6 +40,7 @@ services:
       - 9090:9090
     volumes:
       - ./src/test/resources/prometheus/:/etc/prometheus/
+    mem_limit: 64M
 
   grafana:
     image: grafana/grafana:6.2.5
@@ -48,6 +52,7 @@ services:
     volumes:
       - ./src/test/resources/grafana/provisioning:/etc/grafana/provisioning/
       - ./src/test/resources/grafana/dashboards:/var/lib/grafana/dashboards/
+    mem_limit: 64M
 
 volumes:
   data:
