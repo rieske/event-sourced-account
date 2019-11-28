@@ -3920,7 +3920,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Event Store",
+      "title": "Database",
       "tooltip": {
         "shared": true,
         "sort": 0,
