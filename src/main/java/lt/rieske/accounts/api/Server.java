@@ -48,8 +48,6 @@ public class Server {
         port(port);
 
         path("/api", () -> {
-            before("/*", Server::logRequest);
-            afterAfter("/*", Server::logResponse);
             path("/account/:accountId", () -> {
                 post("", accountResource::createAccount);
                 get("", accountResource::getAccount);
@@ -75,18 +73,6 @@ public class Server {
 
     public void stop() {
         Spark.stop();
-    }
-
-    private static void logRequest(Request request, Response response) {
-        String correlationId = UUID.randomUUID().toString();
-        MDC.put("correlationId", correlationId);
-        String queryString = request.queryString() == null ? "" : "?" + request.queryString();
-        log.info("{} {}{}", request.requestMethod(), request.pathInfo(), queryString);
-    }
-
-    private static void logResponse(Request request, Response response) {
-        log.info("{} {}", response.status(),
-                response.body() == null ? "" : response.body());
     }
 
 }
