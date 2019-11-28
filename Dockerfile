@@ -4,6 +4,6 @@ EXPOSE 8080
 
 ENV JAVA_OPTS --illegal-access=deny -Xmx64m -Xms64m
 
-ENTRYPOINT /opt/service/accounts/bin/accounts
+ENTRYPOINT /opt/service/account/bin/account
 
-ADD build/distributions/accounts.tar /opt/service/
+ADD build/distributions/account.tar /opt/service/
