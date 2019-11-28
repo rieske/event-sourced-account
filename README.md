@@ -160,13 +160,23 @@ Service can be started with h2 in memory database using
 Service will start on localhost:8080
 
 Alternatively, two instances packaged in a docker container, connected to a mysql container and
-exposed via HAProxy load balancer using:
+exposed via Envoy Proxy load balancer using:
 ```
 ./gradlew build
 docker-compose up --build
 ```
 This time the service will also be accessible on localhost:8080, just that this time requests
 will go via a load balancer to two service instances in a round robin fashion.
+
+### Monitoring
+
+Basic metrics are exposed to Prometheus and sample configuration of Prometheus together with 
+Grafana and a service/envoy dashboards can be accessed by spawning a composed environment using
+```
+./gradlew build
+docker-compose up --build
+```
+Prometheus is exposed on port 9090 and Grafana is available on port 3000.
 
 ### Dependencies
 
