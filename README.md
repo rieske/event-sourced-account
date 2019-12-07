@@ -186,22 +186,35 @@ Kept external dependencies to a minimum, here's what's used and what for:
   no unwanted transitive dependencies.
 - Lombok - for reducing boilerplate code and providing value objects. I'm not sure I like it.
 - Logback - logging
-- msgpack - for serializing events for storage. This is the faster and more compact way of storing events at a cost
-  of some boilerplate serialization code.
+- msgpack - for serializing events for storage
 - H2 - in memory database
 - MySql connector - since the storage part is tested in mysql, might as well want to spawn the
   service connected to mysql.
 
-Here is the actual runtime dependency tree, excluding Spark (which brings a bunch of Jetty ones):
+Here is the runtime dependency tree:
 ```
-+--- org.projectlombok:lombok:1.18.8
-+--- org.msgpack:msgpack-core:0.8.17
-+--- org.flywaydb:flyway-core:5.2.4
++--- com.sparkjava:spark-core:2.9.1                                                          
+|    +--- org.slf4j:slf4j-api:1.7.25                                                         
+|    \--- org.eclipse.jetty:jetty-server:9.4.18.v20190429                                    
+|         +--- javax.servlet:javax.servlet-api:3.1.0                                         
+|         +--- org.eclipse.jetty:jetty-http:9.4.18.v20190429
+|         |    +--- org.eclipse.jetty:jetty-util:9.4.18.v20190429
+|         |    \--- org.eclipse.jetty:jetty-io:9.4.18.v20190429
+|         |         \--- org.eclipse.jetty:jetty-util:9.4.18.v20190429
+|         \--- org.eclipse.jetty:jetty-io:9.4.18.v20190429 (*)
++--- org.msgpack:msgpack-core:0.8.20
++--- org.flywaydb:flyway-core:6.1.0
 +--- ch.qos.logback:logback-classic:1.2.3
 |    +--- ch.qos.logback:logback-core:1.2.3
 |    \--- org.slf4j:slf4j-api:1.7.25
-+--- com.h2database:h2:1.4.199
-\--- mysql:mysql-connector-java:8.0.16
-     \--- com.google.protobuf:protobuf-java:3.6.1
++--- io.micrometer:micrometer-registry-prometheus:1.3.1
+|    +--- io.micrometer:micrometer-core:1.3.1
+|    |    +--- org.hdrhistogram:HdrHistogram:2.1.11
+|    |    \--- org.latencyutils:LatencyUtils:2.0.3
+|    \--- io.prometheus:simpleclient_common:0.7.0
+|         \--- io.prometheus:simpleclient:0.7.0
++--- com.h2database:h2:1.4.200
++--- mysql:mysql-connector-java:8.0.18
+\--- com.zaxxer:HikariCP:3.4.1
+     \--- org.slf4j:slf4j-api:1.7.25
 ```
-Weird to see mysql connector bringing in protobuf transitive dependency, but oh well.
