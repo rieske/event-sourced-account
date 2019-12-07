@@ -130,38 +130,43 @@ needed.
 
 ### Building
 
-```
+```shell script
 ./gradlew build
 ```
 
 The build will only run the fast unit tests (including event store tests with H2).
 
 In order to run the same set of tests targeting MySql, run
-```
+```shell script
 ./gradlew integrationTest
 ```
 Those will be much slower - they spawn the actual mysql instance using testcontainers and thus
 require a running docker daemon.
 
 And another round of slow tests that test for consistency in a distributed environment:
-```
+```shell script
 ./gradlew e2eTest
 ```
 Those will spawn a docker-composed environment with two service instances connected to
 a mysql container and a load balancer on top. Tests will be executed against the load balancer,
 simulating a distributed environment and asserting that the service can scale and remain consistent.
 
+To run the full suite, run:
+```shell script
+./gradlew check
+```
+
 ### Running
 
 Service can be started with h2 in memory database using
-```
+```shell script
 ./gradlew run
 ```
 Service will start on localhost:8080
 
 Alternatively, two instances packaged in a docker container, connected to a mysql container and
 exposed via Envoy Proxy load balancer using:
-```
+```shell script
 ./gradlew build
 docker-compose up --build
 ```
@@ -172,7 +177,7 @@ will go via a load balancer to two service instances in a round robin fashion.
 
 Basic metrics are exposed to Prometheus and sample configuration of Prometheus together with 
 Grafana and a service/envoy dashboards can be accessed by spawning a composed environment using
-```
+```shell script
 ./gradlew build
 docker-compose up --build
 ```
