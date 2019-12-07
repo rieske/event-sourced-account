@@ -1,9 +1,9 @@
-FROM openjdk:11.0.5-jre-stretch
+FROM panga/alpine:3.8-glibc2.27
 
 EXPOSE 8080
 
 ENV JAVA_OPTS --illegal-access=deny -Xmx64m -Xms64m
 
-ENTRYPOINT /opt/service/account/bin/account
+ENTRYPOINT /opt/service/bin/account
 
-ADD build/distributions/account.tar /opt/service/
+ADD build/image/ /opt/service/
