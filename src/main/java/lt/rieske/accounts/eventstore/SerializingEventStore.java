@@ -22,10 +22,10 @@ class SerializingEventStore<T> implements EventStore<T> {
 
     @Override
     public void append(
-            Collection<SequencedEvent<T>> uncomittedEvents,
+            Collection<SequencedEvent<T>> uncommittedEvents,
             Collection<SequencedEvent<T>> uncommittedSnapshots,
             UUID transactionId) {
-        var serializedEvents = uncomittedEvents.stream()
+        var serializedEvents = uncommittedEvents.stream()
                 .map(e -> serialize(e, transactionId))
                 .collect(Collectors.toUnmodifiableList());
         var serializedSnapshots = uncommittedSnapshots.stream()
