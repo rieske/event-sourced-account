@@ -122,11 +122,6 @@ service itself.
 InsufficientBalance, AccountClosed exceptions etc. Kept it simple with IllegalArgument/State
 exceptions for the sake of avoiding unneeded class count explosion.
 
-- Didn't use Jackson for serializing events in the REST API despite already having it in
-the classpath. Just for fun - wanted to try out the events visitor outside of the aggregate.
-Later applied a similar pattern to serialize events for storage using msgpack. No reflection
-needed.
-
 
 ### Building
 
@@ -193,9 +188,6 @@ Kept external dependencies to a minimum, here's what's used and what for:
 - Logback - logging
 - msgpack - for serializing events for storage. This is the faster and more compact way of storing events at a cost
   of some boilerplate serialization code.
-- Jackson - for serializing events for storage. Started with this one initially to avoid boilerplate serialization
-  code. Left the json serializer as I plan to benchmark and compare size/performance of multiple
-  serialization strategies.
 - H2 - in memory database
 - MySql connector - since the storage part is tested in mysql, might as well want to spawn the
   service connected to mysql.
@@ -204,9 +196,6 @@ Here is the actual runtime dependency tree, excluding Spark (which brings a bunc
 ```
 +--- org.projectlombok:lombok:1.18.8
 +--- org.msgpack:msgpack-core:0.8.17
-+--- com.fasterxml.jackson.core:jackson-databind:2.9.8
-|    +--- com.fasterxml.jackson.core:jackson-annotations:2.9.0
-|    \--- com.fasterxml.jackson.core:jackson-core:2.9.8
 +--- org.flywaydb:flyway-core:5.2.4
 +--- ch.qos.logback:logback-classic:1.2.3
 |    +--- ch.qos.logback:logback-core:1.2.3
