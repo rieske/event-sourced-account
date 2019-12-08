@@ -22,7 +22,7 @@ class TransactionalEventStream<A extends E, E> extends ReplayingEventStream<A, E
     @Override
     public void append(Event<E> event, A aggregate, UUID aggregateId) {
         event.accept(aggregate);
-        var currentVersion = aggregateVersions.compute(aggregateId, (id, version) -> version != null ? version + 1 : 1);
+        long currentVersion = aggregateVersions.compute(aggregateId, (id, version) -> version != null ? version + 1 : 1);
         uncommittedEvents.add(new SequencedEvent<>(aggregateId, currentVersion, null, event));
         var snapshotEvent = snapshotter.takeSnapshot(aggregate, currentVersion);
         if (snapshotEvent != null) {

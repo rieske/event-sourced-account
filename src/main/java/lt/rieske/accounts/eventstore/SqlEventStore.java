@@ -60,8 +60,7 @@ class SqlEventStore implements BlobEventStore {
                 insertEvent(connection, e);
             }
             for (var s : serializedSnapshots) {
-                removeSnapshot(connection, s.getAggregateId());
-                insertSnapshot(connection, s);
+                updateSnapshot(connection, s);
             }
             connection.commit();
         } catch (SQLIntegrityConstraintViolationException | SQLTransactionRollbackException e) {
@@ -144,14 +143,11 @@ class SqlEventStore implements BlobEventStore {
         }
     }
 
-    private static void removeSnapshot(Connection connection, UUID aggregateId) throws SQLException {
+    private static void updateSnapshot(Connection connection, SerializedEvent event) throws SQLException {
         try (var statement = connection.prepareStatement(REMOVE_SNAPSHOT_SQL)) {
-            statement.setBytes(1, uuidToBytes(aggregateId));
+            statement.setBytes(1, uuidToBytes(event.getAggregateId()));
             statement.executeUpdate();
         }
-    }
-
-    private static void insertSnapshot(Connection connection, SerializedEvent event) throws SQLException {
         try (var statement = connection.prepareStatement(STORE_SNAPSHOT_SQL)) {
             statement.setBytes(1, uuidToBytes(event.getAggregateId()));
             statement.setLong(2, event.getSequenceNumber());
