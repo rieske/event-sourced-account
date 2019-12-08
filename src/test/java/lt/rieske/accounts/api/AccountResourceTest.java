@@ -17,7 +17,7 @@ class AccountResourceTest {
 
     private static final H2 H2 = new H2();
 
-    private static final Server SERVER = ApiConfiguration.server(H2.dataSource());
+    private static final Server SERVER = ApiConfiguration.server(H2.dataSource(), TracingConfiguration.noop());
     private static int serverPort;
 
     @BeforeAll

@@ -24,7 +24,7 @@ import javax.sql.DataSource;
 
 public class ApiConfiguration {
 
-    public static Server server(DataSource dataSource) {
+    public static Server server(DataSource dataSource, TracingConfiguration tracingConfiguration) {
         var meterRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
         new ClassLoaderMetrics().bindTo(meterRegistry);
         new JvmMemoryMetrics().bindTo(meterRegistry);
@@ -35,11 +35,12 @@ public class ApiConfiguration {
         new UptimeMetrics().bindTo(meterRegistry);
         new LogbackMetrics().bindTo(meterRegistry);
 
-        var eventStore = Configuration.accountEventStore(pooledMeteredDataSource(dataSource, meterRegistry));
+        var eventStore = Configuration.accountEventStore(pooledMeteredDataSource(tracingConfiguration.decorate(dataSource), meterRegistry));
         var accountRepository = snapshottingAccountRepository(eventStore, 50);
         var accountService = new AccountService(accountRepository, eventStore);
         var accountResource = new AccountResource(accountService);
-        return new Server(accountResource, meterRegistry);
+
+        return new Server(accountResource, meterRegistry, tracingConfiguration);
     }
 
     public static AggregateRepository<Account, AccountEventsVisitor> accountRepository(EventStore<AccountEventsVisitor> eventStore) {

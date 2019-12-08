@@ -20,6 +20,7 @@ services:
       MYSQL_USER: test
       MYSQL_PASSWORD: test
       MYSQL_JDBC_URL: jdbc:mysql://database:3306/event_store
+      ZIPKIN_URL: http://zipkin:9411/api/v2/spans
     mem_limit: 128M
     scale: 2
 
@@ -35,7 +36,7 @@ services:
     mem_limit: 512M
 
   prometheus:
-    image: prom/prometheus:v2.11.1
+    image: prom/prometheus:v2.14.0
     ports:
       - 9090:9090
     volumes:
@@ -43,7 +44,7 @@ services:
     mem_limit: 64M
 
   grafana:
-    image: grafana/grafana:6.2.5
+    image: grafana/grafana:6.5.1
     ports:
       - 3000:3000
     environment:
@@ -53,6 +54,12 @@ services:
       - ./src/test/resources/grafana/provisioning:/etc/grafana/provisioning/
       - ./src/test/resources/grafana/dashboards:/var/lib/grafana/dashboards/
     mem_limit: 64M
+
+  zipkin:
+    image: openzipkin/zipkin:2.19.2
+    ports:
+      - 9411:9411
+    mem_limit: 512M
 
 volumes:
   data:

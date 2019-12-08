@@ -170,13 +170,17 @@ will go via a load balancer to two service instances in a round robin fashion.
 
 ### Monitoring
 
+Tracing instrumentation with Zipkin is provided if the service is started with ZIPKIN_URL environment
+variable set. It is preconfigured in the composed environment.
 Basic metrics are exposed to Prometheus and sample configuration of Prometheus together with 
 Grafana and a service/envoy dashboards can be accessed by spawning a composed environment using
 ```shell script
 ./gradlew build
 docker-compose up --build
 ```
-Prometheus is exposed on port 9090 and Grafana is available on port 3000.
+Prometheus is exposed on port 9090.
+Grafana is available on port 3000.
+Zipkin on port 9411.
 
 ### Dependencies
 
@@ -190,31 +194,49 @@ Kept external dependencies to a minimum, here's what's used and what for:
 - H2 - in memory database
 - MySql connector - since the storage part is tested in mysql, might as well want to spawn the
   service connected to mysql.
+- HikariCP - database connection pooling
+- Micrometer - metrics
+- Brave instrumentation for zipkin
 
 Here is the runtime dependency tree:
 ```
-+--- com.sparkjava:spark-core:2.9.1                                                          
-|    +--- org.slf4j:slf4j-api:1.7.25                                                         
-|    \--- org.eclipse.jetty:jetty-server:9.4.18.v20190429                                    
-|         +--- javax.servlet:javax.servlet-api:3.1.0                                         
-|         +--- org.eclipse.jetty:jetty-http:9.4.18.v20190429
-|         |    +--- org.eclipse.jetty:jetty-util:9.4.18.v20190429
-|         |    \--- org.eclipse.jetty:jetty-io:9.4.18.v20190429
-|         |         \--- org.eclipse.jetty:jetty-util:9.4.18.v20190429
-|         \--- org.eclipse.jetty:jetty-io:9.4.18.v20190429 (*)
-+--- org.msgpack:msgpack-core:0.8.20
-+--- org.flywaydb:flyway-core:6.1.0
-+--- ch.qos.logback:logback-classic:1.2.3
-|    +--- ch.qos.logback:logback-core:1.2.3
-|    \--- org.slf4j:slf4j-api:1.7.25
-+--- io.micrometer:micrometer-registry-prometheus:1.3.1
-|    +--- io.micrometer:micrometer-core:1.3.1
-|    |    +--- org.hdrhistogram:HdrHistogram:2.1.11
-|    |    \--- org.latencyutils:LatencyUtils:2.0.3
-|    \--- io.prometheus:simpleclient_common:0.7.0
-|         \--- io.prometheus:simpleclient:0.7.0
-+--- com.h2database:h2:1.4.200
-+--- mysql:mysql-connector-java:8.0.18
-\--- com.zaxxer:HikariCP:3.4.1
-     \--- org.slf4j:slf4j-api:1.7.25
++--- com.sparkjava:spark-core:2.9.1                                                                                                                                                       
+|    +--- org.slf4j:slf4j-api:1.7.25                                                                                                                                                      
+|    \--- org.eclipse.jetty:jetty-server:9.4.18.v20190429                                                                                                                                 
+|         +--- javax.servlet:javax.servlet-api:3.1.0                                                                                                                                      
+|         +--- org.eclipse.jetty:jetty-http:9.4.18.v20190429                                                                                                                              
+|         |    +--- org.eclipse.jetty:jetty-util:9.4.18.v20190429                                                                                                                         
+|         |    \--- org.eclipse.jetty:jetty-io:9.4.18.v20190429                                                                                                                           
+|         |         \--- org.eclipse.jetty:jetty-util:9.4.18.v20190429                                                                                                                    
+|         \--- org.eclipse.jetty:jetty-io:9.4.18.v20190429 (*)                                                                                                                            
++--- org.msgpack:msgpack-core:0.8.20                                                                                                                                                                                      
++--- org.flywaydb:flyway-core:6.1.0                                                          
++--- ch.qos.logback:logback-classic:1.2.3                                                    
+|    +--- ch.qos.logback:logback-core:1.2.3                                                  
+|    \--- org.slf4j:slf4j-api:1.7.25                                                         
++--- io.micrometer:micrometer-registry-prometheus:1.3.2                                      
+|    +--- io.micrometer:micrometer-core:1.3.2                                                
+|    |    +--- org.hdrhistogram:HdrHistogram:2.1.11                
+|    |    \--- org.latencyutils:LatencyUtils:2.0.3                 
+|    \--- io.prometheus:simpleclient_common:0.7.0                  
+|         \--- io.prometheus:simpleclient:0.7.0                                              
++--- io.zipkin.brave:brave-instrumentation-sparkjava:5.9.1                                   
+|    +--- io.zipkin.brave:brave-instrumentation-servlet:5.9.1                                
+|    |    +--- io.zipkin.brave:brave-instrumentation-http:5.9.1                              
+|    |    |    \--- io.zipkin.brave:brave:5.9.1                                              
+|    |    |         +--- io.zipkin.zipkin2:zipkin:2.19.0                                     
+|    |    |         \--- io.zipkin.reporter2:zipkin-reporter:2.11.1                          
+|    |    |              \--- io.zipkin.zipkin2:zipkin:2.19.0                                
+|    |    \--- io.zipkin.brave:brave:5.9.1 (*)                                               
+|    \--- io.zipkin.brave:brave:5.9.1 (*)                                                    
++--- io.zipkin.brave:brave-instrumentation-p6spy:5.9.1                                       
+|    +--- p6spy:p6spy:3.8.6                                                                  
+|    \--- io.zipkin.brave:brave:5.9.1 (*)                                                    
++--- io.zipkin.reporter2:zipkin-sender-urlconnection:2.11.1                                  
+|    +--- io.zipkin.reporter2:zipkin-reporter:2.11.1 (*)                                     
+|    \--- io.zipkin.zipkin2:zipkin:2.19.0                                                    
++--- com.h2database:h2:1.4.200                                                               
++--- mysql:mysql-connector-java:8.0.18                                                       
+\--- com.zaxxer:HikariCP:3.4.1                                                               
+     \--- org.slf4j:slf4j-api:1.7.25  
 ```
