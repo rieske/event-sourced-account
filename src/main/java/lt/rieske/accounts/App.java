@@ -1,8 +1,6 @@
 package lt.rieske.accounts;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import lt.rieske.accounts.api.ApiConfiguration;
 import org.flywaydb.core.Flyway;
