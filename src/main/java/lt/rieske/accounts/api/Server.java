@@ -23,13 +23,18 @@ public class Server {
     private final AccountResource accountResource;
     private final PrometheusMeterRegistry meterRegistry;
 
-    Server(AccountResource accountResource, PrometheusMeterRegistry meterRegistry) {
+    private final TracingConfiguration tracingConfiguration;
+
+    Server(AccountResource accountResource, PrometheusMeterRegistry meterRegistry, TracingConfiguration tracingConfiguration) {
         this.accountResource = accountResource;
         this.meterRegistry = meterRegistry;
+        this.tracingConfiguration = tracingConfiguration;
     }
 
     public int start(int port) {
         port(port);
+
+        tracingConfiguration.init();
 
         path("/api", () -> {
             path("/account/:accountId", () -> {
@@ -47,15 +52,16 @@ public class Server {
 
         get("/prometheus", (req, res) -> meterRegistry.scrape());
 
-        exception(IllegalArgumentException.class, accountResource::badRequest);
-        exception(AggregateNotFoundException.class, accountResource::notFound);
-        exception(ConcurrentModificationException.class, accountResource::conflict);
+        exception(IllegalArgumentException.class, tracingConfiguration.exception(accountResource::badRequest));
+        exception(AggregateNotFoundException.class, tracingConfiguration.exception(accountResource::notFound));
+        exception(ConcurrentModificationException.class, tracingConfiguration.exception(accountResource::conflict));
 
         awaitInitialization();
         return port();
     }
 
     public void stop() {
+        tracingConfiguration.closeResources();
         Spark.stop();
     }
 

@@ -3,6 +3,7 @@ package lt.rieske.accounts;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import lombok.extern.slf4j.Slf4j;
 import lt.rieske.accounts.api.ApiConfiguration;
+import lt.rieske.accounts.api.TracingConfiguration;
 import org.flywaydb.core.Flyway;
 import org.h2.jdbcx.JdbcDataSource;
 
@@ -21,7 +22,8 @@ public class App {
         var flyway = Flyway.configure().dataSource(dataSource).schemas("event_store").load();
         flyway.migrate();
 
-        var server = ApiConfiguration.server(dataSource);
+        var tracingConfiguration = TracingConfiguration.create(System.getenv("ZIPKIN_URL"));
+        var server = ApiConfiguration.server(dataSource, tracingConfiguration);
         var port = server.start(8080);
         log.info("Server started on port: {}", port);
     }

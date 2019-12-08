@@ -3,6 +3,21 @@ admin:
   address:
     socket_address: { address: 0.0.0.0, port_value: 9901 }
 
+node:
+  id: default-node
+  cluster: api-gateway
+  locality:
+    zone: default-zone
+
+tracing:
+  http:
+    name: envoy.zipkin
+    config:
+      collector_cluster: zipkin
+      collector_endpoint: /api/v2/spans
+      collector_endpoint_version: HTTP_JSON
+      shared_span_context: false
+
 static_resources:
   listeners:
     - name: service_listener
@@ -16,6 +31,11 @@ static_resources:
                   - name: envoy.file_access_log
                     config:
                       path: /dev/stdout
+                generate_request_id: true
+                tracing:
+                  operation_name: egress
+                  random_sampling:
+                    value: 1
                 stat_prefix: ingress_http
                 codec_type: auto
                 route_config:
@@ -45,3 +65,17 @@ static_resources:
                     socket_address:
                       address: account
                       port_value: 8080
+
+    - name: zipkin
+      connect_timeout: 1s
+      type: strict_dns
+      lb_policy: round_robin
+      load_assignment:
+        cluster_name: zipkin
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: zipkin
+                      port_value: 9411
