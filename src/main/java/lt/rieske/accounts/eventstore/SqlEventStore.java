@@ -53,15 +53,9 @@ class SqlEventStore implements BlobEventStore {
 
         try (var connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
-            for (var aggregateId : aggregateIds) {
-                insertTransaction(connection, aggregateId, transactionId);
-            }
-            for (var e : serializedEvents) {
-                insertEvent(connection, e);
-            }
-            for (var s : serializedSnapshots) {
-                updateSnapshot(connection, s);
-            }
+            insertTransactions(connection, aggregateIds, transactionId);
+            insertEvents(connection, serializedEvents);
+            updateSnapshots(connection, serializedSnapshots);
             connection.commit();
         } catch (SQLIntegrityConstraintViolationException | SQLTransactionRollbackException e) {
             throw new ConcurrentModificationException(e);
@@ -125,34 +119,40 @@ class SqlEventStore implements BlobEventStore {
         }
     }
 
-    private static void insertTransaction(Connection connection, UUID aggregateId, UUID transactionId) throws SQLException {
+    private static void insertTransactions(Connection connection, Set<UUID> aggregateIds, UUID transactionId) throws SQLException {
         try (var statement = connection.prepareStatement(INSERT_TRANSACTION_SQL)) {
-            statement.setBytes(1, uuidToBytes(aggregateId));
-            statement.setBytes(2, uuidToBytes(transactionId));
-            statement.executeUpdate();
+            for (var aggregateId : aggregateIds) {
+                statement.setBytes(1, uuidToBytes(aggregateId));
+                statement.setBytes(2, uuidToBytes(transactionId));
+                statement.executeUpdate();
+            }
         }
     }
 
-    private static void insertEvent(Connection connection, SerializedEvent event) throws SQLException {
+    private static void insertEvents(Connection connection, Collection<SerializedEvent> events) throws SQLException {
         try (var statement = connection.prepareStatement(APPEND_EVENT_SQL)) {
-            statement.setBytes(1, uuidToBytes(event.getAggregateId()));
-            statement.setLong(2, event.getSequenceNumber());
-            statement.setBytes(3, uuidToBytes(event.getTransactionId()));
-            statement.setBytes(4, event.getPayload());
-            statement.executeUpdate();
+            for (var e : events) {
+                statement.setBytes(1, uuidToBytes(e.getAggregateId()));
+                statement.setLong(2, e.getSequenceNumber());
+                statement.setBytes(3, uuidToBytes(e.getTransactionId()));
+                statement.setBytes(4, e.getPayload());
+                statement.executeUpdate();
+            }
         }
     }
 
-    private static void updateSnapshot(Connection connection, SerializedEvent event) throws SQLException {
-        try (var statement = connection.prepareStatement(REMOVE_SNAPSHOT_SQL)) {
-            statement.setBytes(1, uuidToBytes(event.getAggregateId()));
-            statement.executeUpdate();
-        }
-        try (var statement = connection.prepareStatement(STORE_SNAPSHOT_SQL)) {
-            statement.setBytes(1, uuidToBytes(event.getAggregateId()));
-            statement.setLong(2, event.getSequenceNumber());
-            statement.setBytes(3, event.getPayload());
-            statement.executeUpdate();
+    private static void updateSnapshots(Connection connection, Collection<SerializedEvent> events) throws SQLException {
+        try (var deleteStatement = connection.prepareStatement(REMOVE_SNAPSHOT_SQL)) {
+            try (var storeStatement = connection.prepareStatement(STORE_SNAPSHOT_SQL)) {
+                for (var e : events) {
+                    deleteStatement.setBytes(1, uuidToBytes(e.getAggregateId()));
+                    deleteStatement.executeUpdate();
+                    storeStatement.setBytes(1, uuidToBytes(e.getAggregateId()));
+                    storeStatement.setLong(2, e.getSequenceNumber());
+                    storeStatement.setBytes(3, e.getPayload());
+                    storeStatement.executeUpdate();
+                }
+            }
         }
     }
 
