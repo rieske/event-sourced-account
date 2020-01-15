@@ -77,7 +77,7 @@ dependencies {
     implementation("io.zipkin.reporter2:zipkin-sender-urlconnection:2.11.1")
 
     implementation("com.h2database:h2:1.4.200")
-    implementation("mysql:mysql-connector-java:8.0.18") {
+    implementation("mysql:mysql-connector-java:8.0.19") {
         exclude(group: "com.google.protobuf", module: "protobuf-java")
     }
     implementation("com.zaxxer:HikariCP:3.4.2")
