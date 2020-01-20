@@ -85,7 +85,7 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok:1.18.10")
     testCompileOnly("org.projectlombok:lombok:1.18.10")
     testImplementation("org.assertj:assertj-core:3.14.0")
-    testImplementation("io.rest-assured:rest-assured:4.1.2")
+    testImplementation("io.rest-assured:rest-assured:4.2.0")
     testImplementation("org.reflections:reflections:0.9.12")
 
     testImplementation("org.testcontainers:mysql:1.12.4") {
