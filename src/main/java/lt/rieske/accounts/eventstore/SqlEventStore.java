@@ -53,8 +53,8 @@ class SqlEventStore implements BlobEventStore {
 
         try (var connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
-            insertTransactions(connection, aggregateIds, transactionId);
             insertEvents(connection, serializedEvents);
+            insertTransactions(connection, aggregateIds, transactionId);
             updateSnapshots(connection, serializedSnapshots);
             connection.commit();
         } catch (SQLIntegrityConstraintViolationException | SQLTransactionRollbackException e) {
@@ -142,16 +142,18 @@ class SqlEventStore implements BlobEventStore {
     }
 
     private static void updateSnapshots(Connection connection, Collection<SerializedEvent> events) throws SQLException {
-        try (var deleteStatement = connection.prepareStatement(REMOVE_SNAPSHOT_SQL)) {
-            try (var storeStatement = connection.prepareStatement(STORE_SNAPSHOT_SQL)) {
-                for (var e : events) {
-                    deleteStatement.setBytes(1, uuidToBytes(e.getAggregateId()));
-                    deleteStatement.executeUpdate();
-                    storeStatement.setBytes(1, uuidToBytes(e.getAggregateId()));
-                    storeStatement.setLong(2, e.getSequenceNumber());
-                    storeStatement.setBytes(3, e.getPayload());
-                    storeStatement.executeUpdate();
-                }
+        if (events.isEmpty()) {
+            return;
+        }
+        try (var deleteStatement = connection.prepareStatement(REMOVE_SNAPSHOT_SQL);
+             var storeStatement = connection.prepareStatement(STORE_SNAPSHOT_SQL)) {
+            for (var e : events) {
+                deleteStatement.setBytes(1, uuidToBytes(e.getAggregateId()));
+                deleteStatement.executeUpdate();
+                storeStatement.setBytes(1, uuidToBytes(e.getAggregateId()));
+                storeStatement.setLong(2, e.getSequenceNumber());
+                storeStatement.setBytes(3, e.getPayload());
+                storeStatement.executeUpdate();
             }
         }
     }

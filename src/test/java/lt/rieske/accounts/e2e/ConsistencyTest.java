@@ -1,11 +1,12 @@
 package lt.rieske.accounts.e2e;
 
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -19,7 +20,6 @@ import java.util.function.Supplier;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Tag("e2e")
-@Slf4j
 class ConsistencyTest {
 
     private static final String SERVICE_CONTAINER = "account";
@@ -29,8 +29,10 @@ class ConsistencyTest {
     private static final String LB_CONTAINER = "lb_1";
     private static final int LB_PORT = 10000;
 
+    private static final Logger log = LoggerFactory.getLogger(ConsistencyTest.class);
+
     private static DockerComposeContainer environment =
-            new DockerComposeContainer(new File("e2e-test.yml"))
+            new DockerComposeContainer<>(new File("e2e-test.yml"))
                     .withLocalCompose(true)
 
                     .withLogConsumer(SERVICE_CONTAINER, new Slf4jLogConsumer(log).withPrefix(SERVICE_CONTAINER))
