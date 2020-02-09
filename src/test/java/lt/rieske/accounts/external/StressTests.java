@@ -1,6 +1,5 @@
 package lt.rieske.accounts.external;
 
-import lombok.Data;
 import lt.rieske.accounts.e2e.AccountClient;
 
 import java.util.UUID;
@@ -16,7 +15,6 @@ public class StressTests {
 
     private static final AccountClient CLIENT = new AccountClient("http://localhost:8080/api");
 
-    @Data
     private static class TestCase {
         private final String name;
         private final TestMethod testMethod;
@@ -24,6 +22,13 @@ public class StressTests {
         private final int operationCount;
         private int conflicts;
         private long durationMillis;
+
+        private TestCase(String name, TestMethod testMethod, int threadCount, int operationCount) {
+            this.name = name;
+            this.testMethod = testMethod;
+            this.threadCount = threadCount;
+            this.operationCount = operationCount;
+        }
 
         private String formatDurationSeconds() {
             return durationMillis / 1000.0 + "s";

@@ -1,6 +1,5 @@
 package lt.rieske.accounts.e2e;
 
-import lombok.Value;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -46,18 +45,18 @@ public class AccountClient {
 
     public void openAccount(UUID accountId, UUID ownerId) {
         var response = httpPost("/account/" + accountId + "?owner=" + ownerId);
-        assertThat(response.getCode()).isEqualTo(201);
+        assertThat(response.code).isEqualTo(201);
     }
 
     public String queryAccount(UUID accountId) {
         var response = httpGet("/account/" + accountId);
-        assertThat(response.getCode()).isEqualTo(200);
-        return response.getBody();
+        assertThat(response.code).isEqualTo(200);
+        return response.body;
     }
 
     public int deposit(UUID accountId, int amount, UUID txId) {
         var response = httpPut("/account/" + accountId + "/deposit?amount=" + amount + "&transactionId=" + txId);
-        return response.getCode();
+        return response.code;
     }
 
     private HttpResponse httpGet(String path) {
@@ -100,9 +99,13 @@ public class AccountClient {
         return textBuilder.toString();
     }
 
-    @Value
     public static class HttpResponse {
         private final int code;
         private final String body;
+
+        public HttpResponse(int code, String body) {
+            this.code = code;
+            this.body = body;
+        }
     }
 }
