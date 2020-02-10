@@ -56,7 +56,7 @@ configurations.all {
 }
 
 dependencies {
-    annotationProcessor("org.projectlombok:lombok:1.18.10")
+    annotationProcessor("org.projectlombok:lombok:1.18.12")
     compileOnly("org.projectlombok:lombok:1.18.10")
 
     implementation("com.sparkjava:spark-core:2.9.1") {
