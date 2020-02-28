@@ -73,7 +73,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("io.micrometer:micrometer-registry-prometheus:1.3.5")
     implementation("io.zipkin.brave:brave-instrumentation-sparkjava:5.9.1")
-    implementation("io.zipkin.brave:brave-instrumentation-p6spy:5.9.1")
+    implementation("io.zipkin.brave:brave-instrumentation-p6spy:5.10.1")
     implementation("io.zipkin.reporter2:zipkin-sender-urlconnection:2.11.1")
 
     implementation("com.h2database:h2:1.4.200")
