@@ -86,7 +86,7 @@ dependencies {
     testImplementation("io.rest-assured:rest-assured:4.2.0")
     testImplementation("org.reflections:reflections:0.9.12")
 
-    testImplementation("org.testcontainers:mysql:1.12.5") {
+    testImplementation("org.testcontainers:mysql:1.13.0") {
         exclude(group: "org.slf4j", module: "slf4j-api")
     }
 
