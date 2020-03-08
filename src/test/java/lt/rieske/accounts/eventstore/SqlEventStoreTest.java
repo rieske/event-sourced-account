@@ -67,7 +67,12 @@ public abstract class SqlEventStoreTest {
 
         var events = eventStore.getEvents(aggregateId, 0);
 
-        assertThat(events).containsExactly(new SerializedEvent(aggregateId, 1, txId, "foobar".getBytes()));
+        assertThat(events).hasSize(1);
+        var event = events.get(0);
+        assertThat(event.aggregateId()).isEqualTo(aggregateId);
+        assertThat(event.sequenceNumber()).isEqualTo(1);
+        assertThat(event.transactionId()).isEqualTo(txId);
+        assertThat(event.payload()).isEqualTo("foobar".getBytes());
     }
 
     @Test
@@ -85,9 +90,17 @@ public abstract class SqlEventStoreTest {
 
         var events = eventStore.getEvents(aggregateId, 2);
 
-        assertThat(events).containsExactly(
-                new SerializedEvent(aggregateId, 3, txId3, "3".getBytes()),
-                new SerializedEvent(aggregateId, 4, txId4, "4".getBytes()));
+        assertThat(events).hasSize(2);
+        var seq3 = events.get(0);
+        assertThat(seq3.aggregateId()).isEqualTo(aggregateId);
+        assertThat(seq3.sequenceNumber()).isEqualTo(3);
+        assertThat(seq3.transactionId()).isEqualTo(txId3);
+        assertThat(seq3.payload()).isEqualTo("3".getBytes());
+        var seq4 = events.get(1);
+        assertThat(seq4.aggregateId()).isEqualTo(aggregateId);
+        assertThat(seq4.sequenceNumber()).isEqualTo(4);
+        assertThat(seq4.transactionId()).isEqualTo(txId4);
+        assertThat(seq4.payload()).isEqualTo("4".getBytes());
     }
 
     @Test
@@ -127,8 +140,8 @@ public abstract class SqlEventStoreTest {
 
         var snapshot = eventStore.loadLatestSnapshot(aggregateId);
 
-        assertThat(snapshot.getSequenceNumber()).isEqualTo(150);
-        assertThat(snapshot.getPayload()).isEqualTo("3".getBytes());
+        assertThat(snapshot.sequenceNumber()).isEqualTo(150);
+        assertThat(snapshot.payload()).isEqualTo("3".getBytes());
     }
 
     @Test

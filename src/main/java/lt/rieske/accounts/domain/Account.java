@@ -80,26 +80,26 @@ public class Account implements AccountEventsVisitor {
 
     @Override
     public void visit(AccountSnapshot snapshot) {
-        this.ownerId = snapshot.getOwnerId();
-        this.balance = snapshot.getBalance();
-        this.open = snapshot.isOpen();
+        this.ownerId = snapshot.ownerId();
+        this.balance = snapshot.balance();
+        this.open = snapshot.open();
     }
 
     @Override
     public void visit(AccountOpenedEvent event) {
-        this.ownerId = event.getOwnerId();
+        this.ownerId = event.ownerId();
         this.balance = 0;
         this.open = true;
     }
 
     @Override
     public void visit(MoneyDepositedEvent event) {
-        this.balance = event.getBalance();
+        this.balance = event.balance();
     }
 
     @Override
     public void visit(MoneyWithdrawnEvent event) {
-        this.balance = event.getBalance();
+        this.balance = event.balance();
     }
 
     @Override

@@ -57,10 +57,10 @@ class SerializingEventStore<T> implements EventStore<T> {
 
     private SequencedEvent<T> deserialize(SerializedEvent serializedEvent) {
         return new SequencedEvent<>(
-                serializedEvent.getAggregateId(),
-                serializedEvent.getSequenceNumber(),
-                serializedEvent.getTransactionId(),
-                serializer.deserialize(serializedEvent.getPayload()));
+                serializedEvent.aggregateId(),
+                serializedEvent.sequenceNumber(),
+                serializedEvent.transactionId(),
+                serializer.deserialize(serializedEvent.payload()));
     }
 
     @Override
@@ -70,9 +70,9 @@ class SerializingEventStore<T> implements EventStore<T> {
 
     private SerializedEvent serialize(SequencedEvent<T> event, UUID transactionId) {
         return new SerializedEvent(
-                event.getAggregateId(),
-                event.getSequenceNumber(),
+                event.aggregateId(),
+                event.sequenceNumber(),
                 transactionId,
-                serializer.serialize(event.getEvent()));
+                serializer.serialize(event.event()));
     }
 }

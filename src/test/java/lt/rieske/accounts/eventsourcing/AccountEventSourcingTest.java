@@ -266,14 +266,14 @@ abstract class AccountEventSourcingTest {
         snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), Operation.deposit(5));
 
         var snapshot = eventStore.loadSnapshot(accountId);
-        assertThat(snapshot.getAggregateId()).isEqualTo(accountId);
-        assertThat(snapshot.getSequenceNumber()).isEqualTo(5);
-        assertThat(snapshot.getEvent()).isInstanceOf(AccountSnapshot.class);
-        AccountSnapshot snapshotEvent = (AccountSnapshot) snapshot.getEvent();
-        assertThat(snapshotEvent.getAccountId()).isEqualTo(accountId);
-        assertThat(snapshotEvent.getOwnerId()).isEqualTo(ownerId);
-        assertThat(snapshotEvent.getBalance()).isEqualTo(25);
-        assertThat(snapshotEvent.isOpen()).isTrue();
+        assertThat(snapshot.aggregateId()).isEqualTo(accountId);
+        assertThat(snapshot.sequenceNumber()).isEqualTo(5);
+        assertThat(snapshot.event()).isInstanceOf(AccountSnapshot.class);
+        AccountSnapshot snapshotEvent = (AccountSnapshot) snapshot.event();
+        assertThat(snapshotEvent.accountId()).isEqualTo(accountId);
+        assertThat(snapshotEvent.ownerId()).isEqualTo(ownerId);
+        assertThat(snapshotEvent.balance()).isEqualTo(25);
+        assertThat(snapshotEvent.open()).isTrue();
 
         snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), Operation.deposit(5));
         snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), Operation.deposit(5));
@@ -282,14 +282,14 @@ abstract class AccountEventSourcingTest {
         snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), Operation.deposit(5));
 
         snapshot = eventStore.loadSnapshot(accountId);
-        assertThat(snapshot.getAggregateId()).isEqualTo(accountId);
-        assertThat(snapshot.getSequenceNumber()).isEqualTo(10);
-        assertThat(snapshot.getEvent()).isInstanceOf(AccountSnapshot.class);
-        snapshotEvent = (AccountSnapshot) snapshot.getEvent();
-        assertThat(snapshotEvent.getAccountId()).isEqualTo(accountId);
-        assertThat(snapshotEvent.getOwnerId()).isEqualTo(ownerId);
-        assertThat(snapshotEvent.getBalance()).isEqualTo(50);
-        assertThat(snapshotEvent.isOpen()).isTrue();
+        assertThat(snapshot.aggregateId()).isEqualTo(accountId);
+        assertThat(snapshot.sequenceNumber()).isEqualTo(10);
+        assertThat(snapshot.event()).isInstanceOf(AccountSnapshot.class);
+        snapshotEvent = (AccountSnapshot) snapshot.event();
+        assertThat(snapshotEvent.accountId()).isEqualTo(accountId);
+        assertThat(snapshotEvent.ownerId()).isEqualTo(ownerId);
+        assertThat(snapshotEvent.balance()).isEqualTo(50);
+        assertThat(snapshotEvent.open()).isTrue();
     }
 
     @Test

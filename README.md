@@ -122,7 +122,6 @@ service itself.
 InsufficientBalance, AccountClosed exceptions etc. Kept it simple with IllegalArgument/State
 exceptions for the sake of avoiding unneeded class count explosion.
 
-
 ### Building
 
 ```shell script
@@ -188,9 +187,9 @@ Kept external dependencies to a minimum, here's what's used and what for:
 - Spark for spawning an embedded Jetty and glue for http request routing.
 - Flyway - for DB migrations. Could have been done by hand, however Flyway is lightweight and brings
   no unwanted transitive dependencies.
-- Lombok - for reducing boilerplate code and providing value objects. I'm not sure I like it.
 - Logback - logging
-- msgpack - for serializing events for storage
+- msgpack - for serializing events for storage. This is the faster and more compact way of storing events at a cost
+  of some boilerplate serialization code.
 - H2 - in memory database
 - MySql connector - since the storage part is tested in mysql, might as well want to spawn the
   service connected to mysql.
@@ -209,7 +208,7 @@ Here is the runtime dependency tree:
 |         |    \--- org.eclipse.jetty:jetty-io:9.4.18.v20190429                                                                                                                           
 |         |         \--- org.eclipse.jetty:jetty-util:9.4.18.v20190429                                                                                                                    
 |         \--- org.eclipse.jetty:jetty-io:9.4.18.v20190429 (*)                                                                                                                            
-+--- org.msgpack:msgpack-core:0.8.20                                                                                                                                                                                      
++--- org.msgpack:msgpack-core:0.8.20                                                                                                                                                                                        
 +--- org.flywaydb:flyway-core:6.1.0                                                          
 +--- ch.qos.logback:logback-classic:1.2.3                                                    
 |    +--- ch.qos.logback:logback-core:1.2.3                                                  

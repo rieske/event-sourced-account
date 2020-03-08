@@ -49,7 +49,7 @@ class SqlEventStore implements BlobEventStore {
             Collection<SerializedEvent> serializedSnapshots,
             UUID transactionId) {
 
-        Set<UUID> aggregateIds = serializedEvents.stream().map(SerializedEvent::getAggregateId).collect(Collectors.toSet());
+        Set<UUID> aggregateIds = serializedEvents.stream().map(SerializedEvent::aggregateId).collect(Collectors.toSet());
 
         try (var connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
@@ -132,10 +132,10 @@ class SqlEventStore implements BlobEventStore {
     private static void insertEvents(Connection connection, Collection<SerializedEvent> events) throws SQLException {
         try (var statement = connection.prepareStatement(APPEND_EVENT_SQL)) {
             for (var e : events) {
-                statement.setBytes(1, uuidToBytes(e.getAggregateId()));
-                statement.setLong(2, e.getSequenceNumber());
-                statement.setBytes(3, uuidToBytes(e.getTransactionId()));
-                statement.setBytes(4, e.getPayload());
+                statement.setBytes(1, uuidToBytes(e.aggregateId()));
+                statement.setLong(2, e.sequenceNumber());
+                statement.setBytes(3, uuidToBytes(e.transactionId()));
+                statement.setBytes(4, e.payload());
                 statement.executeUpdate();
             }
         }
@@ -148,11 +148,11 @@ class SqlEventStore implements BlobEventStore {
         try (var deleteStatement = connection.prepareStatement(REMOVE_SNAPSHOT_SQL);
              var storeStatement = connection.prepareStatement(STORE_SNAPSHOT_SQL)) {
             for (var e : events) {
-                deleteStatement.setBytes(1, uuidToBytes(e.getAggregateId()));
+                deleteStatement.setBytes(1, uuidToBytes(e.aggregateId()));
                 deleteStatement.executeUpdate();
-                storeStatement.setBytes(1, uuidToBytes(e.getAggregateId()));
-                storeStatement.setLong(2, e.getSequenceNumber());
-                storeStatement.setBytes(3, e.getPayload());
+                storeStatement.setBytes(1, uuidToBytes(e.aggregateId()));
+                storeStatement.setLong(2, e.sequenceNumber());
+                storeStatement.setBytes(3, e.payload());
                 storeStatement.executeUpdate();
             }
         }

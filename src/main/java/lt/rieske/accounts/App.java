@@ -1,11 +1,12 @@
 package lt.rieske.accounts;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
-import lombok.extern.slf4j.Slf4j;
 import lt.rieske.accounts.api.ApiConfiguration;
 import lt.rieske.accounts.api.TracingConfiguration;
 import org.flywaydb.core.Flyway;
 import org.h2.jdbcx.JdbcDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -13,8 +14,9 @@ import java.sql.SQLRecoverableException;
 import java.time.Duration;
 
 
-@Slf4j
 public class App {
+
+    private static final Logger log = LoggerFactory.getLogger(App.class);
 
     public static void main(String[] args) throws InterruptedException {
         var dataSource = getDataSource();
