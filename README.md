@@ -122,12 +122,6 @@ service itself.
 InsufficientBalance, AccountClosed exceptions etc. Kept it simple with IllegalArgument/State
 exceptions for the sake of avoiding unneeded class count explosion.
 
-- Didn't use Jackson for serializing events in the REST API despite already having it in
-the classpath. Just for fun - wanted to try out the events visitor outside of the aggregate.
-Later applied a similar pattern to serialize events for storage using msgpack. No reflection
-needed.
-
-
 ### Building
 
 ```shell script
@@ -193,13 +187,9 @@ Kept external dependencies to a minimum, here's what's used and what for:
 - Spark for spawning an embedded Jetty and glue for http request routing.
 - Flyway - for DB migrations. Could have been done by hand, however Flyway is lightweight and brings
   no unwanted transitive dependencies.
-- Lombok - for reducing boilerplate code and providing value objects. I'm not sure I like it.
 - Logback - logging
 - msgpack - for serializing events for storage. This is the faster and more compact way of storing events at a cost
   of some boilerplate serialization code.
-- Jackson - for serializing events for storage. Started with this one initially to avoid boilerplate serialization
-  code. Left the json serializer as I plan to benchmark and compare size/performance of multiple
-  serialization strategies.
 - H2 - in memory database
 - MySql connector - since the storage part is tested in mysql, might as well want to spawn the
   service connected to mysql.
@@ -218,10 +208,7 @@ Here is the runtime dependency tree:
 |         |    \--- org.eclipse.jetty:jetty-io:9.4.18.v20190429                                                                                                                           
 |         |         \--- org.eclipse.jetty:jetty-util:9.4.18.v20190429                                                                                                                    
 |         \--- org.eclipse.jetty:jetty-io:9.4.18.v20190429 (*)                                                                                                                            
-+--- org.msgpack:msgpack-core:0.8.20                                                                                                                                                      
-+--- com.fasterxml.jackson.core:jackson-databind:2.10.1                                      
-|    +--- com.fasterxml.jackson.core:jackson-annotations:2.10.1                              
-|    \--- com.fasterxml.jackson.core:jackson-core:2.10.1                                     
++--- org.msgpack:msgpack-core:0.8.20                                                                                                                                                                                        
 +--- org.flywaydb:flyway-core:6.1.0                                                          
 +--- ch.qos.logback:logback-classic:1.2.3                                                    
 |    +--- ch.qos.logback:logback-core:1.2.3                                                  

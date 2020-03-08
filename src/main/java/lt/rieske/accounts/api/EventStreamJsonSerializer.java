@@ -21,10 +21,10 @@ public class EventStreamJsonSerializer implements AccountEventsVisitor {
         sb.append("[");
         events.forEach(e -> {
             sb.append("{");
-            appendJsonLong("sequenceNumber", e.getSequenceNumber());
+            appendJsonLong("sequenceNumber", e.sequenceNumber());
             sb.append(",");
-            appendJsonString("transactionId", e.getTransactionId().toString());
-            e.getEvent().accept(this);
+            appendJsonString("transactionId", e.transactionId().toString());
+            e.event().accept(this);
             sb.append("},");
         });
         if (!events.isEmpty()) {
@@ -60,7 +60,7 @@ public class EventStreamJsonSerializer implements AccountEventsVisitor {
         sb.append(",");
         appendJsonString("type", event.getClass().getSimpleName());
         sb.append(",");
-        appendJsonString("ownerId", event.getOwnerId().toString());
+        appendJsonString("ownerId", event.ownerId().toString());
     }
 
     @Override
@@ -68,9 +68,9 @@ public class EventStreamJsonSerializer implements AccountEventsVisitor {
         sb.append(",");
         appendJsonString("type", event.getClass().getSimpleName());
         sb.append(",");
-        appendJsonLong("amountDeposited", event.getAmountDeposited());
+        appendJsonLong("amountDeposited", event.amountDeposited());
         sb.append(",");
-        appendJsonLong("balance", event.getBalance());
+        appendJsonLong("balance", event.balance());
     }
 
     @Override
@@ -78,9 +78,9 @@ public class EventStreamJsonSerializer implements AccountEventsVisitor {
         sb.append(",");
         appendJsonString("type", event.getClass().getSimpleName());
         sb.append(",");
-        appendJsonLong("amountWithdrawn", event.getAmountWithdrawn());
+        appendJsonLong("amountWithdrawn", event.amountWithdrawn());
         sb.append(",");
-        appendJsonLong("balance", event.getBalance());
+        appendJsonLong("balance", event.balance());
     }
 
     @Override

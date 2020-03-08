@@ -45,6 +45,13 @@ tasks {
     check.dependsOn(e2eTest)
 }
 
+tasks.withType(JavaCompile) {
+    options.compilerArgs += "--enable-preview"
+}
+tasks.withType(Test) {
+    jvmArgs += "--enable-preview"
+}
+
 configurations {
     all {
         resolutionStrategy {
@@ -55,9 +62,6 @@ configurations {
 }
 
 dependencies {
-    annotationProcessor("org.projectlombok:lombok:1.18.12")
-    compileOnly("org.projectlombok:lombok:1.18.10")
-
     implementation("com.sparkjava:spark-core:2.9.1") {
         exclude(group: "org.eclipse.jetty.websocket", module: "websocket-server")
         exclude(group: "org.eclipse.jetty.websocket", module: "websocket-servlet")
@@ -65,7 +69,6 @@ dependencies {
     }
 
     implementation("org.msgpack:msgpack-core:0.8.20")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.10.3")
 
     implementation("org.flywaydb:flyway-core:6.3.0")
 

@@ -80,10 +80,10 @@ class MessagePackAccountEventSerializer implements EventSerializer<AccountEvents
         public void visit(AccountSnapshot snapshot) {
             try {
                 packer.packInt(ACCOUNT_SNAPSHOT);
-                packUUID(packer, snapshot.getAccountId());
-                packUUID(packer, snapshot.getOwnerId());
-                packer.packLong(snapshot.getBalance())
-                        .packBoolean(snapshot.isOpen())
+                packUUID(packer, snapshot.accountId());
+                packUUID(packer, snapshot.ownerId());
+                packer.packLong(snapshot.balance())
+                        .packBoolean(snapshot.open())
                         .close();
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -94,7 +94,7 @@ class MessagePackAccountEventSerializer implements EventSerializer<AccountEvents
         public void visit(AccountOpenedEvent event) {
             try {
                 packer.packInt(ACCOUNT_OPENED);
-                packUUID(packer, event.getOwnerId());
+                packUUID(packer, event.ownerId());
                 packer.close();
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -105,8 +105,8 @@ class MessagePackAccountEventSerializer implements EventSerializer<AccountEvents
         public void visit(MoneyDepositedEvent event) {
             try {
                 packer.packInt(MONEY_DEPOSITED)
-                        .packLong(event.getAmountDeposited())
-                        .packLong(event.getBalance())
+                        .packLong(event.amountDeposited())
+                        .packLong(event.balance())
                         .close();
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -117,8 +117,8 @@ class MessagePackAccountEventSerializer implements EventSerializer<AccountEvents
         public void visit(MoneyWithdrawnEvent event) {
             try {
                 packer.packInt(MONEY_WITHDRAWN)
-                        .packLong(event.getAmountWithdrawn())
-                        .packLong(event.getBalance())
+                        .packLong(event.amountWithdrawn())
+                        .packLong(event.balance())
                         .close();
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
