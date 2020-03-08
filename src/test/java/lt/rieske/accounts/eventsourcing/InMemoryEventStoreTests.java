@@ -51,7 +51,7 @@ class InMemoryEventStoreTests {
             for (var aggregateId : aggregateIds()) {
                 var events = eventStore.getSequencedEvents(aggregateId);
                 for (int i = 0; i < events.size(); i++) {
-                    assertThat(events.get(i).getSequenceNumber()).isEqualTo(i + 1);
+                    assertThat(events.get(i).sequenceNumber()).isEqualTo(i + 1);
                 }
             }
         }
@@ -84,14 +84,14 @@ class InMemoryEventStore<T> implements EventStore<T> {
         validateConsistency(uncommittedEvents, transactionId);
 
         uncommittedEvents.forEach(e -> append(e, transactionId));
-        uncommittedSnapshots.forEach(s -> snapshots.put(s.getAggregateId(), s));
+        uncommittedSnapshots.forEach(s -> snapshots.put(s.aggregateId(), s));
     }
 
     @Override
     public Stream<SequencedEvent<T>> getEvents(UUID aggregateId, long fromVersion) {
         return events
                 .stream()
-                .filter(e -> e.getAggregateId().equals(aggregateId) && e.getSequenceNumber() > fromVersion);
+                .filter(e -> e.aggregateId().equals(aggregateId) && e.sequenceNumber() > fromVersion);
     }
 
     @Override
@@ -107,29 +107,29 @@ class InMemoryEventStore<T> implements EventStore<T> {
     List<SequencedEvent<T>> getSequencedEvents(UUID aggregateId) {
         return events
                 .stream()
-                .filter(e -> e.getAggregateId().equals(aggregateId))
+                .filter(e -> e.aggregateId().equals(aggregateId))
                 .collect(Collectors.toList());
     }
 
     private void append(SequencedEvent<T> event, UUID transactionId) {
-        events.add(new SequencedEvent<>(event.getAggregateId(), event.getSequenceNumber(), transactionId, event.getEvent()));
-        aggregateTransactions.put(event.getAggregateId(), transactionId);
+        events.add(new SequencedEvent<>(event.aggregateId(), event.sequenceNumber(), transactionId, event.event()));
+        aggregateTransactions.put(event.aggregateId(), transactionId);
     }
 
     private void validateConsistency(Collection<SequencedEvent<T>> uncomittedEvents, UUID transactionId) {
         Map<UUID, Long> aggregateVersions = new HashMap<>();
 
         uncomittedEvents.forEach(event -> {
-            long currentVersion = aggregateVersions.getOrDefault(event.getAggregateId(),
-                    getLatestAggregateVersion(event.getAggregateId()));
-            if (transactionExists(event.getAggregateId(), transactionId)) {
+            long currentVersion = aggregateVersions.getOrDefault(event.aggregateId(),
+                    getLatestAggregateVersion(event.aggregateId()));
+            if (transactionExists(event.aggregateId(), transactionId)) {
                 throw new ConcurrentModificationException("Duplicate transaction");
             }
-            if (event.getSequenceNumber() <= currentVersion) {
+            if (event.sequenceNumber() <= currentVersion) {
                 throw new ConcurrentModificationException("Event out of sync, last: " +
-                        currentVersion + ", trying to append: " + event.getSequenceNumber());
+                        currentVersion + ", trying to append: " + event.sequenceNumber());
             }
-            aggregateVersions.put(event.getAggregateId(), event.getSequenceNumber());
+            aggregateVersions.put(event.aggregateId(), event.sequenceNumber());
         });
     }
 
@@ -139,6 +139,6 @@ class InMemoryEventStore<T> implements EventStore<T> {
         if (aggregateEvents.isEmpty()) {
             return 0L;
         }
-        return aggregateEvents.get(aggregateEvents.size() - 1).getSequenceNumber();
+        return aggregateEvents.get(aggregateEvents.size() - 1).sequenceNumber();
     }
 }

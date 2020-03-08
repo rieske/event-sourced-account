@@ -2,7 +2,7 @@ FROM openjdk:14-jdk-slim
 
 EXPOSE 8080
 
-ENV JAVA_OPTS --illegal-access=deny -Xmx64m -Xms64m
+ENV JAVA_OPTS --illegal-access=deny -Xmx64m -Xms64m --enable-preview
 
 ENTRYPOINT /opt/service/account/bin/account
 

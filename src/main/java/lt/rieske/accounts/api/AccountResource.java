@@ -124,10 +124,10 @@ class AccountResource {
 
     private static String accountJson(AccountSnapshot account) {
         return "{" +
-                "\"accountId\":\"" + account.getAccountId() + "\"," +
-                "\"ownerId\":\"" + account.getOwnerId() + "\"," +
-                "\"balance\":" + account.getBalance() + "," +
-                "\"open\":" + account.isOpen() +
+                "\"accountId\":\"" + account.accountId() + "\"," +
+                "\"ownerId\":\"" + account.ownerId() + "\"," +
+                "\"balance\":" + account.balance() + "," +
+                "\"open\":" + account.open() +
                 "}";
     }
 
