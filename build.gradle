@@ -4,8 +4,8 @@ plugins {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_14
+    targetCompatibility = JavaVersion.VERSION_14
 }
 
 repositories {
@@ -16,10 +16,6 @@ task integrationTest(type: Test)
 task e2eTest(type: Test)
 
 tasks {
-    wrapper {
-        gradleVersion = "6.1.1"
-    }
-
     test {
         useJUnitPlatform {
             excludeTags("integration")
@@ -49,9 +45,12 @@ tasks {
     check.dependsOn(e2eTest)
 }
 
-configurations.all {
-    resolutionStrategy {
-        failOnVersionConflict()
+configurations {
+    all {
+        resolutionStrategy {
+            failOnVersionConflict()
+            force("org.codehaus.groovy:groovy:2.5.10") // for JDK14 support in RestAssured 4.2.0
+        }
     }
 }
 
