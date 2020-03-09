@@ -59,7 +59,7 @@ configurations {
     all {
         resolutionStrategy {
             failOnVersionConflict()
-            force("org.codehaus.groovy:groovy:2.5.10") // for JDK14 support in RestAssured 4.2.0
+            force("org.codehaus.groovy:groovy:3.0.2") // for JDK14 support in RestAssured 4.2.0
         }
     }
 }
