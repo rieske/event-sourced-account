@@ -59,7 +59,6 @@ configurations {
     all {
         resolutionStrategy {
             failOnVersionConflict()
-            force("org.codehaus.groovy:groovy:2.5.10") // for JDK14 support in RestAssured 4.2.0
         }
     }
 }
@@ -88,7 +87,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:3.4.2")
 
     testImplementation("org.assertj:assertj-core:3.15.0")
-    testImplementation("io.rest-assured:rest-assured:4.2.0")
+    testImplementation("io.rest-assured:rest-assured:4.3.0")
     testImplementation("org.reflections:reflections:0.9.12")
 
     testImplementation("org.testcontainers:mysql:1.13.0") {
