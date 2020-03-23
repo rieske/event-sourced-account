@@ -95,7 +95,7 @@ dependencies {
     }
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.1")
 
     testImplementation("com.tngtech.archunit:archunit-junit5-api:0.13.1")
     testRuntimeOnly("com.tngtech.archunit:archunit-junit5-engine:0.13.1") {
