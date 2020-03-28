@@ -19,7 +19,7 @@ class H2PostgresEventStoreTests extends SqlEventStoreIntegrationTests {
 
     @Override
     protected BlobEventStore blobEventStore(DataSource dataSource) {
-        return Configuration.postgresAccountEventStore(dataSource);
+        return Configuration.postgresEventStore(dataSource);
     }
 
     @Override

@@ -32,7 +32,7 @@ class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
     }
 
     protected BlobEventStore blobEventStore(DataSource dataSource) {
-        return Configuration.mysqlAccountEventStore(dataSource);
+        return Configuration.mysqlEventStore(dataSource);
     }
 
     @Override

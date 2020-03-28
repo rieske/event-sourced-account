@@ -8,11 +8,11 @@ import javax.sql.DataSource;
 
 public class Configuration {
 
-    public static BlobEventStore mysqlAccountEventStore(DataSource dataSource) {
+    public static BlobEventStore mysqlEventStore(DataSource dataSource) {
         return new MySqlEventStore(dataSource);
     }
 
-    public static BlobEventStore postgresAccountEventStore(DataSource dataSource) {
+    public static BlobEventStore postgresEventStore(DataSource dataSource) {
         return new PosrgresEventStore(dataSource);
     }
 

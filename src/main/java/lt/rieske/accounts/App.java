@@ -19,10 +19,8 @@ public class App {
     private static final Logger log = LoggerFactory.getLogger(App.class);
 
     public static void main(String[] args) throws InterruptedException {
-        var dataSource = getDataSource();
-
-        var flyway = Flyway.configure().dataSource(dataSource).schemas("event_store").load();
-        flyway.migrate();
+        var dataSource = createDataSource();
+        migrateDatabase(dataSource);
 
         var tracingConfiguration = TracingConfiguration.create(System.getenv("ZIPKIN_URL"));
         var server = ApiConfiguration.server(dataSource, tracingConfiguration);
@@ -30,7 +28,12 @@ public class App {
         log.info("Server started on port: {}", port);
     }
 
-    private static DataSource getDataSource() throws InterruptedException {
+    private static void migrateDatabase(DataSource dataSource) {
+        var flyway = Flyway.configure().dataSource(dataSource).schemas("event_store").load();
+        flyway.migrate();
+    }
+
+    private static DataSource createDataSource() throws InterruptedException {
         var mysqlUrl = System.getenv("MYSQL_JDBC_URL");
         if (mysqlUrl != null) {
             return mysqlDataSource(mysqlUrl, System.getenv("MYSQL_USER"), System.getenv("MYSQL_PASSWORD"));

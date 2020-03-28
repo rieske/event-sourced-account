@@ -14,5 +14,5 @@ jobs:
       with:
         java-version: 14.0.0
     - name: Build
-      run: ./gradlew build
+      run: ./gradlew build --stacktrace
 
