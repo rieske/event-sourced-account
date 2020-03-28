@@ -4,9 +4,9 @@ import lt.rieske.accounts.eventsourcing.Event;
 
 import java.util.UUID;
 
-public record AccountOpenedEvent<T extends AccountEventsVisitor>(
+public record AccountOpenedEvent(
         UUID ownerId
-) implements Event<T> {
+) implements Event<AccountEventsVisitor> {
 
     @Override
     public void accept(AccountEventsVisitor visitor) {

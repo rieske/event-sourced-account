@@ -19,15 +19,15 @@ public class Account implements AccountEventsVisitor {
         this.accountId = accountId;
     }
 
-    public AccountSnapshot<AccountEventsVisitor> snapshot() {
-        return new AccountSnapshot<>(accountId, ownerId, balance, open);
+    public AccountSnapshot snapshot() {
+        return new AccountSnapshot(accountId, ownerId, balance, open);
     }
 
     public void open(UUID ownerId) {
         if (this.ownerId != null) {
             throw new IllegalStateException("Account already has an owner");
         }
-        eventStream.append(new AccountOpenedEvent<>(ownerId), this, accountId);
+        eventStream.append(new AccountOpenedEvent(ownerId), this, accountId);
     }
 
     public void deposit(long amount) {
@@ -38,7 +38,7 @@ public class Account implements AccountEventsVisitor {
         if (amount < 0) {
             throw new IllegalArgumentException("Can not deposit negative amount: " + amount);
         }
-        eventStream.append(new MoneyDepositedEvent<>(amount, balance + amount), this, accountId);
+        eventStream.append(new MoneyDepositedEvent(amount, balance + amount), this, accountId);
     }
 
     public void withdraw(long amount) {
@@ -52,14 +52,14 @@ public class Account implements AccountEventsVisitor {
         if (balance < amount) {
             throw new IllegalArgumentException("Insufficient balance");
         }
-        eventStream.append(new MoneyWithdrawnEvent<>(amount, balance - amount), this, accountId);
+        eventStream.append(new MoneyWithdrawnEvent(amount, balance - amount), this, accountId);
     }
 
     public void close() {
         if (balance != 0) {
             throw new IllegalStateException("Balance outstanding");
         }
-        eventStream.append(new AccountClosedEvent<>(), this, accountId);
+        eventStream.append(new AccountClosedEvent(), this, accountId);
     }
 
     public UUID id() {
