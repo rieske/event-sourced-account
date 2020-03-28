@@ -15,9 +15,9 @@ import static org.hamcrest.Matchers.notNullValue;
 
 class AccountResourceTest {
 
-    private static final H2 H2 = new H2();
+    private static final H2 db = H2.postgres();
 
-    private static final Server SERVER = ApiConfiguration.server(H2.dataSource(), TracingConfiguration.noop());
+    private static final Server SERVER = ApiConfiguration.server(db.dataSource(), TracingConfiguration.noop());
     private static int serverPort;
 
     @BeforeAll

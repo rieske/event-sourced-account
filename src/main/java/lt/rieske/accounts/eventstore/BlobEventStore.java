@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 
-interface BlobEventStore {
+public interface BlobEventStore {
     void append(Collection<SerializedEvent> serializedEvents, Collection<SerializedEvent> serializedSnapshots, UUID transactionId);
 
     List<SerializedEvent> getEvents(UUID aggregateId, long fromVersion);

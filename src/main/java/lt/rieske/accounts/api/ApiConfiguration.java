@@ -35,7 +35,8 @@ public class ApiConfiguration {
         new UptimeMetrics().bindTo(meterRegistry);
         new LogbackMetrics().bindTo(meterRegistry);
 
-        var eventStore = Configuration.accountEventStore(pooledMeteredDataSource(tracingConfiguration.decorate(dataSource), meterRegistry));
+        var blobEventStore = Configuration.mysqlAccountEventStore(pooledMeteredDataSource(tracingConfiguration.decorate(dataSource), meterRegistry));
+        var eventStore = Configuration.accountEventStore(blobEventStore);
         var accountRepository = snapshottingAccountRepository(eventStore, 50);
         var accountService = new AccountService(accountRepository, eventStore);
         var accountResource = new AccountResource(accountService);

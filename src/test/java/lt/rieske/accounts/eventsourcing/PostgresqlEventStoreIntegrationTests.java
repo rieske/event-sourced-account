@@ -1,5 +1,7 @@
 package lt.rieske.accounts.eventsourcing;
 
+import lt.rieske.accounts.eventstore.BlobEventStore;
+import lt.rieske.accounts.eventstore.Configuration;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Tag;
@@ -7,7 +9,10 @@ import org.postgresql.ds.PGSimpleDataSource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import javax.sql.DataSource;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Map;
+import java.util.UUID;
 
 @Tag("integration")
 class PostgresqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
@@ -22,6 +27,16 @@ class PostgresqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests
     @Override
     protected DataSource dataSource() {
         return POSTGRESQL.dataSource();
+    }
+
+    @Override
+    protected BlobEventStore blobEventStore(DataSource dataSource) {
+        return Configuration.postgresAccountEventStore(dataSource);
+    }
+
+    @Override
+    protected void setUUID(PreparedStatement statement, int column, UUID uuid) throws SQLException {
+        statement.setObject(column, uuid);
     }
 
     static class Postgresql {
@@ -44,11 +59,14 @@ class PostgresqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests
             dataSource.setUser(postgresql.getUsername());
             dataSource.setPassword(postgresql.getPassword());
             dataSource.setDatabaseName(DATABASE);
+            dataSource.setCurrentSchema(DATABASE);
 
             this.dataSource = dataSource;
 
-            var flyway = Flyway.configure().dataSource(dataSource).locations("db/postgresql").load();
-            System.out.println(flyway.getConfiguration().getLocations()[0]);
+            var flyway = Flyway.configure().dataSource(dataSource).locations("db/postgresql")
+                    .schemas(DATABASE)
+                    .defaultSchema(DATABASE)
+                    .load();
             flyway.migrate();
         }
 
