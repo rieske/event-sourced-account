@@ -2,8 +2,6 @@ package lt.rieske.accounts.api;
 
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import lt.rieske.accounts.eventsourcing.AggregateNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import spark.Spark;
 
 import java.util.ConcurrentModificationException;
@@ -19,8 +17,6 @@ import static spark.Spark.put;
 
 
 public class Server {
-
-    private static final Logger log = LoggerFactory.getLogger(Server.class);
 
     private final AccountResource accountResource;
     private final PrometheusMeterRegistry meterRegistry;
