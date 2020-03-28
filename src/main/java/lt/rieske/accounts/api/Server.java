@@ -38,17 +38,15 @@ public class Server {
 
         tracingConfiguration.init();
 
-        path("/api", () -> {
-            path("/account/:accountId", () -> {
-                post("", accountResource::createAccount);
-                get("", accountResource::getAccount);
-                get("/events", accountResource::getEvents);
-                put("/deposit", accountResource::deposit);
-                put("/withdraw", accountResource::withdraw);
-                put("/transfer", accountResource::transfer);
-                delete("", accountResource::close);
-            });
-        });
+        path("/api", () -> path("/account/:accountId", () -> {
+            post("", accountResource::createAccount);
+            get("", accountResource::getAccount);
+            get("/events", accountResource::getEvents);
+            put("/deposit", accountResource::deposit);
+            put("/withdraw", accountResource::withdraw);
+            put("/transfer", accountResource::transfer);
+            delete("", accountResource::close);
+        }));
 
         get("/ping", (req, res) -> "");
 
