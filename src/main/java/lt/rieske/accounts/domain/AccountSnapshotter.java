@@ -11,7 +11,7 @@ public class AccountSnapshotter implements Snapshotter<Account, AccountEventsVis
     }
 
     @Override
-    public AccountSnapshot<AccountEventsVisitor> takeSnapshot(Account account, long version) {
+    public AccountSnapshot takeSnapshot(Account account, long version) {
         if (version % snapshottingFrequencyEvents == 0) {
             return account.snapshot();
         }

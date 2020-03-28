@@ -1,7 +1,6 @@
 package lt.rieske.accounts.api;
 
 import io.micrometer.prometheus.PrometheusMeterRegistry;
-import lombok.extern.slf4j.Slf4j;
 import lt.rieske.accounts.eventsourcing.AggregateNotFoundException;
 import spark.Spark;
 
@@ -17,7 +16,6 @@ import static spark.Spark.post;
 import static spark.Spark.put;
 
 
-@Slf4j
 public class Server {
 
     private final AccountResource accountResource;
@@ -36,17 +34,15 @@ public class Server {
 
         tracingConfiguration.init();
 
-        path("/api", () -> {
-            path("/account/:accountId", () -> {
-                post("", accountResource::createAccount);
-                get("", accountResource::getAccount);
-                get("/events", accountResource::getEvents);
-                put("/deposit", accountResource::deposit);
-                put("/withdraw", accountResource::withdraw);
-                put("/transfer", accountResource::transfer);
-                delete("", accountResource::close);
-            });
-        });
+        path("/api", () -> path("/account/:accountId", () -> {
+            post("", accountResource::createAccount);
+            get("", accountResource::getAccount);
+            get("/events", accountResource::getEvents);
+            put("/deposit", accountResource::deposit);
+            put("/withdraw", accountResource::withdraw);
+            put("/transfer", accountResource::transfer);
+            delete("", accountResource::close);
+        }));
 
         get("/ping", (req, res) -> "");
 

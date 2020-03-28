@@ -19,15 +19,15 @@ public class Account implements AccountEventsVisitor {
         this.accountId = accountId;
     }
 
-    public AccountSnapshot<AccountEventsVisitor> snapshot() {
-        return new AccountSnapshot<>(accountId, ownerId, balance, open);
+    public AccountSnapshot snapshot() {
+        return new AccountSnapshot(accountId, ownerId, balance, open);
     }
 
     public void open(UUID ownerId) {
         if (this.ownerId != null) {
             throw new IllegalStateException("Account already has an owner");
         }
-        eventStream.append(new AccountOpenedEvent<>(ownerId), this, accountId);
+        eventStream.append(new AccountOpenedEvent(ownerId), this, accountId);
     }
 
     public void deposit(long amount) {
@@ -38,7 +38,7 @@ public class Account implements AccountEventsVisitor {
         if (amount < 0) {
             throw new IllegalArgumentException("Can not deposit negative amount: " + amount);
         }
-        eventStream.append(new MoneyDepositedEvent<>(amount, balance + amount), this, accountId);
+        eventStream.append(new MoneyDepositedEvent(amount, balance + amount), this, accountId);
     }
 
     public void withdraw(long amount) {
@@ -52,14 +52,14 @@ public class Account implements AccountEventsVisitor {
         if (balance < amount) {
             throw new IllegalArgumentException("Insufficient balance");
         }
-        eventStream.append(new MoneyWithdrawnEvent<>(amount, balance - amount), this, accountId);
+        eventStream.append(new MoneyWithdrawnEvent(amount, balance - amount), this, accountId);
     }
 
     public void close() {
         if (balance != 0) {
             throw new IllegalStateException("Balance outstanding");
         }
-        eventStream.append(new AccountClosedEvent<>(), this, accountId);
+        eventStream.append(new AccountClosedEvent(), this, accountId);
     }
 
     public UUID id() {
@@ -80,26 +80,26 @@ public class Account implements AccountEventsVisitor {
 
     @Override
     public void visit(AccountSnapshot snapshot) {
-        this.ownerId = snapshot.getOwnerId();
-        this.balance = snapshot.getBalance();
-        this.open = snapshot.isOpen();
+        this.ownerId = snapshot.ownerId();
+        this.balance = snapshot.balance();
+        this.open = snapshot.open();
     }
 
     @Override
     public void visit(AccountOpenedEvent event) {
-        this.ownerId = event.getOwnerId();
+        this.ownerId = event.ownerId();
         this.balance = 0;
         this.open = true;
     }
 
     @Override
     public void visit(MoneyDepositedEvent event) {
-        this.balance = event.getBalance();
+        this.balance = event.balance();
     }
 
     @Override
     public void visit(MoneyWithdrawnEvent event) {
-        this.balance = event.getBalance();
+        this.balance = event.balance();
     }
 
     @Override

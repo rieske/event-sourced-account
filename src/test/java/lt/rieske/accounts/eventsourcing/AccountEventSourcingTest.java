@@ -56,7 +56,7 @@ abstract class AccountEventSourcingTest {
         assertThat(account.ownerId()).isEqualTo(ownerId);
         assertThat(account.balance()).isZero();
         assertThat(eventStore.getEvents(accountId, 0)).containsExactly(
-                new SequencedEvent<>(accountId, 1, transactionId, new AccountOpenedEvent<>(ownerId)));
+                new SequencedEvent<>(accountId, 1, transactionId, new AccountOpenedEvent(ownerId)));
     }
 
     @Test
@@ -120,8 +120,8 @@ abstract class AccountEventSourcingTest {
         var account = accountRepository.query(accountId);
         assertThat(account.balance()).isEqualTo(42);
         assertThat(eventStore.getEvents(accountId, 0)).containsExactly(
-                new SequencedEvent<>(accountId, 1, openTxId, new AccountOpenedEvent<>(ownerId)),
-                new SequencedEvent<>(accountId, 2, transactionId, new MoneyDepositedEvent<>(42, 42))
+                new SequencedEvent<>(accountId, 1, openTxId, new AccountOpenedEvent(ownerId)),
+                new SequencedEvent<>(accountId, 2, transactionId, new MoneyDepositedEvent(42, 42))
         );
     }
 
@@ -160,9 +160,9 @@ abstract class AccountEventSourcingTest {
         var account = accountRepository.query(accountId);
         assertThat(account.balance()).isEqualTo(2);
         assertThat(eventStore.getEvents(accountId, 0)).containsExactly(
-                new SequencedEvent<>(accountId, 1, openTxId, new AccountOpenedEvent<>(ownerId)),
-                new SequencedEvent<>(accountId, 2, tx1, new MoneyDepositedEvent<>(1, 1)),
-                new SequencedEvent<>(accountId, 3, tx2, new MoneyDepositedEvent<>(1, 2))
+                new SequencedEvent<>(accountId, 1, openTxId, new AccountOpenedEvent(ownerId)),
+                new SequencedEvent<>(accountId, 2, tx1, new MoneyDepositedEvent(1, 1)),
+                new SequencedEvent<>(accountId, 3, tx2, new MoneyDepositedEvent(1, 2))
         );
     }
 
@@ -178,7 +178,7 @@ abstract class AccountEventSourcingTest {
 
         assertThat(account.balance()).isZero();
         assertThat(eventStore.getEvents(accountId, 0)).containsExactly(
-                new SequencedEvent<>(accountId, 1, openTxId, new AccountOpenedEvent<>(ownerId))
+                new SequencedEvent<>(accountId, 1, openTxId, new AccountOpenedEvent(ownerId))
         );
     }
 
@@ -193,7 +193,7 @@ abstract class AccountEventSourcingTest {
         assertThatThrownBy(() -> account.deposit(-42)).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Can not deposit negative amount");
         assertThat(eventStore.getEvents(accountId, 0)).containsExactly(
-                new SequencedEvent<>(accountId, 1, openTxId, new AccountOpenedEvent<>(ownerId))
+                new SequencedEvent<>(accountId, 1, openTxId, new AccountOpenedEvent(ownerId))
         );
     }
 
@@ -215,9 +215,9 @@ abstract class AccountEventSourcingTest {
         var account = accountRepository.query(accountId);
         assertThat(account.balance()).isEqualTo(5);
         assertThat(eventStore.getEvents(accountId, 0)).containsExactly(
-                new SequencedEvent<>(accountId, 1, openTxId, new AccountOpenedEvent<>(ownerId)),
-                new SequencedEvent<>(accountId, 2, openTxId, new MoneyDepositedEvent<>(10, 10)),
-                new SequencedEvent<>(accountId, 3, withdrawalTxId, new MoneyWithdrawnEvent<>(5, 5))
+                new SequencedEvent<>(accountId, 1, openTxId, new AccountOpenedEvent(ownerId)),
+                new SequencedEvent<>(accountId, 2, openTxId, new MoneyDepositedEvent(10, 10)),
+                new SequencedEvent<>(accountId, 3, withdrawalTxId, new MoneyWithdrawnEvent(5, 5))
         );
     }
 
@@ -233,7 +233,7 @@ abstract class AccountEventSourcingTest {
 
         assertThat(account.balance()).isEqualTo(0);
         assertThat(eventStore.getEvents(accountId, 0)).containsExactly(
-                new SequencedEvent<>(accountId, 1, openTxId, new AccountOpenedEvent<>(ownerId))
+                new SequencedEvent<>(accountId, 1, openTxId, new AccountOpenedEvent(ownerId))
         );
     }
 
@@ -266,14 +266,14 @@ abstract class AccountEventSourcingTest {
         snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), Operation.deposit(5));
 
         var snapshot = eventStore.loadSnapshot(accountId);
-        assertThat(snapshot.getAggregateId()).isEqualTo(accountId);
-        assertThat(snapshot.getSequenceNumber()).isEqualTo(5);
-        assertThat(snapshot.getEvent()).isInstanceOf(AccountSnapshot.class);
-        AccountSnapshot snapshotEvent = (AccountSnapshot) snapshot.getEvent();
-        assertThat(snapshotEvent.getAccountId()).isEqualTo(accountId);
-        assertThat(snapshotEvent.getOwnerId()).isEqualTo(ownerId);
-        assertThat(snapshotEvent.getBalance()).isEqualTo(25);
-        assertThat(snapshotEvent.isOpen()).isTrue();
+        assertThat(snapshot.aggregateId()).isEqualTo(accountId);
+        assertThat(snapshot.sequenceNumber()).isEqualTo(5);
+        assertThat(snapshot.event()).isInstanceOf(AccountSnapshot.class);
+        AccountSnapshot snapshotEvent = (AccountSnapshot) snapshot.event();
+        assertThat(snapshotEvent.accountId()).isEqualTo(accountId);
+        assertThat(snapshotEvent.ownerId()).isEqualTo(ownerId);
+        assertThat(snapshotEvent.balance()).isEqualTo(25);
+        assertThat(snapshotEvent.open()).isTrue();
 
         snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), Operation.deposit(5));
         snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), Operation.deposit(5));
@@ -282,14 +282,14 @@ abstract class AccountEventSourcingTest {
         snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), Operation.deposit(5));
 
         snapshot = eventStore.loadSnapshot(accountId);
-        assertThat(snapshot.getAggregateId()).isEqualTo(accountId);
-        assertThat(snapshot.getSequenceNumber()).isEqualTo(10);
-        assertThat(snapshot.getEvent()).isInstanceOf(AccountSnapshot.class);
-        snapshotEvent = (AccountSnapshot) snapshot.getEvent();
-        assertThat(snapshotEvent.getAccountId()).isEqualTo(accountId);
-        assertThat(snapshotEvent.getOwnerId()).isEqualTo(ownerId);
-        assertThat(snapshotEvent.getBalance()).isEqualTo(50);
-        assertThat(snapshotEvent.isOpen()).isTrue();
+        assertThat(snapshot.aggregateId()).isEqualTo(accountId);
+        assertThat(snapshot.sequenceNumber()).isEqualTo(10);
+        assertThat(snapshot.event()).isInstanceOf(AccountSnapshot.class);
+        snapshotEvent = (AccountSnapshot) snapshot.event();
+        assertThat(snapshotEvent.accountId()).isEqualTo(accountId);
+        assertThat(snapshotEvent.ownerId()).isEqualTo(ownerId);
+        assertThat(snapshotEvent.balance()).isEqualTo(50);
+        assertThat(snapshotEvent.open()).isTrue();
     }
 
     @Test
@@ -298,7 +298,7 @@ abstract class AccountEventSourcingTest {
         var ownerId = UUID.randomUUID();
 
         eventStore.append(List.of(),
-                List.of(new SequencedEvent<>(accountId, 10, null, new AccountSnapshot<>(accountId, ownerId, 42, true))),
+                List.of(new SequencedEvent<>(accountId, 10, null, new AccountSnapshot(accountId, ownerId, 42, true))),
                 null);
 
         var account = snapshottingAccountRepository.query(accountId);
@@ -313,8 +313,8 @@ abstract class AccountEventSourcingTest {
         var ownerId = UUID.randomUUID();
 
         eventStore.append(
-                List.of(new SequencedEvent<>(accountId, 10, null, new MoneyDepositedEvent<>(10, 11))),
-                List.of(new SequencedEvent<>(accountId, 10, null, new AccountSnapshot<>(accountId, ownerId, 42, true))),
+                List.of(new SequencedEvent<>(accountId, 10, null, new MoneyDepositedEvent(10, 11))),
+                List.of(new SequencedEvent<>(accountId, 10, null, new AccountSnapshot(accountId, ownerId, 42, true))),
                 UUID.randomUUID());
 
         var account = snapshottingAccountRepository.query(accountId);
@@ -329,9 +329,9 @@ abstract class AccountEventSourcingTest {
         var ownerId = UUID.randomUUID();
 
         eventStore.append(
-                List.of(new SequencedEvent<>(accountId, 10, null, new MoneyDepositedEvent<>(10, 11)),
-                        new SequencedEvent<>(accountId, 11, null, new MoneyDepositedEvent<>(1, 43))),
-                List.of(new SequencedEvent<>(accountId, 10, null, new AccountSnapshot<>(accountId, ownerId, 42, true))),
+                List.of(new SequencedEvent<>(accountId, 10, null, new MoneyDepositedEvent(10, 11)),
+                        new SequencedEvent<>(accountId, 11, null, new MoneyDepositedEvent(1, 43))),
+                List.of(new SequencedEvent<>(accountId, 10, null, new AccountSnapshot(accountId, ownerId, 42, true))),
                 UUID.randomUUID());
 
         var account = snapshottingAccountRepository.query(accountId);

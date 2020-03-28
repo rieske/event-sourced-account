@@ -1,15 +1,15 @@
 CREATE TABLE Event(
     aggregateId BINARY(16) NOT NULL,
-    sequenceNumber BIGINT UNSIGNED NOT NULL,
+    sequenceNumber BIGINT NOT NULL,
     transactionId BINARY(16) NOT NULL,
-    payload LONGBLOB NOT NULL,
+    payload BLOB NOT NULL,
     PRIMARY KEY (aggregateId, sequenceNumber)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE Snapshot(
     aggregateId BINARY(16) NOT NULL,
-    sequenceNumber BIGINT UNSIGNED NOT NULL,
-    payload LONGBLOB NOT NULL,
+    sequenceNumber BIGINT NOT NULL,
+    payload BLOB NOT NULL,
     PRIMARY KEY(aggregateId)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 

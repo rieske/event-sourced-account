@@ -36,7 +36,7 @@ class ReplayingEventStream<A extends E, E> implements EventStream<A, E> {
         var snapshot = eventStore.loadSnapshot(aggregateId);
         if (snapshot != null) {
             snapshot.apply(aggregate);
-            return snapshot.getSequenceNumber();
+            return snapshot.sequenceNumber();
         }
         return 0;
     }
@@ -46,7 +46,7 @@ class ReplayingEventStream<A extends E, E> implements EventStream<A, E> {
         var currentVersion = new AtomicLong(startingVersion);
         events.forEach(event -> {
             event.apply(aggregate);
-            currentVersion.set(event.getSequenceNumber());
+            currentVersion.set(event.sequenceNumber());
         });
         return currentVersion.get();
     }
