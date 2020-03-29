@@ -84,7 +84,6 @@ dependencies {
 
     testImplementation("org.assertj:assertj-core:3.15.0")
     testImplementation("io.rest-assured:rest-assured:4.3.0")
-    testImplementation("org.reflections:reflections:0.9.12")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.1")
