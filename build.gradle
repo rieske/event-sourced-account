@@ -29,7 +29,6 @@ def integrationTest = tasks.register('integrationTest', Test) {
 }
 
 def e2eTest = tasks.register('e2eTest', Test) {
-    dependsOn(test)
     dependsOn(integrationTest)
     dependsOn(assemble)
     useJUnitPlatform {
