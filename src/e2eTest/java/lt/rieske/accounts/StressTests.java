@@ -1,6 +1,4 @@
-package lt.rieske.accounts.external;
-
-import lt.rieske.accounts.e2e.AccountClient;
+package lt.rieske.accounts;
 
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
