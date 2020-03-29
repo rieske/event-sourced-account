@@ -13,39 +13,36 @@ repositories {
 }
 
 sourceSets {
+    integrationTest {
+        compileClasspath += sourceSets.test.output
+        runtimeClasspath += sourceSets.main.output + sourceSets.test.output
+    }
     e2eTest
 }
 
-tasks.named('test') {
-    useJUnitPlatform {
-        excludeTags("integration")
-    }
-    maxParallelForks = 8
-}
-
 def integrationTest = tasks.register('integrationTest', Test) {
-    dependsOn(test)
-    useJUnitPlatform {
-        includeTags("integration")
-    }
-    maxParallelForks = 8
-}
+    shouldRunAfter(test)
 
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+}
 def e2eTest = tasks.register('e2eTest', Test) {
-    dependsOn(integrationTest)
     dependsOn("runtime")
+    shouldRunAfter(integrationTest)
+
+    inputs.files(jar.archiveFile, 'Dockerfile', fileTree("infrastructure"))
 
     testClassesDirs = sourceSets.e2eTest.output.classesDirs
     classpath = sourceSets.e2eTest.runtimeClasspath
-    useJUnitPlatform()
-    maxParallelForks = 8
 }
-tasks.named('check') { dependsOn(e2eTest) }
+tasks.named('check') { dependsOn(test, integrationTest, e2eTest) }
 
 tasks.withType(JavaCompile) {
     options.compilerArgs += "--enable-preview"
 }
 tasks.withType(Test) {
+    useJUnitPlatform()
+    maxParallelForks = 8
     jvmArgs += "--enable-preview"
 }
 tasks.withType(JavaExec) {
@@ -53,6 +50,8 @@ tasks.withType(JavaExec) {
 }
 
 configurations {
+    integrationTestImplementation.extendsFrom testImplementation
+    integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
     all {
         resolutionStrategy {
             failOnVersionConflict()

@@ -41,3 +41,4 @@ class ArchitectureTest {
             noClasses().that().resideInAPackage("lt.rieske.accounts.eventstore")
                     .should().dependOnClassesThat().resideInAPackage("lt.rieske.accounts.api");
 }
+

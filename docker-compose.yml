@@ -4,7 +4,7 @@ version: '2.4'
 services:
 
   lb:
-    build: src/test/resources/envoy
+    build: ./infrastructure/envoy
     depends_on:
       - account
     ports:
@@ -40,7 +40,7 @@ services:
     ports:
       - 9090:9090
     volumes:
-      - ./src/test/resources/prometheus/:/etc/prometheus/
+      - ./infrastructure/prometheus/:/etc/prometheus/
     mem_limit: 64M
 
   grafana:
@@ -51,8 +51,8 @@ services:
       GF_AUTH_ANONYMOUS_ENABLED: "true"
       GF_AUTH_ORG_ROLE: "Editor"
     volumes:
-      - ./src/test/resources/grafana/provisioning:/etc/grafana/provisioning/
-      - ./src/test/resources/grafana/dashboards:/var/lib/grafana/dashboards/
+      - ./infrastructure/grafana/provisioning:/etc/grafana/provisioning/
+      - ./infrastructure/grafana/dashboards:/var/lib/grafana/dashboards/
     mem_limit: 64M
 
   zipkin:
