@@ -3,10 +3,10 @@ package lt.rieske.accounts.domain;
 import lt.rieske.accounts.eventsourcing.Event;
 
 
-public record MoneyDepositedEvent<T extends AccountEventsVisitor>(
+public record MoneyDepositedEvent(
         long amountDeposited,
         long balance
-) implements Event<T> {
+) implements Event<AccountEventsVisitor> {
 
     @Override
     public void accept(AccountEventsVisitor visitor) {

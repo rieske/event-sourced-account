@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public abstract class SqlEventStoreTest {
 
     private final DataSource dataSource = dataSource();
-    private BlobEventStore eventStore = new SqlEventStore(dataSource());
+    private final BlobEventStore eventStore = new SqlEventStore(dataSource());
 
     protected abstract DataSource dataSource();
 

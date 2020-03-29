@@ -7,14 +7,14 @@ import java.util.function.Consumer;
 
 public class AggregateRepository<A extends E, E> {
     private final EventStore<E> eventStore;
-    private final AggregateFactory<A> aggregateFactory;
+    private final AggregateFactory<A, E> aggregateFactory;
     private final Snapshotter<A, E> snapshotter;
 
-    public AggregateRepository(EventStore<E> eventStore, AggregateFactory<A> aggregateFactory) {
+    public AggregateRepository(EventStore<E> eventStore, AggregateFactory<A, E> aggregateFactory) {
         this(eventStore, aggregateFactory, (aggregate, version) -> null);
     }
 
-    public AggregateRepository(EventStore<E> eventStore, AggregateFactory<A> aggregateFactory, Snapshotter<A, E> snapshotter) {
+    public AggregateRepository(EventStore<E> eventStore, AggregateFactory<A, E> aggregateFactory, Snapshotter<A, E> snapshotter) {
         this.eventStore = eventStore;
         this.aggregateFactory = aggregateFactory;
         this.snapshotter = snapshotter;

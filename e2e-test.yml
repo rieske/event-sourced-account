@@ -24,7 +24,7 @@ services:
     scale: 2
 
   database:
-    image: mysql
+    image: mysql:8.0.18 # 8.0.19 seems not to work with standalond JVM for some reason
     environment:
       MYSQL_ROOT_PASSWORD: test
       MYSQL_USER: test

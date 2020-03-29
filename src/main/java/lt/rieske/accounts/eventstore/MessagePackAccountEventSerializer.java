@@ -44,20 +44,14 @@ class MessagePackAccountEventSerializer implements EventSerializer<AccountEvents
     }
 
     private static Event<AccountEventsVisitor> deserializeEvent(int eventType, MessageUnpacker unpacker) throws IOException {
-        switch (eventType) {
-            case ACCOUNT_SNAPSHOT:
-                return new AccountSnapshot<>(unpackUUID(unpacker), unpackUUID(unpacker), unpacker.unpackLong(), unpacker.unpackBoolean());
-            case ACCOUNT_OPENED:
-                return new AccountOpenedEvent<>(unpackUUID(unpacker));
-            case MONEY_DEPOSITED:
-                return new MoneyDepositedEvent<>(unpacker.unpackLong(), unpacker.unpackLong());
-            case MONEY_WITHDRAWN:
-                return new MoneyWithdrawnEvent<>(unpacker.unpackLong(), unpacker.unpackLong());
-            case ACCOUNT_CLOSED:
-                return new AccountClosedEvent<>();
-            default:
-                throw new IllegalArgumentException("Unrecognized serialized event type: " + eventType);
-        }
+        return switch (eventType) {
+            case ACCOUNT_SNAPSHOT -> new AccountSnapshot(unpackUUID(unpacker), unpackUUID(unpacker), unpacker.unpackLong(), unpacker.unpackBoolean());
+            case ACCOUNT_OPENED -> new AccountOpenedEvent(unpackUUID(unpacker));
+            case MONEY_DEPOSITED -> new MoneyDepositedEvent(unpacker.unpackLong(), unpacker.unpackLong());
+            case MONEY_WITHDRAWN -> new MoneyWithdrawnEvent(unpacker.unpackLong(), unpacker.unpackLong());
+            case ACCOUNT_CLOSED -> new AccountClosedEvent();
+            default -> throw new IllegalArgumentException("Unrecognized serialized event type: " + eventType);
+        };
     }
 
     private static void packUUID(MessagePacker packer, UUID uuid) throws IOException {
