@@ -5,7 +5,6 @@ import lt.rieske.accounts.eventstore.BlobEventStore;
 import lt.rieske.accounts.eventstore.Configuration;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Tag;
 import org.testcontainers.containers.MySQLContainer;
 
 import javax.sql.DataSource;
@@ -16,7 +15,6 @@ import java.util.UUID;
 
 import static lt.rieske.accounts.eventstore.MySqlEventStore.uuidToBytes;
 
-@Tag("integration")
 class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
 
     private static final MySql MYSQL = new MySql();
