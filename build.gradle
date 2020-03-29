@@ -32,8 +32,8 @@ def integrationTest = tasks.register('integrationTest', Test) {
 }
 
 def e2eTest = tasks.register('e2eTest', Test) {
-    dependsOn(integrationTest)
     dependsOn(assemble)
+    shouldRunAfter(integrationTest)
 
     testClassesDirs = sourceSets.e2eTest.output.classesDirs
     classpath = sourceSets.e2eTest.runtimeClasspath
