@@ -4,7 +4,7 @@ version: '2.4'
 services:
 
   lb:
-    build: src/test/resources/envoy
+    build: ../../../infrastructure/envoy
     depends_on:
       - account
     ports:
@@ -13,7 +13,7 @@ services:
     mem_limit: 32M
 
   account:
-    build: .
+    build: ../../..
     ports:
       - 8080
     environment:

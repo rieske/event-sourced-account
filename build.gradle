@@ -30,6 +30,8 @@ def e2eTest = tasks.register('e2eTest', Test) {
     dependsOn(assemble)
     shouldRunAfter(integrationTest)
 
+    inputs.files(jar.archiveFile, 'Dockerfile', fileTree("infrastructure"))
+
     testClassesDirs = sourceSets.e2eTest.output.classesDirs
     classpath = sourceSets.e2eTest.runtimeClasspath
 }

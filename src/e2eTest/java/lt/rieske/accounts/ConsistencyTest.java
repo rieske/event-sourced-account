@@ -30,7 +30,7 @@ class ConsistencyTest {
     private static final Logger log = LoggerFactory.getLogger(ConsistencyTest.class);
 
     private static final DockerComposeContainer<?> environment =
-            new DockerComposeContainer<>(new File("e2e-test.yml"))
+            new DockerComposeContainer<>(new File("src/e2eTest/resources/e2e-test.yml"))
                     .withLocalCompose(true)
 
                     .withLogConsumer(SERVICE_CONTAINER, new Slf4jLogConsumer(log).withPrefix(SERVICE_CONTAINER))
