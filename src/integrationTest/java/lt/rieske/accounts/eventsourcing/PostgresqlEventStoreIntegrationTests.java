@@ -42,7 +42,7 @@ class PostgresqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests
 
         private static final String DATABASE = "event_store";
 
-        private final PostgreSQLContainer<?> postgresql = new PostgreSQLContainer<>()
+        private final PostgreSQLContainer<?> postgresql = new PostgreSQLContainer<>("postgres:12.2")
                 .withDatabaseName(DATABASE);
 
         private final DataSource dataSource;

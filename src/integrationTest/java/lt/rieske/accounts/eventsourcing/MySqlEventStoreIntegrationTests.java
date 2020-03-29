@@ -61,7 +61,7 @@ class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
 
             this.dataSource = dataSource;
 
-            var flyway = Flyway.configure().dataSource(dataSource).load();
+            var flyway = Flyway.configure().dataSource(dataSource).locations("db/mysql").load();
             flyway.migrate();
         }
 

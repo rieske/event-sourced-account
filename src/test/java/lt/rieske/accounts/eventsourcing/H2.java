@@ -12,7 +12,7 @@ public class H2 {
     private final DataSource dataSource;
 
     public static H2 mysql() {
-        return new H2("MySQL", "db/migration");
+        return new H2("MySQL", "db/mysql");
     }
 
     public static H2 postgres() {

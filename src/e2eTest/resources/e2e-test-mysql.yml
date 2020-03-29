@@ -17,20 +17,21 @@ services:
     ports:
       - 8080
     environment:
-      POSTGRES_USER: test
-      POSTGRES_PASSWORD: test
-      POSTGRES_JDBC_URL: jdbc:postgresql://database:5432/event_store
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+      MYSQL_JDBC_URL: jdbc:mysql://database:3306/event_store
     mem_limit: 128M
     scale: 2
 
   database:
-    image: postgres:12.2
+    image: mysql:8.0.19
     environment:
-      POSTGRES_USER: test
-      POSTGRES_PASSWORD: test
-      POSTGRES_DB: event_store
+      MYSQL_ROOT_PASSWORD: test
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+      MYSQL_DATABASE: event_store
     volumes:
-      - data:/var/lib/postgresql/data
+      - data:/var/lib/mysql
     mem_limit: 512M
 
 volumes:
