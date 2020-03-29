@@ -14,7 +14,6 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.UUID;
 
-@Tag("integration")
 class PostgresqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
 
     private static final Postgresql POSTGRESQL = new Postgresql();
@@ -43,7 +42,7 @@ class PostgresqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests
 
         private static final String DATABASE = "event_store";
 
-        private final PostgreSQLContainer postgresql = new PostgreSQLContainer()
+        private final PostgreSQLContainer<?> postgresql = new PostgreSQLContainer<>()
                 .withDatabaseName(DATABASE);
 
         private final DataSource dataSource;
