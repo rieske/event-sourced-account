@@ -32,15 +32,15 @@ def integrationTest = tasks.register('integrationTest', Test) {
 }
 
 def e2eTest = tasks.register('e2eTest', Test) {
-    dependsOn(integrationTest)
     dependsOn(assemble)
+    shouldRunAfter(integrationTest)
 
     testClassesDirs = sourceSets.e2eTest.output.classesDirs
     classpath = sourceSets.e2eTest.runtimeClasspath
     useJUnitPlatform()
     maxParallelForks = 8
 }
-tasks.named('check') { dependsOn(e2eTest) }
+tasks.named('check') { dependsOn(test, integrationTest, e2eTest) }
 
 tasks.withType(JavaCompile) {
     options.compilerArgs += "--enable-preview"
