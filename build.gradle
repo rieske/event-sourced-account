@@ -12,38 +12,31 @@ repositories {
     mavenCentral()
 }
 
-task integrationTest(type: Test)
-task e2eTest(type: Test)
-
-tasks {
-    test {
-        useJUnitPlatform {
-            excludeTags("integration")
-            excludeTags("e2e")
-        }
-        maxParallelForks = 8
+tasks.named('test') {
+    useJUnitPlatform {
+        excludeTags("integration")
+        excludeTags("e2e")
     }
-
-    integrationTest {
-        dependsOn(test)
-        useJUnitPlatform {
-            includeTags("integration")
-        }
-        maxParallelForks = 8
-    }
-
-    e2eTest {
-        dependsOn(test)
-        dependsOn(integrationTest)
-        dependsOn(assemble)
-        useJUnitPlatform {
-            includeTags("e2e")
-        }
-        maxParallelForks = 8
-    }
-
-    check.dependsOn(e2eTest)
+    maxParallelForks = 8
 }
+
+def integrationTest = tasks.register('integrationTest', Test) {
+    dependsOn(test)
+    useJUnitPlatform {
+        includeTags("integration")
+    }
+    maxParallelForks = 8
+}
+
+def e2eTest = tasks.register('e2eTest', Test) {
+    dependsOn(integrationTest)
+    dependsOn(assemble)
+    useJUnitPlatform {
+        includeTags("e2e")
+    }
+    maxParallelForks = 8
+}
+tasks.named('check') { dependsOn(e2eTest) }
 
 tasks.withType(JavaCompile) {
     options.compilerArgs += "--enable-preview"

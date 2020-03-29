@@ -27,7 +27,6 @@ abstract class AccountConsistencyTest {
     private ExecutorService executor;
 
     private final Set<UUID> accountIds = new HashSet<>();
-
     private final UUID ownerId = UUID.randomUUID();
 
     protected abstract EventStore<AccountEventsVisitor> getEventStore();
