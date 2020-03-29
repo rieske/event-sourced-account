@@ -87,6 +87,7 @@ class ZipkinTracingConfiguration implements TracingConfiguration {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends Exception> ExceptionHandler<T> exception(ExceptionHandler<? super T> handler) {
         return sparkTracing.exception(handler);
