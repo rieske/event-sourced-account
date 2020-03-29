@@ -12,10 +12,13 @@ repositories {
     mavenCentral()
 }
 
+sourceSets {
+    e2eTest
+}
+
 tasks.named('test') {
     useJUnitPlatform {
         excludeTags("integration")
-        excludeTags("e2e")
     }
     maxParallelForks = 8
 }
@@ -31,9 +34,10 @@ def integrationTest = tasks.register('integrationTest', Test) {
 def e2eTest = tasks.register('e2eTest', Test) {
     dependsOn(integrationTest)
     dependsOn("runtime")
-    useJUnitPlatform {
-        includeTags("e2e")
-    }
+
+    testClassesDirs = sourceSets.e2eTest.output.classesDirs
+    classpath = sourceSets.e2eTest.runtimeClasspath
+    useJUnitPlatform()
     maxParallelForks = 8
 }
 tasks.named('check') { dependsOn(e2eTest) }
@@ -94,6 +98,18 @@ dependencies {
     testRuntimeOnly("com.tngtech.archunit:archunit-junit5-engine:0.13.1") {
         exclude(group: "org.junit.platform", module: "junit-platform-engine")
     }
+
+    e2eTestImplementation("org.junit.jupiter:junit-jupiter-api:5.6.1")
+    e2eTestRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.1")
+
+    e2eTestImplementation("org.assertj:assertj-core:3.15.0")
+    e2eTestImplementation("org.testcontainers:testcontainers:1.13.0") {
+        exclude(group: "org.slf4j", module: "slf4j-api")
+    }
+    e2eTestImplementation("org.slf4j:slf4j-api:1.7.30") {
+        because("there is an internal slf4j version conflict in testcontainers library")
+    }
+    e2eTestImplementation("org.apache.httpcomponents:httpclient:4.5.3")
 }
 
 application {

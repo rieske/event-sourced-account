@@ -1,4 +1,4 @@
-package lt.rieske.accounts.e2e;
+package lt.rieske.accounts;
 
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
