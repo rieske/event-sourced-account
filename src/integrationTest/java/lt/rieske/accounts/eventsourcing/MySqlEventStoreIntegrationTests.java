@@ -3,13 +3,11 @@ package lt.rieske.accounts.eventsourcing;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Tag;
 import org.testcontainers.containers.MySQLContainer;
 
 import javax.sql.DataSource;
 import java.util.Map;
 
-@Tag("integration")
 class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
 
     private static final MySql MYSQL = new MySql();
