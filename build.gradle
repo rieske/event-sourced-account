@@ -21,31 +21,31 @@ sourceSets {
 }
 
 def integrationTest = tasks.register('integrationTest', Test) {
-    shouldRunAfter(test)
+    it.shouldRunAfter(test)
 
-    testClassesDirs = sourceSets.integrationTest.output.classesDirs
-    classpath = sourceSets.integrationTest.runtimeClasspath
+    it.testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    it.classpath = sourceSets.integrationTest.runtimeClasspath
 }
 def e2eTest = tasks.register('e2eTest', Test) {
-    dependsOn(assemble)
-    shouldRunAfter(integrationTest)
+    it.dependsOn(assemble)
+    it.shouldRunAfter(integrationTest)
 
-    inputs.files(jar.archiveFile, 'Dockerfile', fileTree("infrastructure"))
+    it.inputs.files(jar.archiveFile, 'Dockerfile', fileTree("infrastructure"))
 
-    testClassesDirs = sourceSets.e2eTest.output.classesDirs
-    classpath = sourceSets.e2eTest.runtimeClasspath
+    it.testClassesDirs = sourceSets.e2eTest.output.classesDirs
+    it.classpath = sourceSets.e2eTest.runtimeClasspath
 }
-tasks.named('check') { dependsOn(test, integrationTest, e2eTest) }
+tasks.named('check') { it.dependsOn(test, integrationTest, e2eTest) }
 
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += "--enable-preview"
 }
-tasks.withType(Test) {
+tasks.withType(Test).configureEach {
     useJUnitPlatform()
     maxParallelForks = 8
     jvmArgs += "--enable-preview"
 }
-tasks.withType(JavaExec) {
+tasks.withType(JavaExec).configureEach {
     jvmArgs += "--enable-preview"
 }
 
