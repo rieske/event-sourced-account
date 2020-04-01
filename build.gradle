@@ -71,7 +71,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:6.3.2")
 
     implementation("ch.qos.logback:logback-classic:1.2.3")
-    implementation("io.micrometer:micrometer-registry-prometheus:1.4.0")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.4.1")
     implementation("io.zipkin.brave:brave-instrumentation-sparkjava:5.10.2")
     implementation("io.zipkin.brave:brave-instrumentation-p6spy:5.10.2")
     implementation("io.zipkin.reporter2:zipkin-sender-urlconnection:2.12.1")
