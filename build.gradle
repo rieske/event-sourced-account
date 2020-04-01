@@ -74,7 +74,7 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus:1.4.1")
     implementation("io.zipkin.brave:brave-instrumentation-sparkjava:5.10.2")
     implementation("io.zipkin.brave:brave-instrumentation-p6spy:5.10.2")
-    implementation("io.zipkin.reporter2:zipkin-sender-urlconnection:2.12.1")
+    implementation("io.zipkin.reporter2:zipkin-sender-urlconnection:2.12.2")
 
     implementation("com.h2database:h2:1.4.200")
     implementation("mysql:mysql-connector-java:8.0.19") {
