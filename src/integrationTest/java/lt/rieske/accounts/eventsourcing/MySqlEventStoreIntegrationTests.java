@@ -1,12 +1,19 @@
 package lt.rieske.accounts.eventsourcing;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
+import lt.rieske.accounts.eventstore.BlobEventStore;
+import lt.rieske.accounts.eventstore.Configuration;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterAll;
 import org.testcontainers.containers.MySQLContainer;
 
 import javax.sql.DataSource;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Map;
+import java.util.UUID;
+
+import static lt.rieske.accounts.eventstore.MySqlEventStore.uuidToBytes;
 
 class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
 
@@ -20,6 +27,15 @@ class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
     @Override
     protected DataSource dataSource() {
         return MYSQL.dataSource();
+    }
+
+    protected BlobEventStore blobEventStore(DataSource dataSource) {
+        return Configuration.mysqlEventStore(dataSource);
+    }
+
+    @Override
+    protected void setUUID(PreparedStatement statement, int column, UUID uuid) throws SQLException {
+        statement.setBytes(column, uuidToBytes(uuid));
     }
 
     static class MySql {
@@ -45,7 +61,7 @@ class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
 
             this.dataSource = dataSource;
 
-            var flyway = Flyway.configure().dataSource(dataSource).load();
+            var flyway = Flyway.configure().dataSource(dataSource).locations("db/mysql").load();
             flyway.migrate();
         }
 

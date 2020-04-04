@@ -1,7 +1,10 @@
 package lt.rieske.accounts.api;
 
+import io.micrometer.prometheus.PrometheusConfig;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 import io.restassured.path.json.JsonPath;
 import lt.rieske.accounts.eventsourcing.H2;
+import lt.rieske.accounts.eventstore.Configuration;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -15,9 +18,10 @@ import static org.hamcrest.Matchers.notNullValue;
 
 class AccountResourceTest {
 
-    private static final H2 H2 = new H2();
+    private static final H2 db = H2.postgres();
 
-    private static final Server SERVER = ApiConfiguration.server(H2.dataSource(), TracingConfiguration.noop());
+    private static final Server SERVER = ApiConfiguration.server(Configuration.postgresEventStore(db.dataSource()),
+            TracingConfiguration.noop(), new PrometheusMeterRegistry(PrometheusConfig.DEFAULT));
     private static int serverPort;
 
     @BeforeAll

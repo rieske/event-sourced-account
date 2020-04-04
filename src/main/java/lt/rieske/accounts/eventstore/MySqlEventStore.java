@@ -18,7 +18,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 
-class SqlEventStore implements BlobEventStore {
+public class MySqlEventStore implements BlobEventStore {
 
     private static final String APPEND_EVENT_SQL =
             "INSERT INTO event_store.Event(aggregateId, sequenceNumber, transactionId, payload) VALUES(?, ?, ?, ?)";
@@ -39,7 +39,7 @@ class SqlEventStore implements BlobEventStore {
 
     private final DataSource dataSource;
 
-    SqlEventStore(DataSource dataSource) {
+    MySqlEventStore(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
@@ -158,7 +158,7 @@ class SqlEventStore implements BlobEventStore {
         }
     }
 
-    static byte[] uuidToBytes(UUID uuid) {
+    public static byte[] uuidToBytes(UUID uuid) {
         byte[] uuidBytes = new byte[16];
         ByteBuffer.wrap(uuidBytes)
                 .order(ByteOrder.BIG_ENDIAN)

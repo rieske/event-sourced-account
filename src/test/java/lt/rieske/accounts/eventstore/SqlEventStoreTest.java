@@ -3,21 +3,25 @@ package lt.rieske.accounts.eventstore;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.UUID;
 
-import static lt.rieske.accounts.eventstore.SqlEventStore.uuidToBytes;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public abstract class SqlEventStoreTest {
 
     private final DataSource dataSource = dataSource();
-    private final BlobEventStore eventStore = new SqlEventStore(dataSource());
+    private final BlobEventStore eventStore = blobEventStore(dataSource);
 
     protected abstract DataSource dataSource();
+
+    protected abstract BlobEventStore blobEventStore(DataSource dataSource);
+
+    protected abstract void setUUID(PreparedStatement statement, int column, UUID uuid) throws SQLException;
 
     @Test
     void shouldStoreAnEvent() throws SQLException {
@@ -28,7 +32,7 @@ public abstract class SqlEventStoreTest {
         try (var connection = dataSource.getConnection();
              var statement = connection.prepareStatement(
                      "SELECT COUNT(*) FROM event_store.Event WHERE aggregateId=?")) {
-            statement.setBytes(1, uuidToBytes(aggregateId));
+            setUUID(statement, 1, aggregateId);
             try (var resultSet = statement.executeQuery()) {
                 assertThat(resultSet.next()).isTrue();
                 assertThat(resultSet.getLong(1)).isEqualTo(1);
@@ -50,7 +54,7 @@ public abstract class SqlEventStoreTest {
         try (var connection = dataSource.getConnection();
              var statement = connection.prepareStatement(
                      "SELECT COUNT(*) FROM event_store.Event WHERE aggregateId=?")) {
-            statement.setBytes(1, uuidToBytes(aggregateId));
+            setUUID(statement, 1, aggregateId);
             try (var resultSet = statement.executeQuery()) {
                 assertThat(resultSet.next()).isTrue();
                 assertThat(resultSet.getLong(1)).isEqualTo(1);
@@ -120,7 +124,7 @@ public abstract class SqlEventStoreTest {
         try (var connection = dataSource.getConnection();
              var statement = connection.prepareStatement(
                      "SELECT COUNT(*) FROM event_store.Snapshot WHERE aggregateId=?")) {
-            statement.setBytes(1, uuidToBytes(aggregateId));
+            setUUID(statement, 1, aggregateId);
             try (var resultSet = statement.executeQuery()) {
                 assertThat(resultSet.next()).isTrue();
                 assertThat(resultSet.getLong(1)).isEqualTo(1);
