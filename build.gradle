@@ -80,7 +80,7 @@ dependencies {
     implementation("mysql:mysql-connector-java:8.0.19") {
         exclude(group: "com.google.protobuf", module: "protobuf-java")
     }
-    implementation("org.postgresql:postgresql:42.2.9")
+    implementation("org.postgresql:postgresql:42.2.12")
     implementation("com.zaxxer:HikariCP:3.4.2")
 
     testImplementation("org.assertj:assertj-core:3.15.0")
