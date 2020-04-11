@@ -55,7 +55,7 @@ services:
     mem_limit: 64M
 
   zipkin:
-    image: openzipkin/zipkin:2.19.2
+    image: openzipkin/zipkin:2.21.0
     ports:
       - 9411:9411
     mem_limit: 512M
