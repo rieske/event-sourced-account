@@ -36,7 +36,7 @@ services:
     mem_limit: 512M
 
   prometheus:
-    image: prom/prometheus:v2.14.0
+    image: prom/prometheus:v2.17.1
     ports:
       - 9090:9090
     volumes:
@@ -44,7 +44,7 @@ services:
     mem_limit: 64M
 
   grafana:
-    image: grafana/grafana:6.5.1
+    image: grafana/grafana:6.7.2
     ports:
       - 3000:3000
     environment:
