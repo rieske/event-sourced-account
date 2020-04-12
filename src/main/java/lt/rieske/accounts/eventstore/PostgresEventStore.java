@@ -18,7 +18,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 
-class PosrgresEventStore implements BlobEventStore {
+class PostgresEventStore implements BlobEventStore {
 
     private static final String APPEND_EVENT_SQL =
             "INSERT INTO event_store.Event(aggregateId, sequenceNumber, transactionId, payload) VALUES(?, ?, ?, ?)";
@@ -39,7 +39,7 @@ class PosrgresEventStore implements BlobEventStore {
 
     private final DataSource dataSource;
 
-    PosrgresEventStore(DataSource dataSource) {
+    PostgresEventStore(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 

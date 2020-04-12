@@ -13,7 +13,7 @@ public class Configuration {
     }
 
     public static BlobEventStore postgresEventStore(DataSource dataSource) {
-        return new PosrgresEventStore(dataSource);
+        return new PostgresEventStore(dataSource);
     }
 
     public static EventStore<AccountEventsVisitor> accountEventStore(BlobEventStore blobEventStore) {
