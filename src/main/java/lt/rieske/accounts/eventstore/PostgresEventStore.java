@@ -8,7 +8,6 @@ import java.io.UncheckedIOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
-import java.sql.SQLTransactionRollbackException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
@@ -17,6 +16,8 @@ import java.util.UUID;
 
 
 class PostgresEventStore implements BlobEventStore {
+
+    private static final String UNIQUE_CONSTRAINT_VIOLATION_SQLSTATE = "23505";
 
     private static final String APPEND_EVENT_SQL =
             "INSERT INTO event_store.Event(aggregateId, sequenceNumber, transactionId, payload) VALUES(?, ?, ?, ?)";
@@ -50,10 +51,10 @@ class PostgresEventStore implements BlobEventStore {
             insertEvents(connection, serializedEvents);
             updateSnapshots(connection, serializedSnapshots);
             connection.commit();
-        } catch (SQLIntegrityConstraintViolationException | SQLTransactionRollbackException e) {
+        } catch (SQLIntegrityConstraintViolationException e) {
             throw new ConcurrentModificationException(e);
         } catch (PSQLException e) {
-            if (e.getMessage().startsWith("ERROR: duplicate key value violates unique constraint")) {
+            if (e.getSQLState().equals(UNIQUE_CONSTRAINT_VIOLATION_SQLSTATE)) {
                 throw new ConcurrentModificationException(e);
             }
             throw new UncheckedIOException(new IOException(e));
