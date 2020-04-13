@@ -11,7 +11,6 @@ import lt.rieske.accounts.api.TracingConfiguration;
 import lt.rieske.accounts.eventstore.BlobEventStore;
 import lt.rieske.accounts.eventstore.Configuration;
 import org.flywaydb.core.Flyway;
-import org.h2.jdbcx.JdbcDataSource;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.postgresql.util.PSQLException;
 import org.slf4j.Logger;
@@ -27,6 +26,9 @@ public class App {
 
     private static final Logger log = LoggerFactory.getLogger(App.class);
 
+    private static final String POSTGRES_JDBC_URL_ENV_VAR = "POSTGRES_JDBC_URL";
+    private static final String MYSQL_JDBC_URL_ENV_VAR = "MYSQL_JDBC_URL";
+
     public static void main(String[] args) throws InterruptedException {
         var tracingConfiguration = TracingConfiguration.create(System.getenv("ZIPKIN_URL"));
         var meterRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
@@ -38,33 +40,26 @@ public class App {
     }
 
     private static BlobEventStore eventStore(TracingConfiguration tracingConfiguration, PrometheusMeterRegistry meterRegistry) throws InterruptedException {
-        var mysqlUrl = System.getenv("MYSQL_JDBC_URL");
-        if (mysqlUrl != null) {
-            DataSource dataSource = mysqlDataSource(mysqlUrl, System.getenv("MYSQL_USER"), System.getenv("MYSQL_PASSWORD"));
-            migrateDatabase(dataSource, "db/mysql");
-            return Configuration.mysqlEventStore(pooledMeteredDataSource(tracingConfiguration.decorate(dataSource), meterRegistry));
-        }
-        var postgresUrl = System.getenv("POSTGRES_JDBC_URL");
+        var postgresUrl = System.getenv(POSTGRES_JDBC_URL_ENV_VAR);
         if (postgresUrl != null) {
             DataSource dataSource = postgresDataSource(postgresUrl, System.getenv("POSTGRES_USER"), System.getenv("POSTGRES_PASSWORD"));
             migrateDatabase(dataSource, "db/postgresql");
             return Configuration.postgresEventStore(pooledMeteredDataSource(tracingConfiguration.decorate(dataSource), meterRegistry));
         }
 
-        DataSource dataSource = inMemoryDataSource();
-        migrateDatabase(dataSource, "db/mysql");
-        return Configuration.mysqlEventStore(pooledMeteredDataSource(tracingConfiguration.decorate(dataSource), meterRegistry));
+        var mysqlUrl = System.getenv(MYSQL_JDBC_URL_ENV_VAR);
+        if (mysqlUrl != null) {
+            DataSource dataSource = mysqlDataSource(mysqlUrl, System.getenv("MYSQL_USER"), System.getenv("MYSQL_PASSWORD"));
+            migrateDatabase(dataSource, "db/mysql");
+            return Configuration.mysqlEventStore(pooledMeteredDataSource(tracingConfiguration.decorate(dataSource), meterRegistry));
+        }
+
+        throw new IllegalStateException(String.format("Either %s or %s environment variable has to be specified", POSTGRES_JDBC_URL_ENV_VAR, MYSQL_JDBC_URL_ENV_VAR));
     }
 
     private static void migrateDatabase(DataSource dataSource, String schemaLocation) {
         var flyway = Flyway.configure().dataSource(dataSource).locations(schemaLocation).schemas("event_store").load();
         flyway.migrate();
-    }
-
-    private static DataSource inMemoryDataSource() {
-        var dataSource = new JdbcDataSource();
-        dataSource.setUrl("jdbc:h2:mem:event_store;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1");
-        return dataSource;
     }
 
     private static DataSource mysqlDataSource(String jdbcUrl, String username, String password) throws InterruptedException {

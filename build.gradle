@@ -82,13 +82,13 @@ dependencies {
     }
     implementation("org.postgresql:postgresql:${postgresDriverVersion}")
 
-    implementation("com.h2database:h2:${h2Version}")
-
     testImplementation("org.assertj:assertj-core:${assertjVersion}")
     testImplementation("io.rest-assured:rest-assured:${restAssuredVersion}")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+
+    testImplementation("com.h2database:h2:${h2Version}")
 
     testImplementation("com.tngtech.archunit:archunit-junit5-api:${archunitVersion}")
     testRuntimeOnly("com.tngtech.archunit:archunit-junit5-engine:${archunitVersion}") {
