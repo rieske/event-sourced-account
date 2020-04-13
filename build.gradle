@@ -60,58 +60,59 @@ configurations {
 }
 
 dependencies {
-    implementation("com.sparkjava:spark-core:2.9.1") {
+    implementation("com.sparkjava:spark-core:${sparkJavaVersion}") {
         exclude(group: "org.eclipse.jetty.websocket", module: "websocket-server")
         exclude(group: "org.eclipse.jetty.websocket", module: "websocket-servlet")
         exclude(group: "org.eclipse.jetty", module: "jetty-webapp")
     }
 
-    implementation("org.msgpack:msgpack-core:0.8.20")
+    implementation("org.msgpack:msgpack-core:${msgpackVersion}")
 
-    implementation("org.flywaydb:flyway-core:6.3.3")
+    implementation("org.flywaydb:flyway-core:${flywayVersion}")
 
-    implementation("ch.qos.logback:logback-classic:1.2.3")
-    implementation("io.micrometer:micrometer-registry-prometheus:1.4.1")
-    implementation("io.zipkin.brave:brave-instrumentation-sparkjava:5.10.2")
-    implementation("io.zipkin.brave:brave-instrumentation-p6spy:5.10.2")
-    implementation("io.zipkin.reporter2:zipkin-sender-urlconnection:2.12.1")
+    implementation("ch.qos.logback:logback-classic:${logbackVersion}")
+    implementation("io.micrometer:micrometer-registry-prometheus:${micrometerVersion}")
+    implementation("io.zipkin.brave:brave-instrumentation-sparkjava:${zipkinBraveVersion}")
+    implementation("io.zipkin.brave:brave-instrumentation-p6spy:${zipkinBraveVersion}")
+    implementation("io.zipkin.reporter2:zipkin-sender-urlconnection:${zipkinReporterVersion}")
 
-    implementation("com.h2database:h2:1.4.200")
-    implementation("mysql:mysql-connector-java:8.0.19") {
+    implementation("com.zaxxer:HikariCP:${hikaricpVersion}")
+    implementation("mysql:mysql-connector-java:${mysqlDriverVersion}") {
         exclude(group: "com.google.protobuf", module: "protobuf-java")
     }
-    implementation("org.postgresql:postgresql:42.2.12")
-    implementation("com.zaxxer:HikariCP:3.4.2")
+    implementation("org.postgresql:postgresql:${postgresDriverVersion}")
 
-    testImplementation("org.assertj:assertj-core:3.15.0")
-    testImplementation("io.rest-assured:rest-assured:4.3.0")
+    implementation("com.h2database:h2:${h2Version}")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.1")
+    testImplementation("org.assertj:assertj-core:${assertjVersion}")
+    testImplementation("io.rest-assured:rest-assured:${restAssuredVersion}")
 
-    testImplementation("com.tngtech.archunit:archunit-junit5-api:0.13.1")
-    testRuntimeOnly("com.tngtech.archunit:archunit-junit5-engine:0.13.1") {
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+
+    testImplementation("com.tngtech.archunit:archunit-junit5-api:${archunitVersion}")
+    testRuntimeOnly("com.tngtech.archunit:archunit-junit5-engine:${archunitVersion}") {
         exclude(group: "org.junit.platform", module: "junit-platform-engine")
     }
 
-    integrationTestImplementation("org.testcontainers:mysql:1.13.0") {
+    integrationTestImplementation("org.testcontainers:mysql:${testcontainersVersion}") {
         exclude(group: "org.slf4j", module: "slf4j-api")
     }
-    integrationTestImplementation("org.testcontainers:postgresql:1.13.0") {
+    integrationTestImplementation("org.testcontainers:postgresql:${testcontainersVersion}") {
         exclude(group: "org.slf4j", module: "slf4j-api")
     }
 
-    e2eTestImplementation("org.junit.jupiter:junit-jupiter-api:5.6.1")
-    e2eTestRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.1")
+    e2eTestImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+    e2eTestRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
 
-    e2eTestImplementation("org.assertj:assertj-core:3.15.0")
-    e2eTestImplementation("org.testcontainers:testcontainers:1.13.0") {
+    e2eTestImplementation("org.assertj:assertj-core:${assertjVersion}")
+    e2eTestImplementation("org.testcontainers:testcontainers:${testcontainersVersion}") {
         exclude(group: "org.slf4j", module: "slf4j-api")
     }
-    e2eTestImplementation("org.slf4j:slf4j-api:1.7.30") {
+    e2eTestImplementation("org.slf4j:slf4j-api:${slf4jVersion}") {
         because("there is an internal slf4j version conflict in testcontainers library")
     }
-    e2eTestImplementation("org.apache.httpcomponents:httpclient:4.5.12")
+    e2eTestImplementation("org.apache.httpcomponents:httpclient:${apacheHttpClientVersion}")
 }
 
 application {
