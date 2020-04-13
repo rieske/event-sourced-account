@@ -8,6 +8,7 @@ import java.util.UUID;
 public interface BlobEventStore {
     void append(Collection<SerializedEvent> serializedEvents, Collection<SerializedEvent> serializedSnapshots, UUID transactionId);
 
+    List<SerializedEvent> getEventsFromSnapshot(UUID aggregateId);
     List<SerializedEvent> getEvents(UUID aggregateId, long fromVersion);
     SerializedEvent loadLatestSnapshot(UUID aggregateId);
 

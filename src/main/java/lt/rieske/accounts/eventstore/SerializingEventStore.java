@@ -36,6 +36,12 @@ class SerializingEventStore<T> implements EventStore<T> {
     }
 
     @Override
+    public Stream<SequencedEvent<T>> getEventsFromSnapshot(UUID aggregateId) {
+        var serializedEvents = blobStore.getEventsFromSnapshot(aggregateId);
+        return deserialize(serializedEvents);
+    }
+
+    @Override
     public Stream<SequencedEvent<T>> getEvents(UUID aggregateId, long fromVersion) {
         var serializedEvents = blobStore.getEvents(aggregateId, fromVersion);
         return deserialize(serializedEvents);

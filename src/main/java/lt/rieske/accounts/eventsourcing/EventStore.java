@@ -13,6 +13,7 @@ public interface EventStore<T> {
     // - appends must be transactional - either all get written or none
     void append(Collection<SequencedEvent<T>> uncommittedEvents, Collection<SequencedEvent<T>> uncommittedSnapshots, UUID transactionId);
 
+    Stream<SequencedEvent<T>> getEventsFromSnapshot(UUID aggregateId);
     Stream<SequencedEvent<T>> getEvents(UUID aggregateId, long fromVersion);
     SequencedEvent<T> loadSnapshot(UUID aggregateId);
 

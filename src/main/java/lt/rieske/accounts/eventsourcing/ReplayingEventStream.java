@@ -22,32 +22,17 @@ class ReplayingEventStream<A extends E, E> implements EventStream<A, E> {
     }
 
     void replay(A aggregate, UUID aggregateId) {
-        long currentVersion = applySnapshot(aggregate, aggregateId);
-        currentVersion = replayEvents(aggregate, currentVersion, aggregateId);
-
-        if (currentVersion == 0) {
-            throw new AggregateNotFoundException(aggregateId);
-        }
-
-        aggregateVersions.put(aggregateId, currentVersion);
-    }
-
-    private long applySnapshot(A aggregate, UUID aggregateId) {
-        var snapshot = eventStore.loadSnapshot(aggregateId);
-        if (snapshot != null) {
-            snapshot.apply(aggregate);
-            return snapshot.sequenceNumber();
-        }
-        return 0;
-    }
-
-    private long replayEvents(A aggregate, long startingVersion, UUID aggregateId) {
-        var events = eventStore.getEvents(aggregateId, startingVersion);
-        var currentVersion = new AtomicLong(startingVersion);
-        events.forEach(event -> {
+        var currentVersion = new AtomicLong();
+        eventStore.getEventsFromSnapshot(aggregateId).forEach(event -> {
             event.apply(aggregate);
             currentVersion.set(event.sequenceNumber());
         });
-        return currentVersion.get();
+
+        if (currentVersion.get() == 0) {
+            throw new AggregateNotFoundException(aggregateId);
+        }
+
+        aggregateVersions.put(aggregateId, currentVersion.get());
     }
+
 }

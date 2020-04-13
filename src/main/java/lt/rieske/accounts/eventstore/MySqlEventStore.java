@@ -33,6 +33,13 @@ public class MySqlEventStore implements BlobEventStore {
     private static final String SELECT_TRANSACTION_SQL =
             "SELECT aggregateId FROM event_store.Event WHERE aggregateId = ? AND transactionId = ?";
 
+    private static final String SELECT_EVENTS_FROM_SNAPSHOT_SQL =
+            "(SELECT sequenceNumber, NULL as transactionId, payload FROM event_store.Snapshot WHERE aggregateId=?) " +
+                    " UNION ALL " +
+                    "(SELECT sequenceNumber, transactionId, payload FROM event_store.Event WHERE aggregateId=? " +
+                    "AND sequenceNumber > COALESCE((SELECT sequenceNumber FROM event_store.Snapshot WHERE aggregateId=?), 0)) " +
+                    "ORDER BY sequenceNumber ASC";
+
     private final DataSource dataSource;
 
     MySqlEventStore(DataSource dataSource) {
@@ -56,6 +63,33 @@ public class MySqlEventStore implements BlobEventStore {
             throw new UncheckedIOException(new IOException(e));
         }
     }
+
+    @Override
+    public List<SerializedEvent> getEventsFromSnapshot(UUID aggregateId) {
+        try (var connection = dataSource.getConnection();
+             var statement = connection.prepareStatement(SELECT_EVENTS_FROM_SNAPSHOT_SQL)) {
+            var aggregateIdBytes = uuidToBytes(aggregateId);
+            statement.setBytes(1, aggregateIdBytes);
+            statement.setBytes(2, aggregateIdBytes);
+            statement.setBytes(3, aggregateIdBytes);
+            try (var resultSet = statement.executeQuery()) {
+                List<SerializedEvent> eventPayloads = new ArrayList<>();
+                while (resultSet.next()) {
+                    long version = resultSet.getLong(1);
+                    byte[] transactionId = resultSet.getBytes(2);
+                    byte[] payload = resultSet.getBytes(3);
+                    eventPayloads.add(new SerializedEvent(aggregateId,
+                            version,
+                            transactionId == null ? null : bytesToUUID(transactionId),
+                            payload));
+                }
+                return eventPayloads;
+            }
+        } catch (SQLException e) {
+            throw new UncheckedIOException(new IOException(e));
+        }
+    }
+
 
     @Override
     public List<SerializedEvent> getEvents(UUID aggregateId, long fromVersion) {

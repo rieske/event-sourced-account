@@ -88,6 +88,20 @@ class InMemoryEventStore<T> implements EventStore<T> {
     }
 
     @Override
+    public Stream<SequencedEvent<T>> getEventsFromSnapshot(UUID aggregateId) {
+        SequencedEvent<T> snapshot = snapshots.get(aggregateId);
+        if (snapshot == null) {
+            return events.stream()
+                    .filter(e -> e.aggregateId().equals(aggregateId));
+        } else {
+            List<SequencedEvent<T>> aggregateEvents = new ArrayList<>();
+            aggregateEvents.add(snapshot);
+            aggregateEvents.addAll(getEvents(aggregateId, snapshot.sequenceNumber()).collect(Collectors.toList()));
+            return aggregateEvents.stream();
+        }
+    }
+
+    @Override
     public Stream<SequencedEvent<T>> getEvents(UUID aggregateId, long fromVersion) {
         return events
                 .stream()
