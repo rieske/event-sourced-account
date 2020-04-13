@@ -13,9 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 
 public class MySqlEventStore implements BlobEventStore {
@@ -32,10 +30,8 @@ public class MySqlEventStore implements BlobEventStore {
     private static final String SELECT_SNAPSHOT_SQL =
             "SELECT sequenceNumber, payload FROM event_store.Snapshot WHERE aggregateId = ?";
 
-    private static final String INSERT_TRANSACTION_SQL =
-            "INSERT INTO event_store.Transaction(aggregateId, transactionId) VALUES(?, ?)";
     private static final String SELECT_TRANSACTION_SQL =
-            "SELECT aggregateId FROM event_store.Transaction WHERE aggregateId = ? AND transactionId = ?";
+            "SELECT aggregateId FROM event_store.Event WHERE aggregateId = ? AND transactionId = ?";
 
     private final DataSource dataSource;
 
@@ -49,12 +45,9 @@ public class MySqlEventStore implements BlobEventStore {
             Collection<SerializedEvent> serializedSnapshots,
             UUID transactionId) {
 
-        Set<UUID> aggregateIds = serializedEvents.stream().map(SerializedEvent::aggregateId).collect(Collectors.toSet());
-
         try (var connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
             insertEvents(connection, serializedEvents);
-            insertTransactions(connection, aggregateIds, transactionId);
             updateSnapshots(connection, serializedSnapshots);
             connection.commit();
         } catch (SQLIntegrityConstraintViolationException | SQLTransactionRollbackException e) {
@@ -116,16 +109,6 @@ public class MySqlEventStore implements BlobEventStore {
             }
         } catch (SQLException e) {
             throw new UncheckedIOException(new IOException(e));
-        }
-    }
-
-    private static void insertTransactions(Connection connection, Set<UUID> aggregateIds, UUID transactionId) throws SQLException {
-        try (var statement = connection.prepareStatement(INSERT_TRANSACTION_SQL)) {
-            for (var aggregateId : aggregateIds) {
-                statement.setBytes(1, uuidToBytes(aggregateId));
-                statement.setBytes(2, uuidToBytes(transactionId));
-                statement.executeUpdate();
-            }
         }
     }
 

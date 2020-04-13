@@ -56,9 +56,6 @@ deposit or withdrawal had the original request been handled successfully. To pre
 cases, the client should supply a unique transaction id (a UUID in our case) for each
 distinct operation. This id is persisted and in case a duplicate request comes in, it will
 be accepted, but no action taken since we know we already handled it.
-Again - consistent idempotency in a multithreaded environment is guaranteed by a database constraint
-- remove the primary key on Transaction table and all but the consistency tests testing for idempotency
-will pass.
 Transaction ids can not be reused. Current implementation is a bit naive as it does not take into account
 the type of operation in context of idempotency, just the transaction id together with
 affected account id, meaning that given a transaction id that was used for a deposit
