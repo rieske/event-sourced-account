@@ -22,12 +22,12 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AccountClient {
+class AccountClient {
 
     private final CloseableHttpClient httpClient;
     private final String apiUrl;
 
-    public AccountClient(String apiUrl) {
+    AccountClient(String apiUrl) {
         this.apiUrl = apiUrl;
         var connectionManager = new PoolingHttpClientConnectionManager();
         this.httpClient = HttpClientBuilder
@@ -43,18 +43,18 @@ public class AccountClient {
                 .build();
     }
 
-    public void openAccount(UUID accountId, UUID ownerId) {
+    void openAccount(UUID accountId, UUID ownerId) {
         var response = httpPost("/account/" + accountId + "?owner=" + ownerId);
         assertThat(response.code).isEqualTo(201);
     }
 
-    public String queryAccount(UUID accountId) {
+    String queryAccount(UUID accountId) {
         var response = httpGet("/account/" + accountId);
         assertThat(response.code).isEqualTo(200);
         return response.body;
     }
 
-    public int deposit(UUID accountId, int amount, UUID txId) {
+    int deposit(UUID accountId, int amount, UUID txId) {
         var response = httpPut("/account/" + accountId + "/deposit?amount=" + amount + "&transactionId=" + txId);
         return response.code;
     }

@@ -113,6 +113,7 @@ dependencies {
         because("there is an internal slf4j version conflict in testcontainers library")
     }
     e2eTestImplementation("org.apache.httpcomponents:httpclient:${apacheHttpClientVersion}")
+    e2eTestImplementation("org.apache.httpcomponents:httpasyncclient:${apacheAsyncHttpClientVersion}")
 }
 
 application {
@@ -122,4 +123,8 @@ application {
 tasks.register('stressTest', JavaExec) {
     classpath = sourceSets.e2eTest.runtimeClasspath
     main = 'lt.rieske.accounts.StressTests'
+}
+tasks.register('asyncStressTest', JavaExec) {
+    classpath = sourceSets.e2eTest.runtimeClasspath
+    main = 'lt.rieske.accounts.AsyncStressTests'
 }
