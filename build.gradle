@@ -118,3 +118,8 @@ dependencies {
 application {
     mainClassName = "lt.rieske.accounts.App"
 }
+
+tasks.register('stressTest', JavaExec) {
+    classpath = sourceSets.e2eTest.runtimeClasspath
+    main = 'lt.rieske.accounts.StressTests'
+}
