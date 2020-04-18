@@ -2,6 +2,7 @@ package lt.rieske.accounts.api;
 
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import lt.rieske.accounts.eventsourcing.AggregateNotFoundException;
+import spark.Route;
 import spark.Spark;
 
 import java.util.ConcurrentModificationException;
@@ -35,13 +36,13 @@ public class Server {
         tracingConfiguration.init();
 
         path("/api", () -> path("/account/:accountId", () -> {
-            post("", accountResource::createAccount);
-            get("", accountResource::getAccount);
-            get("/events", accountResource::getEvents);
-            put("/deposit", accountResource::deposit);
-            put("/withdraw", accountResource::withdraw);
-            put("/transfer", accountResource::transfer);
-            delete("", accountResource::close);
+            post("", metered(accountResource::openAccount, "open_account"));
+            get("", metered(accountResource::getAccount, "query_account"));
+            get("/events", metered(accountResource::getEvents, "query_account_events"));
+            put("/deposit", metered(accountResource::deposit, "deposit"));
+            put("/withdraw", metered(accountResource::withdraw, "withdraw"));
+            put("/transfer", metered(accountResource::transfer, "transfer"));
+            delete("", metered(accountResource::close, "close_account"));
         }));
 
         get("/ping", (req, res) -> "");
@@ -61,4 +62,8 @@ public class Server {
         Spark.stop();
     }
 
+    private Route metered(Route delegate, String metricTag) {
+        var timer = meterRegistry.timer("request_latency", "operation", metricTag);
+        return (request, response) -> timer.recordCallable(() -> delegate.handle(request, response));
+    }
 }

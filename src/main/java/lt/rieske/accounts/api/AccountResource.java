@@ -17,7 +17,7 @@ class AccountResource {
         this.accountService = accountService;
     }
 
-    String createAccount(Request request, Response response) {
+    String openAccount(Request request, Response response) {
         var accountId = accountIdPathParam(request);
         var ownerId = UUID.fromString(getMandatoryQueryParameter(request, "owner"));
 

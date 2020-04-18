@@ -49,6 +49,10 @@ class AsyncAccountClient {
         this.httpClient.start();
     }
 
+    void close() throws IOException {
+        this.httpClient.close();
+    }
+
     void openAccount(UUID accountId, UUID ownerId, CompletableFuture<HttpResponse> future) {
         httpPost("/account/" + accountId + "?owner=" + ownerId, future);
     }

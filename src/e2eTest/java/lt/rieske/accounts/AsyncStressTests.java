@@ -1,5 +1,6 @@
 package lt.rieske.accounts;
 
+import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -45,7 +46,7 @@ public class AsyncStressTests {
         }
     }
 
-    public static void main(String[] args) throws InterruptedException, ExecutionException {
+    public static void main(String[] args) throws InterruptedException, ExecutionException, IOException {
         canCreateAndQueryAccount();
         System.out.println("Sanity test passed\n");
 
@@ -59,6 +60,8 @@ public class AsyncStressTests {
             new TestCase("distinctDeposits", AsyncStressTests::distinctDeposits, threadCount, depositCount).run();
             System.out.println();
         }
+
+        CLIENT.close();
     }
 
     private static void canCreateAndQueryAccount() throws ExecutionException, InterruptedException {
