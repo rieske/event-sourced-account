@@ -87,8 +87,7 @@ class AsyncAccountClient {
 
     private static String read(InputStream inputStream) {
         var textBuilder = new StringBuilder();
-        try (var reader = new BufferedReader(new InputStreamReader
-                (inputStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
+        try (var reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
             int c;
             while ((c = reader.read()) != -1) {
                 textBuilder.append((char) c);
@@ -105,16 +104,11 @@ class AsyncAccountClient {
     private class HttpResponseFutureCallback implements FutureCallback<org.apache.http.HttpResponse> {
         private final CompletableFuture<HttpResponse> future;
         private final Supplier<HttpUriRequest> request;
-        private final int conflicts;
+        private int conflicts = 0;
 
         HttpResponseFutureCallback(CompletableFuture<HttpResponse> future, Supplier<HttpUriRequest> request) {
-            this(future, request, 0);
-        }
-
-        private HttpResponseFutureCallback(CompletableFuture<HttpResponse> future, Supplier<HttpUriRequest> request, int conflicts) {
             this.future = future;
             this.request = request;
-            this.conflicts = conflicts;
         }
 
         @Override
@@ -128,7 +122,8 @@ class AsyncAccountClient {
                 EntityUtils.consume(entity);
                 int statusCode = result.getStatusLine().getStatusCode();
                 if (statusCode == 409) {
-                    httpClient.execute(request.get(), new HttpResponseFutureCallback(future, request, conflicts + 1));
+                    conflicts++;
+                    httpClient.execute(request.get(), this);
                 } else {
                     future.complete(new HttpResponse(statusCode, body, conflicts));
                 }
