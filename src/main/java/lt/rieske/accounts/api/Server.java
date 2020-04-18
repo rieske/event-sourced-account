@@ -1,5 +1,6 @@
 package lt.rieske.accounts.api;
 
+import io.micrometer.core.instrument.Timer;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import lt.rieske.accounts.eventsourcing.AggregateNotFoundException;
 import spark.Route;
@@ -63,7 +64,9 @@ public class Server {
     }
 
     private Route metered(Route delegate, String metricTag) {
-        var timer = meterRegistry.timer("request_latency", "operation", metricTag);
+        var timer = Timer.builder("request_latency").tags("operation", metricTag)
+                .publishPercentileHistogram()
+                .register(meterRegistry);
         return (request, response) -> timer.recordCallable(() -> delegate.handle(request, response));
     }
 }
