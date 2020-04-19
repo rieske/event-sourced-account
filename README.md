@@ -4,10 +4,11 @@
 
 A simple, frameworkless event sourced Account implementation.
 
+
+
 ### Implementation
 
 The service is test driven bottom up: domain -> event sourcing -> external API.
-
 
 #### The basics
 I started with the basic operations in the account - deposit and withdrawal, open and close.
@@ -15,7 +16,6 @@ This captures the basic business rules of when an account can be interacted with
 can be deposited and withdrawn and under what circumstances.
 Money transfer between accounts is nothing but a withdrawal from one account and deposit to
 another that has to happen within a transaction.
-
 
 #### Concurrency
 Then follows the event sourcing part - I'm aware of consistency issues when concurrent
@@ -173,8 +173,13 @@ Grafana and a service/envoy dashboards can be accessed by spawning a composed en
 docker-compose up --build
 ```
 Prometheus is exposed on port 9090.
-Grafana is available on port 3000.
+
+Grafana is available on port 3000. Dashboards are available for basic service metrics, JVM metrics and Envoy metrics.
+It is pretty cool to see how light the service is even when stressed:
+![memory footprint](docs/memory_footprint.png)
+
 Zipkin on port 9411.
+![sample trace](docs/zipkin_trace.png)
 
 ### Dependencies
 
