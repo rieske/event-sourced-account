@@ -43,14 +43,12 @@ public class App {
         var postgresUrl = System.getenv(POSTGRES_JDBC_URL_ENV_VAR);
         if (postgresUrl != null) {
             DataSource dataSource = postgresDataSource(postgresUrl, System.getenv("POSTGRES_USER"), System.getenv("POSTGRES_PASSWORD"));
-            migrateDatabase(dataSource, "db/postgresql");
             return Configuration.postgresEventStore(pooledMeteredDataSource(tracingConfiguration.decorate(dataSource), meterRegistry));
         }
 
         var mysqlUrl = System.getenv(MYSQL_JDBC_URL_ENV_VAR);
         if (mysqlUrl != null) {
             DataSource dataSource = mysqlDataSource(mysqlUrl, System.getenv("MYSQL_USER"), System.getenv("MYSQL_PASSWORD"));
-            migrateDatabase(dataSource, "db/mysql");
             return Configuration.mysqlEventStore(pooledMeteredDataSource(tracingConfiguration.decorate(dataSource), meterRegistry));
         }
 
@@ -68,7 +66,8 @@ public class App {
         dataSource.setUser(username);
         dataSource.setPassword(password);
 
-        waitForDatabaseToBeAvailable(dataSource, 20, Duration.ofSeconds(1));
+        waitForDatabaseToBeAvailable(dataSource);
+        migrateDatabase(dataSource, "db/mysql");
 
         return dataSource;
     }
@@ -79,13 +78,15 @@ public class App {
         dataSource.setUser(username);
         dataSource.setPassword(password);
 
-        waitForDatabaseToBeAvailable(dataSource, 20, Duration.ofSeconds(1));
+        waitForDatabaseToBeAvailable(dataSource);
+        migrateDatabase(dataSource, "db/postgresql");
 
         return dataSource;
     }
 
-    private static void waitForDatabaseToBeAvailable(DataSource dataSource, int maxRetries, Duration retryPeriod) throws InterruptedException {
-        for (int i = 0; i < maxRetries; i++) {
+    private static void waitForDatabaseToBeAvailable(DataSource dataSource) throws InterruptedException {
+        var retryPeriod = Duration.ofSeconds(1);
+        for (int i = 0; i < 20; i++) {
             try (var conn = dataSource.getConnection()) {
                 break;
             } catch (PSQLException | SQLRecoverableException e) {
