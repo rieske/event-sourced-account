@@ -26,9 +26,9 @@ jobs:
       run: |
         echo "::set-output name=version::42"
     - name: Echo Release
-        id: echo_release
-        run: |
-          echo ${{ steps.release_config.outputs.version }}
+      id: echo_release
+      run: |
+        echo ${{ steps.release_config.outputs.version }}
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
