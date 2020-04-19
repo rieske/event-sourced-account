@@ -80,14 +80,15 @@ Maybe a better way would be to conflict on such cases.
 
 ### Tests
 
-Tests without any tag are the fast unit tests and are the ones that run during the build phase.
-Normally, I would hook the remaining tests to the build, however since integration and end to end
-tests depend on docker daemon, I wanted to avoid broken builds on machines that might not have it set up.
+Tests are separated in their own source sets and given their own Gradle task by test category.
+Tests in the `test` source set and executed by `test` task are the fast unit tests.
 
-Next level are the integration tests that use MySql backed event store. Tagged with `integration`.
+Next level are the integration tests that use both Postgres and Mysql backed event store implementations.
+They use testcontainers to spawn real database instances. Integration tests live in `integrationTest` source
+set and are executed using `integrationTest` task.
 
-Finally, a couple of end to end tests that focus mainly on sanity testing consistency in a distributed
-environment. Tagged with `e2e`.
+Finally, a couple of end-to-end tests that focus mainly on sanity testing consistency in a distributed
+environment. `e2eTest` source set and a task with the same name.
 
 Since I was test driving this service from the domain up to the event sourcing infrastructure and lastly
 up to the API, some of the tests might be redundant and functionality might be tested several times.
@@ -122,16 +123,16 @@ exceptions for the sake of avoiding unneeded class count explosion.
 ### Building
 
 ```shell script
-./gradlew build
+./gradlew test
 ```
 
-The build will only run the fast unit tests (including event store tests with H2).
+The test task will only run the fast unit tests (including event store tests with H2 in postgres mode).
 
-In order to run the same set of tests targeting MySql, run
+In order to run the same set of tests targeting Postgres and Mysql, run
 ```shell script
 ./gradlew integrationTest
 ```
-Those will be much slower - they spawn the actual mysql instance using testcontainers and thus
+Those will be much slower - they spawn the actual Postgres and Mysql instances using testcontainers and thus
 require a running docker daemon.
 
 And another round of slow tests that test for consistency in a distributed environment:
@@ -139,7 +140,7 @@ And another round of slow tests that test for consistency in a distributed envir
 ./gradlew e2eTest
 ```
 Those will spawn a docker-composed environment with two service instances connected to
-a mysql container and a load balancer on top. Tests will be executed against the load balancer,
+a postgres container and a load balancer on top. Tests will be executed against the load balancer,
 simulating a distributed environment and asserting that the service can scale and remain consistent.
 
 To run the full suite, run:
@@ -149,19 +150,16 @@ To run the full suite, run:
 
 ### Running
 
-Service can be started with h2 in memory database using
-```shell script
-./gradlew run
-```
-Service will start on localhost:8080
+The service can be spawned in a minimal production-like environment using `docker-compose`.
+The environment consists of two service instances packaged in a docker container, connected to a Postgres container and
+exposed via Envoy Proxy. A minimal monitoring setup is available as well.
 
-Alternatively, two instances packaged in a docker container, connected to a mysql container and
-exposed via Envoy Proxy load balancer using:
+To start:
 ```shell script
 ./gradlew build
 docker-compose up --build
 ```
-This time the service will also be accessible on localhost:8080, just that this time requests
+The service will be accessible on localhost:8080 and requests
 will go via a load balancer to two service instances in a round robin fashion.
 
 ### Monitoring
@@ -185,18 +183,17 @@ Kept external dependencies to a minimum, here's what's used and what for:
 - Flyway - for DB migrations. Could have been done by hand, however Flyway is lightweight and brings
   no unwanted transitive dependencies.
 - Logback - logging
-- msgpack - for serializing events for storage. This is the faster and more compact way of storing events at a cost
-  of some boilerplate serialization code.
+- msgpack - serializing events for storage.
 - H2 - in memory database
 - MySql connector - since the storage part is tested in mysql, might as well want to spawn the
   service connected to mysql.
 - HikariCP - database connection pooling
-- Micrometer - metrics
+- Micrometer/Prometheus - metrics
 - Brave instrumentation for zipkin
 
 Here is the runtime dependency tree:
 ```
-+--- com.sparkjava:spark-core:2.9.1
++--- com.sparkjava:spark-core:2.9.1                                                                                                                               [14/9139]
 |    +--- org.slf4j:slf4j-api:1.7.25
 |    \--- org.eclipse.jetty:jetty-server:9.4.18.v20190429
 |         +--- javax.servlet:javax.servlet-api:3.1.0
@@ -206,33 +203,33 @@ Here is the runtime dependency tree:
 |         |         \--- org.eclipse.jetty:jetty-util:9.4.18.v20190429
 |         \--- org.eclipse.jetty:jetty-io:9.4.18.v20190429 (*)
 +--- org.msgpack:msgpack-core:0.8.20
-+--- org.flywaydb:flyway-core:6.3.2
++--- org.flywaydb:flyway-core:6.3.3
 +--- ch.qos.logback:logback-classic:1.2.3
 |    +--- ch.qos.logback:logback-core:1.2.3
 |    \--- org.slf4j:slf4j-api:1.7.25
-+--- io.micrometer:micrometer-registry-prometheus:1.4.0
-|    +--- io.micrometer:micrometer-core:1.4.0
++--- io.micrometer:micrometer-registry-prometheus:1.4.1
+|    +--- io.micrometer:micrometer-core:1.4.1
 |    |    +--- org.hdrhistogram:HdrHistogram:2.1.12
 |    |    \--- org.latencyutils:LatencyUtils:2.0.3
 |    \--- io.prometheus:simpleclient_common:0.8.1
 |         \--- io.prometheus:simpleclient:0.8.1
-+--- io.zipkin.brave:brave-instrumentation-sparkjava:5.10.2
-|    +--- io.zipkin.brave:brave-instrumentation-servlet:5.10.2
-|    |    +--- io.zipkin.brave:brave-instrumentation-http:5.10.2
-|    |    |    \--- io.zipkin.brave:brave:5.10.2
++--- io.zipkin.brave:brave-instrumentation-sparkjava:5.11.2
+|    +--- io.zipkin.brave:brave-instrumentation-servlet:5.11.2
+|    |    +--- io.zipkin.brave:brave-instrumentation-http:5.11.2
+|    |    |    \--- io.zipkin.brave:brave:5.11.2
 |    |    |         +--- io.zipkin.zipkin2:zipkin:2.19.3
 |    |    |         \--- io.zipkin.reporter2:zipkin-reporter:2.12.1
 |    |    |              \--- io.zipkin.zipkin2:zipkin:2.19.3
-|    |    \--- io.zipkin.brave:brave:5.10.2 (*)
-|    \--- io.zipkin.brave:brave:5.10.2 (*)
-+--- io.zipkin.brave:brave-instrumentation-p6spy:5.10.2
+|    |    \--- io.zipkin.brave:brave:5.11.2 (*)
+|    \--- io.zipkin.brave:brave:5.11.2 (*)
++--- io.zipkin.brave:brave-instrumentation-p6spy:5.11.2
 |    +--- p6spy:p6spy:3.8.7
-|    \--- io.zipkin.brave:brave:5.10.2 (*)
+|    \--- io.zipkin.brave:brave:5.11.2 (*)
 +--- io.zipkin.reporter2:zipkin-sender-urlconnection:2.12.1
 |    +--- io.zipkin.reporter2:zipkin-reporter:2.12.1 (*)
 |    \--- io.zipkin.zipkin2:zipkin:2.19.3
-+--- com.h2database:h2:1.4.200
++--- com.zaxxer:HikariCP:3.4.2
+|    \--- org.slf4j:slf4j-api:1.7.25
 +--- mysql:mysql-connector-java:8.0.19
-\--- com.zaxxer:HikariCP:3.4.2
-     \--- org.slf4j:slf4j-api:1.7.25
+\--- org.postgresql:postgresql:42.2.12
 ```
