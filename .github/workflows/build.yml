@@ -22,5 +22,5 @@ jobs:
         coverageCommand: ./gradlew jacocoTestReport
         coverageLocations:
           "${{github.workspace}}/build/reports/jacoco/test/jacocoTestReport.xml:jacoco"
-          #- "${{github.workspace}}/build/reports/jacoco/integrationTest/jacocoTestReport.xml:jacoco"
+          "${{github.workspace}}/build/reports/jacoco/integrationTest/jacocoTestReport.xml:jacoco"
           #- "${{github.workspace}}/build/reports/jacoco/e2eTest/jacocoTestReport.xml:jacoco"
