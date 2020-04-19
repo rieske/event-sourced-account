@@ -23,6 +23,7 @@ jobs:
         coverageLocations: "${{github.workspace}}/build/reports/jacoco/test/jacocoTestReport.xml:jacoco"
     - name: Prepare Release
       id: release_config
+      if: ${{ github.ref == 'refs/heads/master' }}
       run: |
         echo "::set-output name=version::$(infrastructure/next-version.sh)"
         echo "::set-output name=changes::$(infrastructure/changes-since-last-release.sh)"
