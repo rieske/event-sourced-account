@@ -133,6 +133,7 @@ tasks.register('asyncStressTest', JavaExec) {
 
 jacocoTestReport {
     reports {
+        executionData.setFrom project.fileTree(dir: '.', include: '**/build/jacoco/*.exec')
         xml.enabled true
     }
 }
