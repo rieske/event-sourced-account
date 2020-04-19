@@ -19,6 +19,6 @@ jobs:
         CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
       with:
         coverageLocations:
-          - "${{github.workspace}}/build/jacoco/test.exec:jacoco"
+          "${{github.workspace}}/build/jacoco/test.exec:jacoco"
           #- "${{github.workspace}}/build/jacoco/integrationTest.exec:jacoco"
           #- "${{github.workspace}}/build/jacoco/e2eTest.exec:jacoco"
