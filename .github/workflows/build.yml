@@ -23,12 +23,7 @@ jobs:
         coverageLocations: "${{github.workspace}}/build/reports/jacoco/test/jacocoTestReport.xml:jacoco"
     - name: Prepare Release
       id: release_config
-      run: |
-        echo "::set-output name=version::$(infrastructure/next-version.sh)"
-    - name: Echo Release
-      id: echo_release
-      run: |
-        echo ${{ steps.release_config.outputs.version }}
+      run: echo "::set-output name=version::$(infrastructure/next-version.sh)"
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -38,10 +33,8 @@ jobs:
       with:
         tag_name: ${{ steps.release_config.outputs.version }}
         release_name: ${{ steps.release_config.outputs.version }}
-        body: |
-          Changes in this Release
-          - test
-        draft: true
+        body: ""
+        draft: false
     - name: Publish docker image
       uses: docker/build-push-action@v1
       if: ${{ github.ref == 'refs/heads/master' }}
