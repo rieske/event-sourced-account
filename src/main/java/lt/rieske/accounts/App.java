@@ -29,7 +29,7 @@ public class App {
     private static final String POSTGRES_JDBC_URL_ENV_VAR = "POSTGRES_JDBC_URL";
     private static final String MYSQL_JDBC_URL_ENV_VAR = "MYSQL_JDBC_URL";
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, SQLException {
         var tracingConfiguration = TracingConfiguration.create(System.getenv("ZIPKIN_URL"));
         var meterRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
 
@@ -39,7 +39,7 @@ public class App {
         log.info("Server started on port: {}", port);
     }
 
-    private static BlobEventStore eventStore(TracingConfiguration tracingConfiguration, PrometheusMeterRegistry meterRegistry) throws InterruptedException {
+    private static BlobEventStore eventStore(TracingConfiguration tracingConfiguration, PrometheusMeterRegistry meterRegistry) throws InterruptedException, SQLException {
         var postgresUrl = System.getenv(POSTGRES_JDBC_URL_ENV_VAR);
         if (postgresUrl != null) {
             DataSource dataSource = postgresDataSource(postgresUrl, System.getenv("POSTGRES_USER"), System.getenv("POSTGRES_PASSWORD"));
@@ -60,7 +60,7 @@ public class App {
         flyway.migrate();
     }
 
-    private static DataSource mysqlDataSource(String jdbcUrl, String username, String password) throws InterruptedException {
+    private static DataSource mysqlDataSource(String jdbcUrl, String username, String password) throws InterruptedException, SQLException {
         var dataSource = new MysqlDataSource();
         dataSource.setUrl(jdbcUrl);
         dataSource.setUser(username);
@@ -72,7 +72,7 @@ public class App {
         return dataSource;
     }
 
-    private static DataSource postgresDataSource(String jdbcUrl, String username, String password) throws InterruptedException {
+    private static DataSource postgresDataSource(String jdbcUrl, String username, String password) throws InterruptedException, SQLException {
         var dataSource = new PGSimpleDataSource();
         dataSource.setUrl(jdbcUrl);
         dataSource.setUser(username);
@@ -84,7 +84,7 @@ public class App {
         return dataSource;
     }
 
-    private static void waitForDatabaseToBeAvailable(DataSource dataSource) throws InterruptedException {
+    private static void waitForDatabaseToBeAvailable(DataSource dataSource) throws InterruptedException, SQLException {
         var retryPeriod = Duration.ofSeconds(1);
         for (int i = 0; i < 20; i++) {
             try (var conn = dataSource.getConnection()) {
@@ -92,8 +92,6 @@ public class App {
             } catch (PSQLException | SQLRecoverableException e) {
                 log.info("Could not establish connection to the database: attempt {}, sleeping for {}ms", i, retryPeriod.toMillis());
                 Thread.sleep(retryPeriod.toMillis());
-            } catch (SQLException e) {
-                throw new IllegalStateException("Can not connect to the database, aborting", e);
             }
         }
     }
