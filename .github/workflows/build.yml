@@ -45,6 +45,7 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_TOKEN }}
         repository: rieske/account
+        tags: ${{ steps.release_config.outputs.version }}
         tag_with_ref: true
         add_git_labels: true
         push: true
