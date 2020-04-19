@@ -24,7 +24,7 @@ jobs:
     - name: Prepare Release
       id: release_config
       run: |
-        echo "::set-output name=version::42"
+        echo "::set-output name=version::$(infrastructure/next-version.sh)"
     - name: Echo Release
       id: echo_release
       run: |
