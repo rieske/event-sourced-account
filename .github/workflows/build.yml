@@ -4,15 +4,21 @@ on: [push]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Set up JDK 14
       uses: actions/setup-java@v1
       with:
         java-version: 14.0.0
     - name: Build
-      run: ./gradlew build --stacktrace
-
+      run: ./gradlew build --parallel --stacktrace
+    - name: Upload code coverate report
+      uses: paambaati/codeclimate-action@v2.2.4
+      env:
+        CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
+      with:
+        coverageLocations:
+          - "${{github.workspace}}/build/jacoco/test.exec:jacoco"
+          #- "${{github.workspace}}/build/jacoco/integrationTest.exec:jacoco"
+          #- "${{github.workspace}}/build/jacoco/e2eTest.exec:jacoco"
