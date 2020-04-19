@@ -1,6 +1,7 @@
 ## Event Sourced Account
 
 [![Actions Status](https://github.com/rieske/event-sourced-account/workflows/build/badge.svg)](https://github.com/rieske/event-sourced-account/actions)
+[![Maintainability](https://api.codeclimate.com/v1/badges/96dc8be9575d50c439fd/maintainability)](https://codeclimate.com/github/rieske/event-sourced-account/maintainability)
 
 A simple, frameworkless event sourced Account implementation.
 
