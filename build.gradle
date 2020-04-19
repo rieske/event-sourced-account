@@ -130,3 +130,9 @@ tasks.register('asyncStressTest', JavaExec) {
     classpath = sourceSets.e2eTest.runtimeClasspath
     main = 'lt.rieske.accounts.AsyncStressTests'
 }
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+    }
+}
