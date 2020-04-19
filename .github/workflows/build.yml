@@ -21,6 +21,14 @@ jobs:
       with:
         coverageCommand: ./gradlew jacocoTestReport
         coverageLocations: "${{github.workspace}}/build/reports/jacoco/test/jacocoTestReport.xml:jacoco"
+    - name: Prepare Release
+      id: release_config
+      run: |
+        echo "::set-output name=version::42"
+    - name: Echo Release
+        id: echo_release
+        run: |
+          echo ${{ steps.release_config.outputs.version }}
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
