@@ -21,6 +21,19 @@ jobs:
       with:
         coverageCommand: ./gradlew jacocoTestReport
         coverageLocations: "${{github.workspace}}/build/reports/jacoco/test/jacocoTestReport.xml:jacoco"
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      if: ${{ github.ref == 'refs/heads/master' }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: ${{ github.ref }}
+        body: |
+          Changes in this Release
+          - test
+        draft: true
     - name: Publish docker image
       uses: docker/build-push-action@v1
       with:
