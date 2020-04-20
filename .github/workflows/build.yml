@@ -27,7 +27,7 @@ jobs:
       if: ${{ github.ref == 'refs/heads/master' }}
       run: |
         echo "::set-output name=version::$(infrastructure/next-version.sh)"
-        changes=$(infrastructure/changes-since-last-release.sh)
+        changes="$(infrastructure/changes-since-last-release.sh)"
         changes="${changes//'%'/'%25'}"
         changes="${changes//$'\n'/'%0A'}"
         changes="${changes//$'\r'/'%0D'}"
