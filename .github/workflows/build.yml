@@ -28,9 +28,11 @@ jobs:
       run: |
         echo "::set-output name=version::$(infrastructure/next-version.sh)"
         changes="$(infrastructure/changes-since-last-release.sh)"
+        echo $changes
         changes="${changes//'%'/'%25'}"
         changes="${changes//$'\n'/'%0A'}"
         changes="${changes//$'\r'/'%0D'}"
+        echo $changes
         echo "::set-output name=changes::$changes"
     - name: Create Release
       id: create_release
@@ -41,7 +43,8 @@ jobs:
       with:
         tag_name: ${{ steps.release_config.outputs.version }}
         release_name: ${{ steps.release_config.outputs.version }}
-        body: ${{ steps.release_config.outputs.changes }}
+        body: |
+          ${{ steps.release_config.outputs.changes }}
         draft: false
     - name: Publish docker image
       uses: docker/build-push-action@v1
