@@ -25,8 +25,8 @@ jobs:
       id: release_config
       if: ${{ github.ref == 'refs/heads/master' }}
       run: |
-        echo "::set-output name=version::$(infrastructure/next-version.sh)"
         git fetch --unshallow
+        echo "::set-output name=version::$(infrastructure/next-version.sh)"
         changes="$(infrastructure/changes-since-last-release.sh)"
         echo $changes
         changes="${changes//'%'/'%25'}"
