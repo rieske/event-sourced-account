@@ -4,3 +4,8 @@ build/
 *.iml
 out/
 .attach_*
+.classpath
+.project
+bin/
+.vscode/
+.settings/
