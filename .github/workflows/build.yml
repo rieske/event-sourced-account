@@ -7,8 +7,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - run: git fetch --unshallow -q
-    - run: git log v1..HEAD --pretty='format:%s'
     - name: Set up JDK 14
       uses: actions/setup-java@v1
       with:
@@ -28,6 +26,7 @@ jobs:
       if: ${{ github.ref == 'refs/heads/master' }}
       run: |
         echo "::set-output name=version::$(infrastructure/next-version.sh)"
+        git fetch --unshallow
         changes="$(infrastructure/changes-since-last-release.sh)"
         echo $changes
         changes="${changes//'%'/'%25'}"

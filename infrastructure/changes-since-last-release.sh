@@ -6,4 +6,3 @@ then
 else
   git log v${latestVersion}..HEAD --pretty='format:%s'
 fi
-
