@@ -7,3 +7,5 @@ out/
 .classpath
 .project
 bin/
+.vscode/
+.settings/
