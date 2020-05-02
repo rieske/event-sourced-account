@@ -9,44 +9,49 @@ A lightweight, frameworkless event sourced Account implementation.
 
 ### Implementation
 
-The service is test driven bottom up: domain -> event sourcing -> external API.
+The purpose of this project was for myself to better understand the complexities of event sourcing
+and apply the lessons learned from hype-driven event sourcing implementations gone wrong.
 
-#### The basics
-I started with the basic operations in the account - deposit and withdrawal, open and close.
-This captures the basic business rules of when an account can be interacted with, what amounts
+The service is test driven bottom up: domain -> event sourcing -> public API.
+
+#### Domain
+Four operations can be performed on an account - open, deposit, withdraw and close.
+Domain captures the business rules of when an account can be interacted with, what amounts
 can be deposited and withdrawn and under what circumstances.
-Money transfer between accounts is nothing but a withdrawal from one account and deposit to
-another that has to happen within a transaction.
+Money transfer between accounts is a withdrawal from one account and deposit to
+another that has to happen within a transaction - either both operations succeed or none.
+
+#### Event sourcing
+In essence, event sourcing is a data storage technique when the state is stored as a sequence of
+domain events as opposed to storing the final state.
+It comes with some beneficial side effects, most prominently pronounced ones being:
+ - the "free" audit log recorded by the events.
+In reality, nothing is free and the cost here is complexity, especially when the software evolves and the amount of stored data grows.
+Yes, hard drives are cheap and you can store insane amounts of data.
+It is managing and working with the insane amounts of continuously growing data that becomes complex.
+ - ability to build different read-optimized projections of the data for different use cases using a pattern like CQRS.
+ - potential to emit certain external events for other systems to react to.
+Beware: never expose/publish the internal domain events used for event sourcing to an external system.
+Do not make the internal events your public API.
+If you do, all your domain implementation details and the persistence layer will become your public contract.
+This is the same evil as sharing a regular flat database schema between multiple services.
+
+In our case the most important aspect of event sourcing is the optimistic locking that it enables that can help to
+ensure consistency of the data in a distributed environment, enabling horizontal scalability of the service.
 
 #### Concurrency
-Then follows the event sourcing part - I'm aware of consistency issues when concurrent
-modifications are attempted and event sourced implementation can easily prevent those
-as well as provide a transaction log, potential to build custom projections of past events
-and potential to emit certain external events for other systems to react to.
-
-Firstly, a naive in-memory event store backed by Maps and Lists - after basic logic
-was in place and events were emitted from operations with account, I had to test for potential
-concurrency issues that might arise as the service can be called by many external clients at
-the same time. The not-so-nice account consistency test where a single account is hammered
-by multiple threads was quick to reveal some of the things that will go wrong in a multithreaded
-environment.
-
-After patching the in-memory event store, I drove the implementation for a
-sql event store, initially serializing the payloads to json and later to msgpack - both to
-ensure extensibility and to be as lightweight as possible. Then, extended the same tests
-that I used with in-memory event store to also run with H2 embedded database. And then with
-MySql just to be sure (those are slow ones and are not part of the main build). At this point,
-I was able to validate all the core functionality, including consistency very quickly with
-multiple event store implementations. No mocks, all the tests exercise the full functionality via
-the eventstore API.
-And event store here is key to ensuring consistency in a multithreaded environment.
+The event store here is key to ensuring consistency in a multithreaded environment.
 Specifically the constraints that the database provides - remove the (aggregateId, sequenceNumber)
 primary key and all but consistency tests will pass.
 
-#### External API
-Next came the external API, repeated some of the same tests for basic functions with RestAssured,
-plugged in H2 event store and drove the implementation with the help of Spark.
+The trick is to read the state of an account first, compute the events to be applied and insert them within a single transaction.
+Upon reading the current state, we know the sequenceNumber of the last event. It gets incremented by one for each subsequent event
+that we plan to insert. If some other client inserts an event first, then the constraint will reject our transaction and we will have
+to re-read the current state and retry.
 
+Service behavior in a distributed environment is tested at multiple layers:
+- an in-memory event store, H2 and a real database container when multiple threads hammer a single account
+- multiple clients hammering an account via a load balancer through two instances of the service connecting to a database
 
 #### Idempotency
 What can be important when dealing with money and especially when requests come over an
@@ -167,7 +172,7 @@ will go via a load balancer to two service instances in a round robin fashion.
 
 Tracing instrumentation with Zipkin is provided if the service is started with ZIPKIN_URL environment
 variable set. It is preconfigured in the composed environment.
-Basic metrics are exposed to Prometheus and sample configuration of Prometheus together with 
+Basic metrics are exposed to Prometheus and sample configuration of Prometheus together with
 Grafana and a service/envoy dashboards can be accessed by spawning a composed environment using
 ```shell script
 ./gradlew build
