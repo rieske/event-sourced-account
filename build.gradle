@@ -32,6 +32,7 @@ def e2eTest = tasks.register('e2eTest', Test) {
     it.shouldRunAfter(integrationTest)
 
     it.inputs.files(jar.archiveFile, 'Dockerfile', fileTree("infrastructure"))
+            .withPathSensitivity(PathSensitivity.RELATIVE)
 
     it.testClassesDirs = sourceSets.e2eTest.output.classesDirs
     it.classpath = sourceSets.e2eTest.runtimeClasspath
@@ -115,6 +116,9 @@ dependencies {
     }
     e2eTestImplementation("org.apache.httpcomponents:httpclient:${apacheHttpClientVersion}")
     e2eTestImplementation("org.apache.httpcomponents:httpasyncclient:${apacheAsyncHttpClientVersion}")
+    e2eTestImplementation("org.testcontainers:postgresql:${testcontainersVersion}") {
+        exclude(group: "org.slf4j", module: "slf4j-api")
+    }
 }
 
 application {
