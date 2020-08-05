@@ -62,7 +62,7 @@ configurations {
 }
 
 dependencies {
-    implementation("com.sparkjava:spark-core:2.9.1") {
+    implementation("com.sparkjava:spark-core:2.9.2") {
         exclude(group: "org.eclipse.jetty.websocket", module: "websocket-server")
         exclude(group: "org.eclipse.jetty.websocket", module: "websocket-servlet")
         exclude(group: "org.eclipse.jetty", module: "jetty-webapp")
@@ -70,43 +70,43 @@ dependencies {
 
     implementation("org.msgpack:msgpack-core:0.8.20")
 
-    implementation("org.flywaydb:flyway-core:6.3.3")
+    implementation("org.flywaydb:flyway-core:6.5.3")
 
     implementation("ch.qos.logback:logback-classic:1.2.3")
-    implementation("io.micrometer:micrometer-registry-prometheus:1.4.1")
-    implementation("io.zipkin.brave:brave-instrumentation-sparkjava:5.11.2")
-    implementation("io.zipkin.brave:brave-instrumentation-p6spy:5.11.2")
-    implementation("io.zipkin.reporter2:zipkin-sender-urlconnection:2.12.1")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.5.3")
+    implementation("io.zipkin.brave:brave-instrumentation-sparkjava:5.12.4")
+    implementation("io.zipkin.brave:brave-instrumentation-p6spy:5.12.4")
+    implementation("io.zipkin.reporter2:zipkin-sender-urlconnection:2.15.0")
 
-    implementation("com.zaxxer:HikariCP:3.4.2")
-    implementation("mysql:mysql-connector-java:8.0.19") {
+    implementation("com.zaxxer:HikariCP:3.4.5")
+    implementation("mysql:mysql-connector-java:8.0.21") {
         exclude(group: "com.google.protobuf", module: "protobuf-java")
     }
-    implementation("org.postgresql:postgresql:42.2.12")
+    implementation("org.postgresql:postgresql:42.2.14")
 
     testImplementation("org.assertj:assertj-core:3.16.1")
-    testImplementation("io.rest-assured:rest-assured:4.3.0")
+    testImplementation("io.rest-assured:rest-assured:4.3.1")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
 
     testImplementation("com.h2database:h2:1.4.200")
 
-    testImplementation("com.tngtech.archunit:archunit-junit5-api:0.13.1")
-    testRuntimeOnly("com.tngtech.archunit:archunit-junit5-engine:0.13.1") {
+    testImplementation("com.tngtech.archunit:archunit-junit5-api:0.14.1")
+    testRuntimeOnly("com.tngtech.archunit:archunit-junit5-engine:0.14.1") {
         exclude(group: "org.junit.platform", module: "junit-platform-engine")
     }
 
-    integrationTestImplementation("org.testcontainers:mysql:1.13.0") {
+    integrationTestImplementation("org.testcontainers:mysql:1.14.3") {
         exclude(group: "org.slf4j", module: "slf4j-api")
     }
-    integrationTestImplementation("org.testcontainers:postgresql:1.13.0") {
+    integrationTestImplementation("org.testcontainers:postgresql:1.14.3") {
         exclude(group: "org.slf4j", module: "slf4j-api")
     }
 
     e2eTestImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
 
     e2eTestImplementation("org.assertj:assertj-core:3.16.1")
-    e2eTestImplementation("org.testcontainers:testcontainers:1.13.0") {
+    e2eTestImplementation("org.testcontainers:testcontainers:1.14.3") {
         exclude(group: "org.slf4j", module: "slf4j-api")
     }
     e2eTestImplementation("org.slf4j:slf4j-api:1.7.30") {
@@ -114,7 +114,7 @@ dependencies {
     }
     e2eTestImplementation("org.apache.httpcomponents:httpclient:4.5.6")
     e2eTestImplementation("org.apache.httpcomponents:httpasyncclient:4.1.4")
-    e2eTestImplementation("org.testcontainers:postgresql:1.13.0") {
+    e2eTestImplementation("org.testcontainers:postgresql:1.14.3") {
         exclude(group: "org.slf4j", module: "slf4j-api")
     }
 }
