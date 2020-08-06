@@ -105,7 +105,7 @@ dependencies {
     e2eTestImplementation("org.slf4j:slf4j-api:1.7.30") {
         because("there is an internal slf4j version conflict in testcontainers library")
     }
-    e2eTestImplementation("org.apache.httpcomponents:httpclient:4.5.6")
+    e2eTestImplementation("org.apache.httpcomponents:httpclient:4.5.12")
     e2eTestImplementation("org.apache.httpcomponents:httpasyncclient:4.1.4")
     e2eTestImplementation("org.testcontainers:postgresql:1.14.3") {
         exclude(group: "org.slf4j", module: "slf4j-api")
