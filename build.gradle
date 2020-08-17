@@ -82,7 +82,7 @@ dependencies {
     implementation("mysql:mysql-connector-java:8.0.21") {
         exclude(group: "com.google.protobuf", module: "protobuf-java")
     }
-    implementation("org.postgresql:postgresql:42.2.14")
+    implementation("org.postgresql:postgresql:42.2.15")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
     testImplementation("com.tngtech.archunit:archunit-junit5:0.14.1")
