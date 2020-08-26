@@ -15,9 +15,9 @@ dependencies {
 
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("io.micrometer:micrometer-registry-prometheus:1.5.4")
-    implementation("io.zipkin.brave:brave-instrumentation-sparkjava:5.12.4")
-    implementation("io.zipkin.brave:brave-instrumentation-p6spy:5.12.4")
-    implementation("io.zipkin.reporter2:zipkin-sender-urlconnection:2.15.0")
+    implementation("io.zipkin.brave:brave-instrumentation-sparkjava:5.12.5")
+    implementation("io.zipkin.brave:brave-instrumentation-p6spy:5.12.5")
+    implementation("io.zipkin.reporter2:zipkin-sender-urlconnection:2.15.1")
 
     implementation("com.zaxxer:HikariCP:3.4.5")
     implementation("mysql:mysql-connector-java:8.0.21") {
