@@ -4,7 +4,7 @@ version: '2.4'
 services:
 
   lb:
-    build: ../../../infrastructure/envoy
+    build: ../../../../infrastructure/envoy
     depends_on:
       - account
     ports:

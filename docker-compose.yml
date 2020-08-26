@@ -13,7 +13,7 @@ services:
     mem_limit: 32M
 
   account:
-    build: .
+    build: account-service
     ports:
       - 8080
     environment:
