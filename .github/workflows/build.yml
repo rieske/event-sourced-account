@@ -50,6 +50,7 @@ jobs:
       uses: docker/build-push-action@v1
       if: ${{ github.ref == 'refs/heads/master' }}
       with:
+        path: account-service
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_TOKEN }}
         repository: rieske/account
