@@ -42,7 +42,7 @@ class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
 
         private static final String DATABASE = "event_store";
 
-        private final MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.0.19")
+        private final MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.0.21")
                 .withDatabaseName(DATABASE);
 
         private final DataSource dataSource;

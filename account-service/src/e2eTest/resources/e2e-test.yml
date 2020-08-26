@@ -24,7 +24,7 @@ services:
     scale: 2
 
   database:
-    image: postgres:12.2
+    image: postgres:12.4
     environment:
       POSTGRES_USER: test
       POSTGRES_PASSWORD: test
