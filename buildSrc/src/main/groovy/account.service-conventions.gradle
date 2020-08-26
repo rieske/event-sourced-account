@@ -1,0 +1,49 @@
+plugins {
+    id "account.java-conventions"
+    id "application"
+}
+
+sourceSets {
+    integrationTest {
+        compileClasspath += sourceSets.main.output + sourceSets.test.output
+        runtimeClasspath += sourceSets.main.output + sourceSets.test.output
+    }
+    e2eTest
+}
+
+def integrationTest = tasks.register('integrationTest', Test) {
+    it.shouldRunAfter(test)
+
+    it.testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    it.classpath = sourceSets.integrationTest.runtimeClasspath
+}
+def e2eTest = tasks.register('e2eTest', Test) {
+    it.dependsOn(assemble)
+    it.shouldRunAfter(integrationTest)
+
+    it.inputs.files(jar.archiveFile, 'Dockerfile', fileTree("infrastructure"))
+            .withPathSensitivity(PathSensitivity.RELATIVE)
+
+    it.testClassesDirs = sourceSets.e2eTest.output.classesDirs
+    it.classpath = sourceSets.e2eTest.runtimeClasspath
+}
+tasks.named('check') { it.dependsOn(test, integrationTest, e2eTest) }
+
+configurations {
+    integrationTestImplementation.extendsFrom testImplementation
+    integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
+application {
+    mainClassName = "lt.rieske.accounts.App"
+}
+
+tasks.register('stressTest', JavaExec) {
+    classpath = sourceSets.e2eTest.runtimeClasspath
+    main = 'lt.rieske.accounts.StressTests'
+}
+
+tasks.register('asyncStressTest', JavaExec) {
+    classpath = sourceSets.e2eTest.runtimeClasspath
+    main = 'lt.rieske.accounts.AsyncStressTests'
+}

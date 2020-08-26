@@ -1,0 +1,42 @@
+plugins {
+    id "java"
+    id "jacoco"
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_14
+    targetCompatibility = JavaVersion.VERSION_14
+}
+
+repositories {
+    mavenCentral()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += "--enable-preview"
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+    maxParallelForks = 8
+    jvmArgs += "--enable-preview"
+}
+
+tasks.withType(JavaExec).configureEach {
+    jvmArgs += "--enable-preview"
+}
+
+configurations {
+    all {
+        resolutionStrategy {
+            failOnVersionConflict()
+        }
+    }
+}
+
+jacocoTestReport {
+    reports {
+        executionData.setFrom project.fileTree(dir: '.', include: '**/build/jacoco/*.exec')
+        xml.enabled true
+    }
+}

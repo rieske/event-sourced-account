@@ -1,64 +1,5 @@
 plugins {
-    id "java"
-    id "application"
-    id "jacoco"
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_14
-    targetCompatibility = JavaVersion.VERSION_14
-}
-
-repositories {
-    mavenCentral()
-}
-
-sourceSets {
-    integrationTest {
-        compileClasspath += sourceSets.main.output + sourceSets.test.output
-        runtimeClasspath += sourceSets.main.output + sourceSets.test.output
-    }
-    e2eTest
-}
-
-def integrationTest = tasks.register('integrationTest', Test) {
-    it.shouldRunAfter(test)
-
-    it.testClassesDirs = sourceSets.integrationTest.output.classesDirs
-    it.classpath = sourceSets.integrationTest.runtimeClasspath
-}
-def e2eTest = tasks.register('e2eTest', Test) {
-    it.dependsOn(assemble)
-    it.shouldRunAfter(integrationTest)
-
-    it.inputs.files(jar.archiveFile, 'Dockerfile', fileTree("infrastructure"))
-            .withPathSensitivity(PathSensitivity.RELATIVE)
-
-    it.testClassesDirs = sourceSets.e2eTest.output.classesDirs
-    it.classpath = sourceSets.e2eTest.runtimeClasspath
-}
-tasks.named('check') { it.dependsOn(test, integrationTest, e2eTest) }
-
-tasks.withType(JavaCompile).configureEach {
-    options.compilerArgs += "--enable-preview"
-}
-tasks.withType(Test).configureEach {
-    useJUnitPlatform()
-    maxParallelForks = 8
-    jvmArgs += "--enable-preview"
-}
-tasks.withType(JavaExec).configureEach {
-    jvmArgs += "--enable-preview"
-}
-
-configurations {
-    integrationTestImplementation.extendsFrom testImplementation
-    integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
-    all {
-        resolutionStrategy {
-            failOnVersionConflict()
-        }
-    }
+    id "account.service-conventions"
 }
 
 dependencies {
@@ -112,23 +53,3 @@ dependencies {
     }
 }
 
-application {
-    mainClassName = "lt.rieske.accounts.App"
-}
-
-tasks.register('stressTest', JavaExec) {
-    classpath = sourceSets.e2eTest.runtimeClasspath
-    main = 'lt.rieske.accounts.StressTests'
-}
-
-tasks.register('asyncStressTest', JavaExec) {
-    classpath = sourceSets.e2eTest.runtimeClasspath
-    main = 'lt.rieske.accounts.AsyncStressTests'
-}
-
-jacocoTestReport {
-    reports {
-        executionData.setFrom project.fileTree(dir: '.', include: '**/build/jacoco/*.exec')
-        xml.enabled true
-    }
-}
