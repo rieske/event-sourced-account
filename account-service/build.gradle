@@ -53,3 +53,21 @@ dependencies {
     }
 }
 
+application {
+    mainClassName = "lt.rieske.accounts.App"
+}
+
+tasks.named("e2eTest") {
+    it.inputs.files(jar.archiveFile, file('Dockerfile'), fileTree("../infrastructure"))
+            .withPathSensitivity(PathSensitivity.RELATIVE)
+}
+
+tasks.register('stressTest', JavaExec) {
+    classpath = sourceSets.e2eTest.runtimeClasspath
+    main = 'lt.rieske.accounts.StressTests'
+}
+
+tasks.register('asyncStressTest', JavaExec) {
+    classpath = sourceSets.e2eTest.runtimeClasspath
+    main = 'lt.rieske.accounts.AsyncStressTests'
+}
