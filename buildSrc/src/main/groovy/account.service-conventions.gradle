@@ -16,6 +16,7 @@ configurations {
     integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
 }
 
+def test = tasks.named("test")
 def integrationTest = tasks.register('integrationTest', Test) {
     it.shouldRunAfter(test)
 
@@ -24,7 +25,7 @@ def integrationTest = tasks.register('integrationTest', Test) {
 }
 
 def e2eTest = tasks.register('e2eTest', Test) {
-    it.dependsOn(assemble)
+    it.dependsOn(tasks.named("assemble"))
     it.shouldRunAfter(integrationTest)
 
     it.testClassesDirs = sourceSets.e2eTest.output.classesDirs
