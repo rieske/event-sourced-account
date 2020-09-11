@@ -122,6 +122,7 @@ public class StressTests {
         var accountId = newAccount();
         var executor = Executors.newFixedThreadPool(testCase.threadCount);
 
+        @SuppressWarnings("unchecked")
         Future<Integer>[] threadFutures = new Future[testCase.threadCount];
 
         testCase.durationMillis = measure(() -> {
@@ -145,6 +146,7 @@ public class StressTests {
         var accountId = newAccount();
         var executor = Executors.newFixedThreadPool(testCase.threadCount);
 
+        @SuppressWarnings("unchecked")
         Future<Integer>[] threadFutures = new Future[testCase.threadCount];
 
         testCase.durationMillis = measure(() -> {

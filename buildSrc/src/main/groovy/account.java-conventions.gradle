@@ -14,7 +14,7 @@ repositories {
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.compilerArgs += ["--enable-preview", "--release", "14"]
+    options.compilerArgs += ["--enable-preview", "--release", "14", "-Xlint:deprecation", "-Xlint:unchecked"]
 }
 
 tasks.withType(Test).configureEach {

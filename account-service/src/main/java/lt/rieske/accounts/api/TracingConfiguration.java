@@ -8,6 +8,7 @@ import spark.ExceptionHandler;
 import zipkin2.Span;
 import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.Sender;
+import zipkin2.reporter.brave.ZipkinSpanHandler;
 import zipkin2.reporter.urlconnection.URLConnectionSender;
 
 import javax.sql.DataSource;
@@ -66,7 +67,7 @@ class ZipkinTracingConfiguration implements TracingConfiguration {
         var tracing = Tracing.newBuilder()
                 .localServiceName("account")
                 .sampler(Sampler.NEVER_SAMPLE)
-                .spanReporter(spanReporter)
+                .addSpanHandler(ZipkinSpanHandler.create(spanReporter))
                 .build();
         this.sparkTracing = SparkTracing.create(tracing);
     }

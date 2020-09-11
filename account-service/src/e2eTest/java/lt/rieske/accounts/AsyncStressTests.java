@@ -90,6 +90,7 @@ public class AsyncStressTests {
 
         testCase.durationMillis = measure(() -> {
             for (int i = 0; i < testCase.operationCount; i++) {
+                @SuppressWarnings("unchecked")
                 CompletableFuture<AsyncAccountClient.HttpResponse>[] threadFutures = new CompletableFuture[testCase.threadCount];
 
                 for (int j = 0; j < testCase.threadCount; j++) {
@@ -118,6 +119,7 @@ public class AsyncStressTests {
 
         testCase.durationMillis = measure(() -> {
             for (int i = 0; i < testCase.operationCount; i++) {
+                @SuppressWarnings("unchecked")
                 CompletableFuture<AsyncAccountClient.HttpResponse>[] threadFutures = new CompletableFuture[testCase.threadCount];
 
                 var txId = UUID.randomUUID();
@@ -142,6 +144,7 @@ public class AsyncStressTests {
 
         testCase.durationMillis = measure(() -> {
             for (int i = 0; i < testCase.operationCount; i++) {
+                @SuppressWarnings("unchecked")
                 CompletableFuture<AsyncAccountClient.HttpResponse>[] threadFutures = new CompletableFuture[testCase.threadCount];
 
                 for (int j = 0; j < testCase.threadCount; j++) {
