@@ -42,13 +42,13 @@ public class App {
     private static BlobEventStore eventStore(TracingConfiguration tracingConfiguration, PrometheusMeterRegistry meterRegistry) throws InterruptedException, SQLException {
         var postgresUrl = System.getenv(POSTGRES_JDBC_URL_ENV_VAR);
         if (postgresUrl != null) {
-            DataSource dataSource = postgresDataSource(postgresUrl, System.getenv("POSTGRES_USER"), System.getenv("POSTGRES_PASSWORD"));
+            var dataSource = postgresDataSource(postgresUrl, System.getenv("POSTGRES_USER"), System.getenv("POSTGRES_PASSWORD"));
             return Configuration.postgresEventStore(pooledMeteredDataSource(tracingConfiguration.decorate(dataSource), meterRegistry));
         }
 
         var mysqlUrl = System.getenv(MYSQL_JDBC_URL_ENV_VAR);
         if (mysqlUrl != null) {
-            DataSource dataSource = mysqlDataSource(mysqlUrl, System.getenv("MYSQL_USER"), System.getenv("MYSQL_PASSWORD"));
+            var dataSource = mysqlDataSource(mysqlUrl, System.getenv("MYSQL_USER"), System.getenv("MYSQL_PASSWORD"));
             return Configuration.mysqlEventStore(pooledMeteredDataSource(tracingConfiguration.decorate(dataSource), meterRegistry));
         }
 
