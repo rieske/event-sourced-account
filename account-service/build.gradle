@@ -54,7 +54,7 @@ dependencies {
 }
 
 application {
-    mainClassName = "lt.rieske.accounts.App"
+    mainClass = "lt.rieske.accounts.App"
 }
 
 tasks.named("e2eTest") {
