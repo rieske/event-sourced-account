@@ -2,9 +2,7 @@ package lt.rieske.accounts.eventsourcing;
 
 import lt.rieske.accounts.eventstore.BlobEventStore;
 import lt.rieske.accounts.eventstore.Configuration;
-import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Tag;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
@@ -13,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 
 class PostgresqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
 
@@ -30,7 +29,7 @@ class PostgresqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests
 
     @Override
     protected BlobEventStore blobEventStore(DataSource dataSource) {
-        return Configuration.postgresEventStore(dataSource);
+        return Configuration.postgresEventStore(dataSource, Function.identity());
     }
 
     @Override
@@ -61,12 +60,6 @@ class PostgresqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests
             dataSource.setCurrentSchema(DATABASE);
 
             this.dataSource = dataSource;
-
-            var flyway = Flyway.configure().dataSource(dataSource).locations("db/postgresql")
-                    .schemas(DATABASE)
-                    .defaultSchema(DATABASE)
-                    .load();
-            flyway.migrate();
         }
 
         void stop() {

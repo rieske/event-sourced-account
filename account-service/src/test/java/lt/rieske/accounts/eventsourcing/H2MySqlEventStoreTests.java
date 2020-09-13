@@ -7,6 +7,7 @@ import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.UUID;
+import java.util.function.Function;
 
 import static lt.rieske.accounts.eventstore.MySqlEventStore.uuidToBytes;
 
@@ -21,7 +22,7 @@ class H2MySqlEventStoreTests extends SqlEventStoreIntegrationTests {
 
     @Override
     protected BlobEventStore blobEventStore(DataSource dataSource) {
-        return Configuration.mysqlEventStore(dataSource);
+        return Configuration.mysqlEventStore(dataSource, Function.identity());
     }
 
     @Override

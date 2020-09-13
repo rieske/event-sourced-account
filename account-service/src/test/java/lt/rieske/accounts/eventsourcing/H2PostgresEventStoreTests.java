@@ -7,6 +7,7 @@ import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.UUID;
+import java.util.function.Function;
 
 class H2PostgresEventStoreTests extends SqlEventStoreIntegrationTests {
 
@@ -19,7 +20,7 @@ class H2PostgresEventStoreTests extends SqlEventStoreIntegrationTests {
 
     @Override
     protected BlobEventStore blobEventStore(DataSource dataSource) {
-        return Configuration.postgresEventStore(dataSource);
+        return Configuration.postgresEventStore(dataSource, Function.identity());
     }
 
     @Override

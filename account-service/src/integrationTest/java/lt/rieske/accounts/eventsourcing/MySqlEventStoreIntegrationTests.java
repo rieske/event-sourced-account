@@ -3,7 +3,6 @@ package lt.rieske.accounts.eventsourcing;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import lt.rieske.accounts.eventstore.BlobEventStore;
 import lt.rieske.accounts.eventstore.Configuration;
-import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterAll;
 import org.testcontainers.containers.MySQLContainer;
 
@@ -12,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 
 import static lt.rieske.accounts.eventstore.MySqlEventStore.uuidToBytes;
 
@@ -30,7 +30,7 @@ class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
     }
 
     protected BlobEventStore blobEventStore(DataSource dataSource) {
-        return Configuration.mysqlEventStore(dataSource);
+        return Configuration.mysqlEventStore(dataSource, Function.identity());
     }
 
     @Override
@@ -60,9 +60,6 @@ class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
             dataSource.setDatabaseName(DATABASE);
 
             this.dataSource = dataSource;
-
-            var flyway = Flyway.configure().dataSource(dataSource).locations("db/mysql").load();
-            flyway.migrate();
         }
 
         void stop() {

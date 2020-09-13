@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
+import java.util.function.Function;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,7 +21,7 @@ class AccountResourceTest {
 
     private static final H2 db = H2.postgres();
 
-    private static final Server SERVER = ApiConfiguration.server(Configuration.postgresEventStore(db.dataSource()),
+    private static final Server SERVER = ApiConfiguration.server(Configuration.postgresEventStore(db.dataSource(), Function.identity()),
             TracingConfiguration.noop(), new PrometheusMeterRegistry(PrometheusConfig.DEFAULT));
     private static int serverPort;
 
