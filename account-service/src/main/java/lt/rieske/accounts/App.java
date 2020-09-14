@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.function.Function;
 
 
@@ -41,11 +42,7 @@ public class App {
     }
 
     private static String getRequiredEnvVariable(String variableName) {
-        var value = System.getenv(variableName);
-        if (value == null) {
-            throw new IllegalStateException(String.format("Environment variable '%s' is required", variableName));
-        }
-        return value;
+        return Objects.requireNonNull(System.getenv(variableName), String.format("Environment variable '%s' is required", variableName));
     }
 
     private static DataSource pooledMeteredDataSource(DataSource dataSource, MeterRegistry meterRegistry) {
