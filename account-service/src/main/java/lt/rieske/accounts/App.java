@@ -7,7 +7,6 @@ import io.micrometer.prometheus.PrometheusConfig;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import lt.rieske.accounts.api.ApiConfiguration;
 import lt.rieske.accounts.api.TracingConfiguration;
-import lt.rieske.accounts.eventstore.BlobEventStore;
 import lt.rieske.accounts.eventstore.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.Objects;
-import java.util.function.Function;
 
 
 public class App {
@@ -26,19 +24,15 @@ public class App {
         var tracingConfiguration = TracingConfiguration.create(System.getenv("ZIPKIN_URL"));
         var meterRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
 
-        var blobEventStore = eventStore(ds -> pooledMeteredDataSource(tracingConfiguration.decorate(ds), meterRegistry));
+        var blobEventStore = Configuration.blobEventStore(
+                getRequiredEnvVariable("JDBC_URL"),
+                getRequiredEnvVariable("DB_USER"),
+                getRequiredEnvVariable("DB_PASSWORD"),
+                ds -> pooledMeteredDataSource(tracingConfiguration.decorate(ds), meterRegistry));
         var eventStore = Configuration.accountEventStore(blobEventStore);
         var server = ApiConfiguration.server(eventStore, tracingConfiguration, meterRegistry);
         var port = server.start(8080);
         log.info("Server started on port: {}", port);
-    }
-
-    private static BlobEventStore eventStore(Function<DataSource, DataSource> dataSourceInitializer) throws InterruptedException, SQLException {
-        return Configuration.blobEventStore(
-                getRequiredEnvVariable("JDBC_URL"),
-                getRequiredEnvVariable("DB_USER"),
-                getRequiredEnvVariable("DB_PASSWORD"),
-                dataSourceInitializer);
     }
 
     private static String getRequiredEnvVariable(String variableName) {
