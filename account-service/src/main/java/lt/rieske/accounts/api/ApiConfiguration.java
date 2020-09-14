@@ -14,12 +14,10 @@ import lt.rieske.accounts.domain.AccountEventsVisitor;
 import lt.rieske.accounts.domain.AccountSnapshotter;
 import lt.rieske.accounts.eventsourcing.AggregateRepository;
 import lt.rieske.accounts.eventsourcing.EventStore;
-import lt.rieske.accounts.eventstore.BlobEventStore;
-import lt.rieske.accounts.eventstore.Configuration;
 
 public class ApiConfiguration {
 
-    public static Server server(BlobEventStore blobEventStore, TracingConfiguration tracingConfiguration, PrometheusMeterRegistry meterRegistry) {
+    public static Server server(EventStore<AccountEventsVisitor> eventStore, TracingConfiguration tracingConfiguration, PrometheusMeterRegistry meterRegistry) {
         new ClassLoaderMetrics().bindTo(meterRegistry);
         new JvmMemoryMetrics().bindTo(meterRegistry);
         new JvmGcMetrics().bindTo(meterRegistry);
@@ -29,7 +27,6 @@ public class ApiConfiguration {
         new UptimeMetrics().bindTo(meterRegistry);
         new LogbackMetrics().bindTo(meterRegistry);
 
-        var eventStore = Configuration.accountEventStore(blobEventStore);
         var accountRepository = snapshottingAccountRepository(eventStore, 50);
         var accountService = new AccountService(accountRepository, eventStore);
         var accountResource = new AccountResource(accountService);

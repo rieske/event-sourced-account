@@ -21,37 +21,31 @@ public class App {
 
     private static final Logger log = LoggerFactory.getLogger(App.class);
 
-    private static final String POSTGRES_JDBC_URL_ENV_VAR = "POSTGRES_JDBC_URL";
-    private static final String MYSQL_JDBC_URL_ENV_VAR = "MYSQL_JDBC_URL";
-
     public static void main(String[] args) throws InterruptedException, SQLException {
         var tracingConfiguration = TracingConfiguration.create(System.getenv("ZIPKIN_URL"));
         var meterRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
 
         var blobEventStore = eventStore(ds -> pooledMeteredDataSource(tracingConfiguration.decorate(ds), meterRegistry));
-        var server = ApiConfiguration.server(blobEventStore, tracingConfiguration, meterRegistry);
+        var eventStore = Configuration.accountEventStore(blobEventStore);
+        var server = ApiConfiguration.server(eventStore, tracingConfiguration, meterRegistry);
         var port = server.start(8080);
         log.info("Server started on port: {}", port);
     }
 
     private static BlobEventStore eventStore(Function<DataSource, DataSource> dataSourceInitializer) throws InterruptedException, SQLException {
-        var postgresUrl = System.getenv(POSTGRES_JDBC_URL_ENV_VAR);
-        if (postgresUrl != null) {
-            return Configuration.blobEventStore(
-                    System.getenv("POSTGRES_JDBC_URL"), System.getenv("POSTGRES_USER"), System.getenv("POSTGRES_PASSWORD"),
-                    dataSourceInitializer
-            );
-        }
+        return Configuration.blobEventStore(
+                getRequiredEnvVariable("JDBC_URL"),
+                getRequiredEnvVariable("DB_USER"),
+                getRequiredEnvVariable("DB_PASSWORD"),
+                dataSourceInitializer);
+    }
 
-        var mysqlUrl = System.getenv(MYSQL_JDBC_URL_ENV_VAR);
-        if (mysqlUrl != null) {
-            return Configuration.blobEventStore(
-                    System.getenv("MYSQL_JDBC_URL"), System.getenv("MYSQL_USER"), System.getenv("MYSQL_PASSWORD"),
-                    dataSourceInitializer
-            );
+    private static String getRequiredEnvVariable(String variableName) {
+        var value = System.getenv(variableName);
+        if (value == null) {
+            throw new IllegalStateException(String.format("Environment variable '%s' is required", variableName));
         }
-
-        throw new IllegalStateException(String.format("Either %s or %s environment variable has to be specified", POSTGRES_JDBC_URL_ENV_VAR, MYSQL_JDBC_URL_ENV_VAR));
+        return value;
     }
 
     private static DataSource pooledMeteredDataSource(DataSource dataSource, MeterRegistry meterRegistry) {

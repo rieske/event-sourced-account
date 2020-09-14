@@ -17,9 +17,9 @@ services:
     ports:
       - 8080
     environment:
-      POSTGRES_USER: test
-      POSTGRES_PASSWORD: test
-      POSTGRES_JDBC_URL: jdbc:postgresql://database:5432/event_store
+      JDBC_URL: jdbc:postgresql://database:5432/event_store
+      DB_USER: test
+      DB_PASSWORD: test
     mem_limit: 128M
     scale: 2
 

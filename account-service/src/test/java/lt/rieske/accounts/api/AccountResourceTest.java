@@ -21,7 +21,7 @@ class AccountResourceTest {
 
     private static final H2 db = H2.postgres();
 
-    private static final Server SERVER = ApiConfiguration.server(Configuration.postgresEventStore(db.dataSource(), Function.identity()),
+    private static final Server SERVER = ApiConfiguration.server(Configuration.accountEventStore(Configuration.postgresEventStore(db.dataSource(), Function.identity())),
             TracingConfiguration.noop(), new PrometheusMeterRegistry(PrometheusConfig.DEFAULT));
     private static int serverPort;
 

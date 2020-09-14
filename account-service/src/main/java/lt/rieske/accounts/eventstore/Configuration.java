@@ -20,6 +20,10 @@ public class Configuration {
 
     private static final Logger log = LoggerFactory.getLogger(Configuration.class);
 
+    public static EventStore<AccountEventsVisitor> accountEventStore(BlobEventStore blobEventStore) {
+        return new SerializingEventStore<>(new MessagePackAccountEventSerializer(), blobEventStore);
+    }
+
     public static BlobEventStore blobEventStore(String jdbcUrl, String username, String password,
                                                 Function<DataSource, DataSource> initializer) throws SQLException, InterruptedException {
         if (jdbcUrl.startsWith("jdbc:postgresql://")) {
@@ -33,6 +37,11 @@ public class Configuration {
     public static BlobEventStore postgresEventStore(DataSource dataSource, Function<DataSource, DataSource> initializer) {
         migrateDatabase(dataSource, "db/postgresql");
         return new PostgresEventStore(initializer.apply(dataSource));
+    }
+
+    public static BlobEventStore mysqlEventStore(DataSource dataSource, Function<DataSource, DataSource> initializer) {
+        migrateDatabase(dataSource, "db/mysql");
+        return new MySqlEventStore(initializer.apply(dataSource));
     }
 
     private static DataSource postgresDataSource(String jdbcUrl, String username, String password) throws InterruptedException, SQLException {
@@ -55,15 +64,6 @@ public class Configuration {
         waitForDatabaseToBeAvailable(dataSource);
 
         return dataSource;
-    }
-
-    public static BlobEventStore mysqlEventStore(DataSource dataSource, Function<DataSource, DataSource> initializer) {
-        migrateDatabase(dataSource, "db/mysql");
-        return new MySqlEventStore(initializer.apply(dataSource));
-    }
-
-    public static EventStore<AccountEventsVisitor> accountEventStore(BlobEventStore blobEventStore) {
-        return new SerializingEventStore<>(new MessagePackAccountEventSerializer(), blobEventStore);
     }
 
     private static void migrateDatabase(DataSource dataSource, String schemaLocation) {

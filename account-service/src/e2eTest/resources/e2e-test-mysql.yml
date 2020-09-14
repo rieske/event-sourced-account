@@ -17,9 +17,9 @@ services:
     ports:
       - 8080
     environment:
-      MYSQL_USER: test
-      MYSQL_PASSWORD: test
-      MYSQL_JDBC_URL: jdbc:mysql://database:3306/event_store
+      JDBC_URL: jdbc:mysql://database:3306/event_store
+      DB_USER: test
+      DB_PASSWORD: test
     mem_limit: 128M
     scale: 2
 
