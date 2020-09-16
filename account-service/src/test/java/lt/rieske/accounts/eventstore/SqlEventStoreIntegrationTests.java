@@ -1,9 +1,11 @@
-package lt.rieske.accounts.eventsourcing;
+package lt.rieske.accounts.eventstore;
 
 import lt.rieske.accounts.domain.AccountEventsVisitor;
-import lt.rieske.accounts.eventstore.BlobEventStore;
-import lt.rieske.accounts.eventstore.Configuration;
-import lt.rieske.accounts.eventstore.SqlEventStoreTest;
+import lt.rieske.accounts.eventsourcing.AccountConsistencyTest;
+import lt.rieske.accounts.eventsourcing.AccountEventSourcingTest;
+import lt.rieske.accounts.eventsourcing.EventStore;
+import lt.rieske.accounts.eventsourcing.IdempotencyTest;
+import lt.rieske.accounts.eventsourcing.MoneyTransferTest;
 import org.junit.jupiter.api.Nested;
 
 import javax.sql.DataSource;

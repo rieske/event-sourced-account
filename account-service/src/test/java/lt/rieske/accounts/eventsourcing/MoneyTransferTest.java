@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
-abstract class MoneyTransferTest {
+public abstract class MoneyTransferTest {
 
     private AggregateRepository<Account, AccountEventsVisitor> accountRepository;
 

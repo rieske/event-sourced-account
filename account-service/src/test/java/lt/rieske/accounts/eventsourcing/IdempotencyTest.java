@@ -11,7 +11,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-abstract class IdempotencyTest {
+public abstract class IdempotencyTest {
 
     private AggregateRepository<Account, AccountEventsVisitor> accountRepository;
 

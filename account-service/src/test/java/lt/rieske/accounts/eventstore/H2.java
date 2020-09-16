@@ -1,4 +1,4 @@
-package lt.rieske.accounts.eventsourcing;
+package lt.rieske.accounts.eventstore;
 
 import org.h2.jdbcx.JdbcDataSource;
 

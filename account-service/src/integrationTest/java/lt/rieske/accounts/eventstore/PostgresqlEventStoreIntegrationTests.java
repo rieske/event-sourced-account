@@ -1,7 +1,8 @@
-package lt.rieske.accounts.eventsourcing;
+package lt.rieske.accounts.eventstore;
 
 import lt.rieske.accounts.eventstore.BlobEventStore;
 import lt.rieske.accounts.eventstore.Configuration;
+import lt.rieske.accounts.eventstore.SqlEventStoreIntegrationTests;
 import org.junit.jupiter.api.AfterAll;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.testcontainers.containers.PostgreSQLContainer;

@@ -1,7 +1,4 @@
-package lt.rieske.accounts.eventsourcing;
-
-import lt.rieske.accounts.eventstore.BlobEventStore;
-import lt.rieske.accounts.eventstore.Configuration;
+package lt.rieske.accounts.eventstore;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;

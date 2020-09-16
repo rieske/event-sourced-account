@@ -19,7 +19,7 @@ import java.util.concurrent.Executors;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-abstract class AccountConsistencyTest {
+public abstract class AccountConsistencyTest {
 
     private AggregateRepository<Account, AccountEventsVisitor> accountRepository;
     private AggregateRepository<Account, AccountEventsVisitor> snapshottingAccountRepository;

@@ -1,8 +1,6 @@
-package lt.rieske.accounts.eventsourcing;
+package lt.rieske.accounts.eventstore;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
-import lt.rieske.accounts.eventstore.BlobEventStore;
-import lt.rieske.accounts.eventstore.Configuration;
 import org.junit.jupiter.api.AfterAll;
 import org.testcontainers.containers.MySQLContainer;
 

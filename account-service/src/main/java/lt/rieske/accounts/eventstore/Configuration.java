@@ -39,7 +39,7 @@ public class Configuration {
         return new PostgresEventStore(initializer.apply(dataSource));
     }
 
-    public static BlobEventStore mysqlEventStore(DataSource dataSource, Function<DataSource, DataSource> initializer) {
+    static BlobEventStore mysqlEventStore(DataSource dataSource, Function<DataSource, DataSource> initializer) {
         migrateDatabase(dataSource, "db/mysql");
         return new MySqlEventStore(initializer.apply(dataSource));
     }
