@@ -28,8 +28,12 @@ class PostgresqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests
     }
 
     @Override
-    protected BlobEventStore blobEventStore(DataSource dataSource) {
-        return Configuration.postgresEventStore(dataSource, Function.identity());
+    protected BlobEventStore blobEventStore() {
+        try {
+            return Configuration.blobEventStore(POSTGRESQL.jdbcUrl(), POSTGRESQL.username(), POSTGRESQL.password(), Function.identity());
+        } catch (SQLException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -39,27 +43,13 @@ class PostgresqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests
 
     static class Postgresql {
 
-        private static final String DATABASE = "event_store";
-
         private final PostgreSQLContainer<?> postgresql = new PostgreSQLContainer<>("postgres:12.4")
-                .withDatabaseName(DATABASE);
-
-        private final DataSource dataSource;
+                .withDatabaseName("event_store");
 
         Postgresql() {
             postgresql.withTmpFs(Map.of("/var/lib/postgresql/data", "rw"));
 
             postgresql.start();
-
-            var dataSource = new PGSimpleDataSource();
-
-            dataSource.setUrl(postgresql.getJdbcUrl());
-            dataSource.setUser(postgresql.getUsername());
-            dataSource.setPassword(postgresql.getPassword());
-            dataSource.setDatabaseName(DATABASE);
-            dataSource.setCurrentSchema(DATABASE);
-
-            this.dataSource = dataSource;
         }
 
         void stop() {
@@ -67,7 +57,25 @@ class PostgresqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests
         }
 
         DataSource dataSource() {
+            var dataSource = new PGSimpleDataSource();
+            dataSource.setUrl(jdbcUrl());
+            dataSource.setUser(username());
+            dataSource.setPassword(password());
+            dataSource.setDatabaseName(postgresql.getDatabaseName());
+            dataSource.setCurrentSchema(postgresql.getDatabaseName());
             return dataSource;
+        }
+
+        String jdbcUrl() {
+            return postgresql.getJdbcUrl();
+        }
+
+        String username() {
+            return postgresql.getUsername();
+        }
+
+        String password() {
+            return postgresql.getPassword();
         }
     }
 }

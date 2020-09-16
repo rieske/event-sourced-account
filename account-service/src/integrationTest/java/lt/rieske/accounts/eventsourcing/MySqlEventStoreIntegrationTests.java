@@ -29,8 +29,13 @@ class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
         return MYSQL.dataSource();
     }
 
-    protected BlobEventStore blobEventStore(DataSource dataSource) {
-        return Configuration.mysqlEventStore(dataSource, Function.identity());
+    @Override
+    protected BlobEventStore blobEventStore() {
+        try {
+            return Configuration.blobEventStore(MYSQL.jdbcUrl(), MYSQL.username(), MYSQL.password(), Function.identity());
+        } catch (SQLException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -40,26 +45,13 @@ class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
 
     static class MySql {
 
-        private static final String DATABASE = "event_store";
-
         private final MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.0.21")
-                .withDatabaseName(DATABASE);
-
-        private final DataSource dataSource;
+                .withDatabaseName("event_store");
 
         MySql() {
             mysql.withTmpFs(Map.of("/var/lib/mysql", "rw"));
 
             mysql.start();
-
-            var dataSource = new MysqlDataSource();
-
-            dataSource.setUrl(mysql.getJdbcUrl());
-            dataSource.setUser(mysql.getUsername());
-            dataSource.setPassword(mysql.getPassword());
-            dataSource.setDatabaseName(DATABASE);
-
-            this.dataSource = dataSource;
         }
 
         void stop() {
@@ -67,7 +59,25 @@ class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
         }
 
         DataSource dataSource() {
+            var dataSource = new MysqlDataSource();
+
+            dataSource.setUrl(jdbcUrl());
+            dataSource.setUser(username());
+            dataSource.setPassword(password());
+            dataSource.setDatabaseName(mysql.getDatabaseName());
             return dataSource;
+        }
+
+        String jdbcUrl() {
+            return mysql.getJdbcUrl();
+        }
+
+        String username() {
+            return mysql.getUsername();
+        }
+
+        String password() {
+            return mysql.getPassword();
         }
     }
 }

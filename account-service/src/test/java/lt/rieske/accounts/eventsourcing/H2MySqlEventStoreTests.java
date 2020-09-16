@@ -21,8 +21,8 @@ class H2MySqlEventStoreTests extends SqlEventStoreIntegrationTests {
     }
 
     @Override
-    protected BlobEventStore blobEventStore(DataSource dataSource) {
-        return Configuration.mysqlEventStore(dataSource, Function.identity());
+    protected BlobEventStore blobEventStore() {
+        return Configuration.mysqlEventStore(dataSource(), Function.identity());
     }
 
     @Override

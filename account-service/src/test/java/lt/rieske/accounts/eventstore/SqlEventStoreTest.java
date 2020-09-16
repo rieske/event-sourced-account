@@ -15,11 +15,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public abstract class SqlEventStoreTest {
 
     private final DataSource dataSource = dataSource();
-    private final BlobEventStore eventStore = blobEventStore(dataSource);
+    private final BlobEventStore eventStore = blobEventStore();
 
     protected abstract DataSource dataSource();
 
-    protected abstract BlobEventStore blobEventStore(DataSource dataSource);
+    protected abstract BlobEventStore blobEventStore();
 
     protected abstract void setUUID(PreparedStatement statement, int column, UUID uuid) throws SQLException;
 

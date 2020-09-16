@@ -15,11 +15,11 @@ abstract class SqlEventStoreIntegrationTests {
 
     protected abstract DataSource dataSource();
 
-    protected abstract BlobEventStore blobEventStore(DataSource dataSource);
+    protected abstract BlobEventStore blobEventStore();
 
     protected abstract void setUUID(PreparedStatement statement, int column, UUID uuid) throws SQLException;
 
-    private final EventStore<AccountEventsVisitor> eventStore = Configuration.accountEventStore(blobEventStore(dataSource()));
+    private final EventStore<AccountEventsVisitor> eventStore = Configuration.accountEventStore(blobEventStore());
 
     @Nested
     class SpecificSqlEventStoreTest extends SqlEventStoreTest {
@@ -29,8 +29,8 @@ abstract class SqlEventStoreIntegrationTests {
         }
 
         @Override
-        protected BlobEventStore blobEventStore(DataSource dataSource) {
-            return SqlEventStoreIntegrationTests.this.blobEventStore(dataSource);
+        protected BlobEventStore blobEventStore() {
+            return SqlEventStoreIntegrationTests.this.blobEventStore();
         }
 
         @Override
