@@ -9,7 +9,7 @@ dependencies {
         exclude(group: "org.eclipse.jetty", module: "jetty-webapp")
     }
 
-    implementation("org.msgpack:msgpack-core:0.8.20")
+    implementation("org.msgpack:msgpack-core:0.8.21")
 
     implementation("org.flywaydb:flyway-core:6.5.5")
 
