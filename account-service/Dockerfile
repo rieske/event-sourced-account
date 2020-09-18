@@ -1,4 +1,4 @@
-FROM openjdk:14-jdk-slim
+FROM openjdk:15-jdk-slim
 
 EXPOSE 8080
 
