@@ -1,7 +1,5 @@
 package lt.rieske.accounts.api;
 
-import io.micrometer.prometheus.PrometheusConfig;
-import io.micrometer.prometheus.PrometheusMeterRegistry;
 import io.restassured.path.json.JsonPath;
 import lt.rieske.accounts.eventstore.Configuration;
 import lt.rieske.accounts.eventstore.H2;
@@ -21,8 +19,8 @@ class AccountResourceTest {
 
     private static final H2 db = H2.postgres();
 
-    private static final Server SERVER = ApiConfiguration.server(Configuration.accountEventStore(Configuration.postgresEventStore(db.dataSource(), Function.identity())),
-            TracingConfiguration.noop(), new PrometheusMeterRegistry(PrometheusConfig.DEFAULT));
+    private static final Server SERVER = ApiConfiguration.server(
+            (t, m) -> Configuration.postgresEventStore(db.dataSource(), Function.identity()), null);
     private static int serverPort;
 
     @BeforeAll

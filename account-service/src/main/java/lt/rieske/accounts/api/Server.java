@@ -3,6 +3,7 @@ package lt.rieske.accounts.api;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import lt.rieske.accounts.eventsourcing.AggregateNotFoundException;
+import lt.rieske.accounts.infrastructure.TracingConfiguration;
 import spark.Route;
 import spark.Spark;
 

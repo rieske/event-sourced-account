@@ -1,4 +1,4 @@
-package lt.rieske.accounts.api;
+package lt.rieske.accounts.infrastructure;
 
 import brave.Tracing;
 import brave.sampler.Sampler;
