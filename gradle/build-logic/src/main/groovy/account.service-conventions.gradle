@@ -1,12 +1,13 @@
 plugins {
     id "account.java-conventions"
+    id "java-test-fixtures"
     id "application"
 }
 
 sourceSets {
     integrationTest {
-        compileClasspath += sourceSets.main.output + sourceSets.test.output
-        runtimeClasspath += sourceSets.main.output + sourceSets.test.output
+        compileClasspath += sourceSets.test.output
+        runtimeClasspath += sourceSets.test.output
     }
     e2eTest
 }
