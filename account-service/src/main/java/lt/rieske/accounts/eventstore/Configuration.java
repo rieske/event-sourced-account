@@ -9,13 +9,11 @@ import lt.rieske.accounts.eventsourcing.EventStore;
 import lt.rieske.accounts.infrastructure.TracingConfiguration;
 import org.flywaydb.core.Flyway;
 import org.postgresql.ds.PGSimpleDataSource;
-import org.postgresql.util.PSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.sql.SQLRecoverableException;
 import java.time.Duration;
 import java.util.function.Function;
 
@@ -29,12 +27,12 @@ public class Configuration {
     }
 
     public static BlobEventStore blobEventStore(String jdbcUrl, String username, String password,
-                                                TracingConfiguration tracingConfiguration, MeterRegistry meterRegistry) throws SQLException, InterruptedException {
+                                                TracingConfiguration tracingConfiguration, MeterRegistry meterRegistry) {
         return blobEventStore(jdbcUrl, username, password, ds -> pooledMeteredDataSource(tracingConfiguration.decorate(ds), meterRegistry));
     }
 
     static BlobEventStore blobEventStore(String jdbcUrl, String username, String password,
-                                         Function<DataSource, DataSource> initializer) throws SQLException, InterruptedException {
+                                         Function<DataSource, DataSource> initializer) {
         if (jdbcUrl.startsWith("jdbc:postgresql://")) {
             return postgresEventStore(postgresDataSource(jdbcUrl, username, password), initializer);
         } else if (jdbcUrl.startsWith("jdbc:mysql://")) {
@@ -53,7 +51,7 @@ public class Configuration {
         return new MySqlEventStore(initializer.apply(dataSource));
     }
 
-    private static DataSource postgresDataSource(String jdbcUrl, String username, String password) throws InterruptedException, SQLException {
+    private static DataSource postgresDataSource(String jdbcUrl, String username, String password) {
         var dataSource = new PGSimpleDataSource();
         dataSource.setUrl(jdbcUrl);
         dataSource.setUser(username);
@@ -64,7 +62,7 @@ public class Configuration {
         return dataSource;
     }
 
-    private static DataSource mysqlDataSource(String jdbcUrl, String username, String password) throws InterruptedException, SQLException {
+    private static DataSource mysqlDataSource(String jdbcUrl, String username, String password) {
         var dataSource = new MysqlDataSource();
         dataSource.setUrl(jdbcUrl);
         dataSource.setUser(username);
@@ -80,14 +78,18 @@ public class Configuration {
         flyway.migrate();
     }
 
-    private static void waitForDatabaseToBeAvailable(DataSource dataSource) throws InterruptedException, SQLException {
+    private static void waitForDatabaseToBeAvailable(DataSource dataSource) {
         var retryPeriod = Duration.ofSeconds(1);
         for (int i = 0; i < 20; i++) {
             try (var conn = dataSource.getConnection()) {
                 break;
-            } catch (PSQLException | SQLRecoverableException e) {
+            } catch (SQLException e) {
                 log.info("Could not establish connection to the database: attempt {}, sleeping for {}ms", i, retryPeriod.toMillis());
-                Thread.sleep(retryPeriod.toMillis());
+                try {
+                    Thread.sleep(retryPeriod.toMillis());
+                } catch (InterruptedException interruptedException) {
+                    Thread.currentThread().interrupt();
+                }
             }
         }
     }

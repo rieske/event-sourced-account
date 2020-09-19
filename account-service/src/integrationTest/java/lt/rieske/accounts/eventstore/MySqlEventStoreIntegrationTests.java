@@ -29,11 +29,7 @@ class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
 
     @Override
     protected BlobEventStore blobEventStore() {
-        try {
-            return Configuration.blobEventStore(MYSQL.jdbcUrl(), MYSQL.username(), MYSQL.password(), Function.identity());
-        } catch (SQLException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        return Configuration.blobEventStore(MYSQL.jdbcUrl(), MYSQL.username(), MYSQL.password(), Function.identity());
     }
 
     @Override

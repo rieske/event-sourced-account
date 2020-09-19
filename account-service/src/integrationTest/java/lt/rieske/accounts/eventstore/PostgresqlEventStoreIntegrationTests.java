@@ -1,8 +1,5 @@
 package lt.rieske.accounts.eventstore;
 
-import lt.rieske.accounts.eventstore.BlobEventStore;
-import lt.rieske.accounts.eventstore.Configuration;
-import lt.rieske.accounts.eventstore.SqlEventStoreIntegrationTests;
 import org.junit.jupiter.api.AfterAll;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -30,11 +27,7 @@ class PostgresqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests
 
     @Override
     protected BlobEventStore blobEventStore() {
-        try {
-            return Configuration.blobEventStore(POSTGRESQL.jdbcUrl(), POSTGRESQL.username(), POSTGRESQL.password(), Function.identity());
-        } catch (SQLException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        return Configuration.blobEventStore(POSTGRESQL.jdbcUrl(), POSTGRESQL.username(), POSTGRESQL.password(), Function.identity());
     }
 
     @Override
