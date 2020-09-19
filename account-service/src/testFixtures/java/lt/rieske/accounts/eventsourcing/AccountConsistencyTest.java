@@ -39,7 +39,7 @@ public abstract class AccountConsistencyTest {
         return 8;
     }
 
-    Set<UUID> aggregateIds() {
+    public Set<UUID> aggregateIds() {
         return accountIds;
     }
 

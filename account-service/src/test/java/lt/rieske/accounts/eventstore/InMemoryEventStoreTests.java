@@ -1,6 +1,12 @@
-package lt.rieske.accounts.eventsourcing;
+package lt.rieske.accounts.eventstore;
 
 import lt.rieske.accounts.domain.AccountEventsVisitor;
+import lt.rieske.accounts.eventsourcing.AccountConsistencyTest;
+import lt.rieske.accounts.eventsourcing.AccountEventSourcingTest;
+import lt.rieske.accounts.eventsourcing.EventStore;
+import lt.rieske.accounts.eventsourcing.IdempotencyTest;
+import lt.rieske.accounts.eventsourcing.MoneyTransferTest;
+import lt.rieske.accounts.eventsourcing.SequencedEvent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Nested;
 
