@@ -1,5 +1,7 @@
 package lt.rieske.accounts.eventstore;
 
+import org.h2.jdbcx.JdbcDataSource;
+
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -10,16 +12,20 @@ import static lt.rieske.accounts.eventstore.MySqlEventStore.uuidToBytes;
 
 class H2MySqlEventStoreTests extends SqlEventStoreIntegrationTests {
 
-    private static final H2 db = H2.mysql();
+    private static final JdbcDataSource dataSource = new JdbcDataSource();
+
+    static {
+        dataSource.setUrl("jdbc:h2:mem:event_store_MySQL;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1");
+    }
 
     @Override
     protected DataSource dataSource() {
-        return db.dataSource();
+        return dataSource;
     }
 
     @Override
     protected BlobEventStore blobEventStore() {
-        return Configuration.mysqlEventStore(dataSource(), Function.identity());
+        return MySqlEventStoreFactory.mysqlEventStore(dataSource(), Function.identity());
     }
 
     @Override

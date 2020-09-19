@@ -18,9 +18,7 @@ public class H2 {
 
     private H2(String mode) {
         var dataSource = new JdbcDataSource();
-
         dataSource.setUrl("jdbc:h2:mem:event_store_" + mode + ";MODE=" + mode + ";DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1");
-
         this.dataSource = dataSource;
     }
 

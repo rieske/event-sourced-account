@@ -1,8 +1,8 @@
 package lt.rieske.accounts.api;
 
 import io.restassured.path.json.JsonPath;
-import lt.rieske.accounts.eventstore.Configuration;
 import lt.rieske.accounts.eventstore.H2;
+import lt.rieske.accounts.eventstore.PostgresEventStoreFactory;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ class AccountResourceTest {
     private static final H2 db = H2.postgres();
 
     private static final Server SERVER = ApiConfiguration.server(
-            (t, m) -> Configuration.postgresEventStore(db.dataSource(), Function.identity()), null);
+            (t, m) -> PostgresEventStoreFactory.postgresEventStore(db.dataSource(), Function.identity()), null);
     private static int serverPort;
 
     @BeforeAll

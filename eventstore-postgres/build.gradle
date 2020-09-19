@@ -1,0 +1,15 @@
+plugins {
+    id("account.java-conventions")
+}
+
+dependencies {
+    implementation(project(":eventstore"))
+    implementation("org.postgresql:postgresql:42.2.16")
+
+    testImplementation(testFixtures(project(":eventstore")))
+    testImplementation("com.h2database:h2:1.4.200")
+
+    integrationTestImplementation("org.testcontainers:postgresql:1.14.3") {
+        exclude(group: "org.slf4j", module: "slf4j-api")
+    }
+}

@@ -34,7 +34,7 @@ class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
 
     @Override
     protected void setUUID(PreparedStatement statement, int column, UUID uuid) throws SQLException {
-        statement.setBytes(column, uuidToBytes(uuid));
+        statement.setBytes(column, MySqlEventStore.uuidToBytes(uuid));
     }
 
     static class MySql {
