@@ -1,5 +1,6 @@
 plugins {
     id("internal.jacoco")
+    id("com.github.kt3k.coveralls")
 }
 
 configurations {
@@ -44,4 +45,8 @@ def codeCoverageReport = tasks.register("codeCoverageReport", JacocoReport) {
 
 tasks.named("check") {
     it.dependsOn(codeCoverageReport)
+}
+
+coveralls {
+    jacocoReportPath("build/reports/jacoco/codeCoverageReport/codeCoverageReport.xml")
 }
