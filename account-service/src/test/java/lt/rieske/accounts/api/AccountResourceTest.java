@@ -1,14 +1,12 @@
 package lt.rieske.accounts.api;
 
 import io.restassured.path.json.JsonPath;
-import lt.rieske.accounts.eventstore.Configuration;
 import lt.rieske.accounts.eventstore.H2;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
-import java.util.function.Function;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,10 +15,8 @@ import static org.hamcrest.Matchers.notNullValue;
 
 class AccountResourceTest {
 
-    private static final H2 db = H2.postgres();
-
     private static final Server SERVER = ApiConfiguration.server(
-            (t, m) -> Configuration.postgresEventStore(db.dataSource(), Function.identity()), null);
+            (t, m) -> H2.postgresEventStore(), null);
     private static int serverPort;
 
     @BeforeAll

@@ -1,37 +1,17 @@
 plugins {
     id("account.java-conventions")
-    id("java-test-fixtures")
     id("application")
 }
 
 sourceSets {
-    integrationTest {
-        compileClasspath += sourceSets.testFixtures.output
-        runtimeClasspath += sourceSets.testFixtures.output
-    }
     e2eTest
 }
 
-configurations {
-    integrationTestImplementation.extendsFrom(testImplementation)
-    integrationTestRuntimeOnly.extendsFrom(testRuntimeOnly)
-}
-
-def integrationTest = tasks.register('integrationTest', Test) {
-    it.shouldRunAfter("test")
-
-    it.testClassesDirs = sourceSets.integrationTest.output.classesDirs
-    it.classpath = sourceSets.integrationTest.runtimeClasspath
-}
-
-def e2eTest = tasks.register('e2eTest', Test) {
+def e2eTest = tasks.register("e2eTest", Test) {
     it.dependsOn("assemble")
-    it.shouldRunAfter(integrationTest)
 
     it.testClassesDirs = sourceSets.e2eTest.output.classesDirs
     it.classpath = sourceSets.e2eTest.runtimeClasspath
 }
 
-tasks.named('check') { it.dependsOn("test", integrationTest, e2eTest) }
-
-
+tasks.named("check") { it.dependsOn("test", e2eTest) }

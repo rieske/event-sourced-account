@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
-import static lt.rieske.accounts.eventstore.MySqlEventStore.uuidToBytes;
-
 class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
 
     private static final MySql MYSQL = new MySql();
@@ -29,12 +27,12 @@ class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
 
     @Override
     protected BlobEventStore blobEventStore() {
-        return Configuration.blobEventStore(MYSQL.jdbcUrl(), MYSQL.username(), MYSQL.password(), Function.identity());
+        return EventStoreFactory.makeEventStore(MYSQL.jdbcUrl(), MYSQL.username(), MYSQL.password(), Function.identity());
     }
 
     @Override
     protected void setUUID(PreparedStatement statement, int column, UUID uuid) throws SQLException {
-        statement.setBytes(column, uuidToBytes(uuid));
+        statement.setBytes(column, MySqlEventStore.uuidToBytes(uuid));
     }
 
     static class MySql {

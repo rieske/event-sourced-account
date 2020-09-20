@@ -1,3 +1,6 @@
 rootProject.name = "account"
 includeBuild("gradle/build-logic")
 include("account-service")
+include("eventstore")
+include("eventstore-postgres")
+include("eventstore-mysql")

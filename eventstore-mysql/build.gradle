@@ -1,0 +1,19 @@
+plugins {
+    id("account.library-conventions")
+}
+
+dependencies {
+    api(project(":eventstore"))
+
+    implementation("mysql:mysql-connector-java:8.0.21") {
+        exclude(group: "com.google.protobuf", module: "protobuf-java")
+    }
+
+    testImplementation(testFixtures(project(":eventstore")))
+    testImplementation("com.h2database:h2:1.4.200")
+
+    integrationTestImplementation(testFixtures(project(":eventstore")))
+    integrationTestImplementation("org.testcontainers:mysql:1.14.3") {
+        exclude(group: "org.slf4j", module: "slf4j-api")
+    }
+}

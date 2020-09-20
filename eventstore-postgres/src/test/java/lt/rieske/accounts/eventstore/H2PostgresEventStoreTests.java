@@ -1,5 +1,7 @@
 package lt.rieske.accounts.eventstore;
 
+import org.h2.jdbcx.JdbcDataSource;
+
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -8,16 +10,20 @@ import java.util.function.Function;
 
 class H2PostgresEventStoreTests extends SqlEventStoreIntegrationTests {
 
-    private static final H2 db = H2.postgres();
+    private static final JdbcDataSource dataSource = new JdbcDataSource();
+
+    static {
+        dataSource.setUrl("jdbc:h2:mem:event_store_PostgreSQL;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1");
+    }
 
     @Override
     protected DataSource dataSource() {
-        return db.dataSource();
+        return dataSource;
     }
 
     @Override
     protected BlobEventStore blobEventStore() {
-        return Configuration.postgresEventStore(dataSource(), Function.identity());
+        return EventStoreFactory.postgresEventStore(dataSource(), Function.identity());
     }
 
     @Override

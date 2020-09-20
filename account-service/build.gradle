@@ -1,8 +1,11 @@
 plugins {
     id("account.service-conventions")
+    id("java-test-fixtures")
 }
 
 dependencies {
+    implementation(project(":eventstore-postgres"))
+
     implementation("com.sparkjava:spark-core:2.9.2") {
         exclude(group: "org.eclipse.jetty.websocket", module: "websocket-server")
         exclude(group: "org.eclipse.jetty.websocket", module: "websocket-servlet")
@@ -11,8 +14,6 @@ dependencies {
 
     implementation("org.msgpack:msgpack-core:0.8.21")
 
-    implementation("org.flywaydb:flyway-core:6.5.6")
-
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("io.micrometer:micrometer-registry-prometheus:1.5.5")
     implementation("io.zipkin.brave:brave-instrumentation-sparkjava:5.12.5")
@@ -20,10 +21,6 @@ dependencies {
     implementation("io.zipkin.reporter2:zipkin-sender-urlconnection:2.15.1")
 
     implementation("com.zaxxer:HikariCP:3.4.5")
-    implementation("mysql:mysql-connector-java:8.0.21") {
-        exclude(group: "com.google.protobuf", module: "protobuf-java")
-    }
-    implementation("org.postgresql:postgresql:42.2.16")
 
     testFixturesApi("org.junit.jupiter:junit-jupiter:5.6.2")
     testFixturesApi("org.assertj:assertj-core:3.17.2")
@@ -31,13 +28,6 @@ dependencies {
     testImplementation("com.tngtech.archunit:archunit-junit5:0.14.1")
     testImplementation("io.rest-assured:rest-assured:4.3.1")
     testImplementation("com.h2database:h2:1.4.200")
-
-    integrationTestImplementation("org.testcontainers:mysql:1.14.3") {
-        exclude(group: "org.slf4j", module: "slf4j-api")
-    }
-    integrationTestImplementation("org.testcontainers:postgresql:1.14.3") {
-        exclude(group: "org.slf4j", module: "slf4j-api")
-    }
 
     e2eTestImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
     e2eTestImplementation("org.assertj:assertj-core:3.17.2")
@@ -59,6 +49,7 @@ application {
 }
 
 tasks.named("e2eTest") {
+    it.dependsOn(":eventstore-postgres:integrationTest")
     it.inputs.files(jar.archiveFile, file('Dockerfile'), fileTree("../infrastructure"))
             .withPathSensitivity(PathSensitivity.RELATIVE)
 }
