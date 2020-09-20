@@ -12,7 +12,7 @@ configurations {
         attributes {
             attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
             attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.DOCUMENTATION))
-            attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType, 'source-folders'))
+            attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType, "source-folders"))
         }
     }
 
@@ -25,29 +25,23 @@ configurations {
         attributes {
             attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
             attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.DOCUMENTATION))
-            attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType, 'jacoco-coverage-data'))
+            attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType, "jacoco-coverage-data"))
         }
     }
 }
 
 // Task to gather code coverage from multiple subprojects
-def codeCoverageReport = tasks.register('codeCoverageReport', JacocoReport) {
-    additionalClassDirs(configurations.runtimeClasspath.asFileTree.filter { it.path.contains("/build/libs/") })
-    additionalSourceDirs(configurations.sourcesPath.incoming.artifactView { lenient(true) }.files)
-    executionData(configurations.coverageDataPath.incoming.artifactView { lenient(true) }.files.filter { it.exists() })
+def codeCoverageReport = tasks.register("codeCoverageReport", JacocoReport) {
+    it.additionalClassDirs(configurations.runtimeClasspath.asFileTree.filter { it.path.contains("/build/libs/") })
+    it.additionalSourceDirs(configurations.sourcesPath)
+    it.executionData(configurations.coverageDataPath.incoming.artifactView { it.lenient(true) }.files.filter { it.exists() })
 
-    reports {
-        // xml is usually used to integrate code coverage with
-        // other tools like SonarQube, Coveralls or Codecov
+    it.reports {
         xml.enabled true
-
-        // HTML reports can be used to see code coverage
-        // without any external tools
         html.enabled true
     }
 }
 
-// Make JaCoCo report generation part of the 'check' lifecycle phase
 tasks.named("check") {
-    dependsOn(codeCoverageReport)
+    it.dependsOn(codeCoverageReport)
 }
