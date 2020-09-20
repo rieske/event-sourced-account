@@ -20,7 +20,7 @@ jobs:
         #JACOCO_SOURCE_PATH: "${{github.workspace}}/account-service/src/main/java"
       with:
         coverageCommand: ./gradlew codeCoverageReport
-        coverageLocations: "${{github.workspace}}/code-coverage-report/build/reports/jacoco/test/jacocoTestReport.xml:jacoco"
+        coverageLocations: "${{github.workspace}}/code-coverage-report/build/reports/jacoco/codeCoverageReport/codeCoverageReport.xml:jacoco"
     - name: Prepare Release
       id: release_config
       if: ${{ github.ref == 'refs/heads/master' }}
