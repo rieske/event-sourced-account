@@ -4,6 +4,8 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":eventstore-postgres"))
+
     implementation("com.sparkjava:spark-core:2.9.2") {
         exclude(group: "org.eclipse.jetty.websocket", module: "websocket-server")
         exclude(group: "org.eclipse.jetty.websocket", module: "websocket-servlet")
@@ -20,25 +22,12 @@ dependencies {
 
     implementation("com.zaxxer:HikariCP:3.4.5")
 
-    implementation(project(":eventstore"))
-    runtimeOnly(project(":eventstore")) {
-        capabilities {
-            it.requireCapability("account:eventstore-postgres")
-        }
-    }
-
     testFixturesApi("org.junit.jupiter:junit-jupiter:5.6.2")
     testFixturesApi("org.assertj:assertj-core:3.17.2")
 
     testImplementation("com.tngtech.archunit:archunit-junit5:0.14.1")
     testImplementation("io.rest-assured:rest-assured:4.3.1")
     testImplementation("com.h2database:h2:1.4.200")
-
-    testImplementation(project(":eventstore")) {
-        capabilities {
-            it.requireCapability("account:eventstore-postgres")
-        }
-    }
 
     e2eTestImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
     e2eTestImplementation("org.assertj:assertj-core:3.17.2")
@@ -60,7 +49,7 @@ application {
 }
 
 tasks.named("e2eTest") {
-    it.dependsOn(":eventstore:postgresIntegrationTest")
+    it.dependsOn(":eventstore-postgres:integrationTest")
     it.inputs.files(jar.archiveFile, file('Dockerfile'), fileTree("../infrastructure"))
             .withPathSensitivity(PathSensitivity.RELATIVE)
 }

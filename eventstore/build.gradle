@@ -1,28 +1,10 @@
 plugins {
-    id("account.eventstore-conventions")
+    id("account.java-conventions")
 }
 
 dependencies {
     implementation("org.slf4j:slf4j-api:1.7.25")
     implementation("org.flywaydb:flyway-core:6.5.6")
 
-    postgresImplementation("org.postgresql:postgresql:42.2.16")
-
-    mysqlImplementation("mysql:mysql-connector-java:8.0.21") {
-        exclude(group: "com.google.protobuf", module: "protobuf-java")
-    }
-
-    testFixturesImplementation(testFixtures(project(":account-service"))) {
-        exclude(group: "account", module: "eventstore")
-    }
-
-    testImplementation("com.h2database:h2:1.4.200")
-
-    postgresIntegrationTestImplementation("org.testcontainers:postgresql:1.14.3") {
-        exclude(group: "org.slf4j", module: "slf4j-api")
-    }
-
-    mysqlIntegrationTestImplementation("org.testcontainers:mysql:1.14.3") {
-        exclude(group: "org.slf4j", module: "slf4j-api")
-    }
+    testFixturesApi(testFixtures(project(":account-service")))
 }

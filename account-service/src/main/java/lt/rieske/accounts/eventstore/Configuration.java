@@ -8,9 +8,6 @@ import lt.rieske.accounts.eventsourcing.EventStore;
 import lt.rieske.accounts.infrastructure.TracingConfiguration;
 
 import javax.sql.DataSource;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.function.Function;
 
 public class Configuration {
 
@@ -20,25 +17,7 @@ public class Configuration {
 
     public static BlobEventStore blobEventStore(String jdbcUrl, String username, String password,
                                                 TracingConfiguration tracingConfiguration, MeterRegistry meterRegistry) {
-        return blobEventStore(jdbcUrl, username, password, ds -> pooledMeteredDataSource(tracingConfiguration.decorate(ds), meterRegistry));
-    }
-
-    private static BlobEventStore blobEventStore(String jdbcUrl, String username, String password,
-                                         Function<DataSource, DataSource> initializer) {
-        try {
-            if (jdbcUrl.startsWith("jdbc:postgresql://")) {
-                Class<?> eventstoreFactoryClass = Class.forName("lt.rieske.accounts.eventstore.EventStoreFactory");
-                Method initMethod = eventstoreFactoryClass.getMethod("makeEventStore", String.class, String.class, String.class, Function.class);
-                return (BlobEventStore) initMethod.invoke(eventstoreFactoryClass, jdbcUrl, username, password, initializer);
-            } else if (jdbcUrl.startsWith("jdbc:mysql://")) {
-                Class<?> eventstoreFactoryClass = Class.forName("lt.rieske.accounts.eventstore.EventStoreFactory");
-                Method initMethod = eventstoreFactoryClass.getMethod("makeEventStore", String.class, String.class, String.class, Function.class);
-                return (BlobEventStore) initMethod.invoke(eventstoreFactoryClass, jdbcUrl, username, password, initializer);
-            }
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new IllegalStateException(e);
-        }
-        throw new IllegalStateException(String.format("Unsupported JDBC URL '%s'", jdbcUrl));
+        return EventStoreFactory.makeEventStore(jdbcUrl, username, password, ds -> pooledMeteredDataSource(tracingConfiguration.decorate(ds), meterRegistry));
     }
 
     private static DataSource pooledMeteredDataSource(DataSource dataSource, MeterRegistry meterRegistry) {

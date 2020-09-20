@@ -15,5 +15,3 @@ def e2eTest = tasks.register("e2eTest", Test) {
 }
 
 tasks.named("check") { it.dependsOn("test", e2eTest) }
-
-
