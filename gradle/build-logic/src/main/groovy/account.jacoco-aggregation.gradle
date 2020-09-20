@@ -48,5 +48,14 @@ tasks.named("check") {
 }
 
 coveralls {
-    jacocoReportPath("build/reports/jacoco/codeCoverageReport/codeCoverageReport.xml")
+    jacocoReportPath = "build/reports/jacoco/codeCoverageReport/codeCoverageReport.xml"
+}
+
+tasks.named("coveralls") {
+    doFirst {
+        println(configurations.sourcesPath.flatten())
+        coveralls {
+            sourceDirs = configurations.sourcesPath.flatten()
+        }
+    }
 }
