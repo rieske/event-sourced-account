@@ -17,11 +17,15 @@ dependencies {
     implementation("io.zipkin.brave:brave-instrumentation-sparkjava:5.12.5")
     implementation("io.zipkin.brave:brave-instrumentation-p6spy:5.12.5")
     implementation("io.zipkin.reporter2:zipkin-sender-urlconnection:2.15.1")
-    implementation(project(":eventstore"))
 
     implementation("com.zaxxer:HikariCP:3.4.5")
-    implementation(project(":eventstore-mysql"))
-    implementation(project(":eventstore-postgres"))
+
+    implementation(project(":eventstore"))
+    runtimeOnly(project(":eventstore")) {
+        capabilities {
+            it.requireCapability("account:eventstore-postgres")
+        }
+    }
 
     testFixturesApi("org.junit.jupiter:junit-jupiter:5.6.2")
     testFixturesApi("org.assertj:assertj-core:3.17.2")
@@ -29,6 +33,12 @@ dependencies {
     testImplementation("com.tngtech.archunit:archunit-junit5:0.14.1")
     testImplementation("io.rest-assured:rest-assured:4.3.1")
     testImplementation("com.h2database:h2:1.4.200")
+
+    testImplementation(project(":eventstore")) {
+        capabilities {
+            it.requireCapability("account:eventstore-postgres")
+        }
+    }
 
     e2eTestImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
     e2eTestImplementation("org.assertj:assertj-core:3.17.2")
@@ -50,18 +60,17 @@ application {
 }
 
 tasks.named("e2eTest") {
-    it.dependsOn(":eventstore-postgres:integrationTest")
-    it.dependsOn(":eventstore-mysql:integrationTest")
+    it.dependsOn(":eventstore:postgresIntegrationTest")
     it.inputs.files(jar.archiveFile, file('Dockerfile'), fileTree("../infrastructure"))
             .withPathSensitivity(PathSensitivity.RELATIVE)
 }
 
-tasks.register('stressTest', JavaExec) {
+tasks.register("stressTest", JavaExec) {
     classpath = sourceSets.e2eTest.runtimeClasspath
-    main = 'lt.rieske.accounts.StressTests'
+    main = "lt.rieske.accounts.StressTests"
 }
 
 tasks.register('asyncStressTest', JavaExec) {
     classpath = sourceSets.e2eTest.runtimeClasspath
-    main = 'lt.rieske.accounts.AsyncStressTests'
+    main = "lt.rieske.accounts.AsyncStressTests"
 }

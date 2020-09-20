@@ -12,8 +12,8 @@ class DataSourceConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(DataSourceConfiguration.class);
 
-    static void migrateDatabase(DataSource dataSource, String schemaLocation) {
-        var flyway = Flyway.configure().dataSource(dataSource).locations(schemaLocation).schemas("event_store").load();
+    static void migrateDatabase(DataSource dataSource) {
+        var flyway = Flyway.configure().dataSource(dataSource).schemas("event_store").load();
         flyway.migrate();
     }
 
