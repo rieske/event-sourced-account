@@ -32,7 +32,7 @@ configurations {
 
 // Task to gather code coverage from multiple subprojects
 def codeCoverageReport = tasks.register('codeCoverageReport', JacocoReport) {
-    additionalClassDirs(configurations.runtimeClasspath)
+    additionalClassDirs(configurations.runtimeClasspath.asFileTree.filter { it.path.contains("/build/libs/") })
     additionalSourceDirs(configurations.sourcesPath.incoming.artifactView { lenient(true) }.files)
     executionData(configurations.coverageDataPath.incoming.artifactView { lenient(true) }.files.filter { it.exists() })
 
