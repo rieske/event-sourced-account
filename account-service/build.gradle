@@ -1,5 +1,5 @@
 plugins {
-    id "account.service-conventions"
+    id("account.service-conventions")
 }
 
 dependencies {
@@ -63,12 +63,12 @@ tasks.named("e2eTest") {
             .withPathSensitivity(PathSensitivity.RELATIVE)
 }
 
-tasks.register('stressTest', JavaExec) {
+tasks.register("stressTest", JavaExec) {
     classpath = sourceSets.e2eTest.runtimeClasspath
-    main = 'lt.rieske.accounts.StressTests'
+    main = "lt.rieske.accounts.StressTests"
 }
 
 tasks.register('asyncStressTest', JavaExec) {
     classpath = sourceSets.e2eTest.runtimeClasspath
-    main = 'lt.rieske.accounts.AsyncStressTests'
+    main = "lt.rieske.accounts.AsyncStressTests"
 }
