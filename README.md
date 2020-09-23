@@ -61,7 +61,7 @@ request was handled or not and might retry. This might result in a double transf
 deposit or withdrawal had the original request been handled successfully. To prevent such
 cases, the client should supply a unique transaction id (a UUID in our case) for each
 distinct operation. This id is persisted, and in case a duplicate request comes in, it will
-be accepted, but no action was taken since we know we already handled it.
+be accepted, but no action will be taken since we know we already handled it.
 Transaction ids can not be reused. The current implementation is a bit naive as it does not take into account
 the type of operation in the context of idempotency, just the transaction id together with
 affected account id, meaning that given a transaction id that was used for a deposit
@@ -243,5 +243,4 @@ Here is the runtime dependency tree:
 +--- mysql:mysql-connector-java:8.0.19
 \--- org.postgresql:postgresql:42.2.12
 ```
-
 
