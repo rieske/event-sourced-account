@@ -52,7 +52,7 @@ tasks.named("test") {
 
 tasks.named("e2eTest") {
     it.dependsOn(":eventstore-postgres:integrationTest")
-    it.inputs.files(jar.archiveFile, file('Dockerfile'), fileTree("../infrastructure"))
+    it.inputs.files(jar.archiveFile, file("Dockerfile"), fileTree("../infrastructure"))
             .withPathSensitivity(PathSensitivity.RELATIVE)
 }
 
@@ -61,7 +61,30 @@ tasks.register("stressTest", JavaExec) {
     main = "lt.rieske.accounts.StressTests"
 }
 
-tasks.register('asyncStressTest', JavaExec) {
+tasks.register("asyncStressTest", JavaExec) {
     classpath = sourceSets.e2eTest.runtimeClasspath
     main = "lt.rieske.accounts.AsyncStressTests"
+}
+
+tasks.register("composeUp", Exec) {
+    it.dependsOn("build")
+    it.inputs.files(file("${rootProject.projectDir}/docker-compose.yml")).withPathSensitivity(PathSensitivity.RELATIVE)
+    it.workingDir(rootProject.projectDir)
+    it.executable("docker-compose")
+    def composeFile = eventstoreImpl.get() == "mysql" ? "docker-compose-mysql.yml" : "docker-compose.yml"
+    it.args("-f", "$composeFile", "up", "--build", "-d")
+    it.doLast {
+        println("\n\n")
+        println("Eventstore backend: ${eventstoreImpl.get()}\n")
+        println("Zipkin:\t\t\t\thttp://localhost:9411")
+        println("Grafana:\t\t\thttp://localhost:3000")
+        println("Prometheus:\t\t\thttp://localhost:9090")
+        println("account-service (via Envoy):\thttp://localhost:8080")
+    }
+}
+
+tasks.register("composeDown", Exec) {
+    it.workingDir(rootProject.projectDir)
+    it.executable("docker-compose")
+    it.args("down")
 }

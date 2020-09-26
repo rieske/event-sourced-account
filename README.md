@@ -162,11 +162,15 @@ exposed via Envoy Proxy. A minimal monitoring setup is available, as well.
 
 To start:
 ```shell script
-./gradlew build
-docker-compose up --build
+./gradlew composeUp
 ```
 The service will be accessible on localhost:8080 and requests
 will go via a load balancer to two service instances in a round-robin fashion.
+
+To stop:
+```shell script
+./gradlew composeDown
+```
 
 ### Monitoring
 
@@ -175,8 +179,7 @@ variable set. It is preconfigured in the composed environment.
 Basic metrics are exposed to Prometheus and sample configuration of Prometheus together with
 Grafana and a service/envoy dashboards can be accessed by spawning a composed environment using
 ```shell script
-./gradlew build
-docker-compose up --build
+./gradlew composeUp
 ```
 Prometheus is exposed on port 9090.
 
