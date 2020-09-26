@@ -3,22 +3,3 @@ plugins {
     id("java-library")
 }
 
-sourceSets {
-    integrationTest {
-        compileClasspath += sourceSets.testFixtures.output
-        runtimeClasspath += sourceSets.testFixtures.output
-    }
-}
-
-configurations {
-    integrationTestImplementation.extendsFrom(implementation, testFixturesImplementation)
-}
-
-def integrationTest = tasks.register("integrationTest", Test) {
-    it.shouldRunAfter("test")
-
-    it.testClassesDirs = sourceSets.integrationTest.output.classesDirs
-    it.classpath = sourceSets.integrationTest.runtimeClasspath
-}
-
-tasks.named("check") { it.dependsOn(integrationTest) }

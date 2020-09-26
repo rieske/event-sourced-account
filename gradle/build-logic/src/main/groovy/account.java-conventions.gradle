@@ -4,6 +4,26 @@ plugins {
     id("java-test-fixtures")
 }
 
+sourceSets {
+    integrationTest {
+        compileClasspath += sourceSets.testFixtures.output
+        runtimeClasspath += sourceSets.testFixtures.output
+    }
+}
+
+configurations {
+    integrationTestImplementation.extendsFrom(implementation, testFixturesImplementation)
+}
+
+def integrationTest = tasks.register("integrationTest", Test) {
+    it.shouldRunAfter("test")
+
+    it.testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    it.classpath = sourceSets.integrationTest.runtimeClasspath
+}
+
+tasks.named("check") { it.dependsOn(integrationTest) }
+
 // Do not generate reports for individual projects
 tasks.named("jacocoTestReport") {
     enabled = false
@@ -37,6 +57,9 @@ configurations {
         }
         // This will cause the test task to run if the coverage data is requested by the aggregation task
         outgoing.artifact(tasks.named("test").map { task ->
+            task.extensions.getByType(JacocoTaskExtension).destinationFile
+        })
+        outgoing.artifact(tasks.named("integrationTest").map { task ->
             task.extensions.getByType(JacocoTaskExtension).destinationFile
         })
     }
