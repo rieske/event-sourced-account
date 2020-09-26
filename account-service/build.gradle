@@ -36,10 +36,7 @@ dependencies {
     e2eTestImplementation(platform(project(":platform")))
     e2eTestImplementation("org.junit.jupiter:junit-jupiter")
     e2eTestImplementation("org.assertj:assertj-core")
-    e2eTestImplementation("org.testcontainers:testcontainers") {
-        exclude(group: "org.slf4j", module: "slf4j-api")
-    }
-    e2eTestImplementation("org.slf4j:slf4j-api")
+    e2eTestImplementation("org.testcontainers:testcontainers")
     e2eTestImplementation("org.apache.httpcomponents:httpclient")
     e2eTestImplementation("org.apache.httpcomponents:httpasyncclient")
 }

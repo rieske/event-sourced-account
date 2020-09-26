@@ -12,7 +12,5 @@ dependencies {
     testImplementation("com.h2database:h2")
 
     integrationTestImplementation(testFixtures(project(":eventstore")))
-    integrationTestImplementation("org.testcontainers:postgresql") {
-        exclude(group: "org.slf4j", module: "slf4j-api")
-    }
+    integrationTestImplementation("org.testcontainers:postgresql")
 }
