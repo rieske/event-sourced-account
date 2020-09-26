@@ -46,12 +46,9 @@ application {
     mainClass.set("lt.rieske.accounts.App")
 }
 
-tasks.named("test") {
-    it.systemProperty("eventstore", eventstoreImpl.get())
-}
-
 tasks.named("e2eTest") {
     it.dependsOn(":eventstore-postgres:integrationTest")
+    it.systemProperty("eventstore", eventstoreImpl.get())
     it.inputs.files(jar.archiveFile, file("Dockerfile"), fileTree("../infrastructure"))
             .withPathSensitivity(PathSensitivity.RELATIVE)
 }

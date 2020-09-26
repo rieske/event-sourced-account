@@ -10,10 +10,11 @@ public class H2 {
     private final DataSource dataSource;
 
     public static BlobEventStore h2EventStore() {
-        if ("mysql".equals(System.getProperty("eventstore"))) {
-            return EventStoreFactory.makeEventStore(mysql().dataSource(), Function.identity());
+        var eventStoreFactory = Configuration.instantiateEventStoreFactory();
+        if (eventStoreFactory.getClass().getName().equals("lt.rieske.accounts.eventstore.MySqlEventStoreFactory")) {
+            return eventStoreFactory.makeEventStore(mysql().dataSource(), Function.identity());
         }
-        return EventStoreFactory.makeEventStore(postgres().dataSource(), Function.identity());
+        return eventStoreFactory.makeEventStore(postgres().dataSource(), Function.identity());
     }
 
     private static H2 mysql() {

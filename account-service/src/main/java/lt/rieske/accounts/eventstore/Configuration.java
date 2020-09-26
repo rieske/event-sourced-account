@@ -8,6 +8,7 @@ import lt.rieske.accounts.eventsourcing.EventStore;
 import lt.rieske.accounts.infrastructure.TracingConfiguration;
 
 import javax.sql.DataSource;
+import java.lang.reflect.InvocationTargetException;
 
 public class Configuration {
 
@@ -17,7 +18,29 @@ public class Configuration {
 
     public static BlobEventStore blobEventStore(String jdbcUrl, String username, String password,
                                                 TracingConfiguration tracingConfiguration, MeterRegistry meterRegistry) {
-        return EventStoreFactory.makeEventStore(jdbcUrl, username, password, ds -> pooledMeteredDataSource(tracingConfiguration.decorate(ds), meterRegistry));
+        return instantiateEventStoreFactory().makeEventStore(
+                jdbcUrl, username, password, ds -> pooledMeteredDataSource(tracingConfiguration.decorate(ds), meterRegistry));
+    }
+
+    static EventStoreFactory instantiateEventStoreFactory() {
+        var eventStoreFactoryClass = eventStoreFactoryClass();
+        try {
+            return eventStoreFactoryClass.getConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static Class<? extends EventStoreFactory> eventStoreFactoryClass() {
+        try {
+            return Class.forName("lt.rieske.accounts.eventstore.PostgresEventStoreFactory").asSubclass(EventStoreFactory.class);
+        } catch (ClassNotFoundException e) {
+            try {
+                return Class.forName("lt.rieske.accounts.eventstore.MySqlEventStoreFactory").asSubclass(EventStoreFactory.class);
+            } catch (ClassNotFoundException classNotFoundException) {
+                throw new IllegalStateException("None of supported eventstores found on classpath. This is a build configuration error.");
+            }
+        }
     }
 
     private static DataSource pooledMeteredDataSource(DataSource dataSource, MeterRegistry meterRegistry) {

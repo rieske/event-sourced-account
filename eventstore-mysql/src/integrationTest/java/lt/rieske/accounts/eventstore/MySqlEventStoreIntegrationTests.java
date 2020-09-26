@@ -27,7 +27,7 @@ class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
 
     @Override
     protected BlobEventStore blobEventStore() {
-        return EventStoreFactory.makeEventStore(MYSQL.jdbcUrl(), MYSQL.username(), MYSQL.password(), Function.identity());
+        return new MySqlEventStoreFactory().makeEventStore(MYSQL.jdbcUrl(), MYSQL.username(), MYSQL.password(), Function.identity());
     }
 
     @Override

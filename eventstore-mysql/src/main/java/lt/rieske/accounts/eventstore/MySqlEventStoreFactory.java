@@ -5,13 +5,15 @@ import com.mysql.cj.jdbc.MysqlDataSource;
 import javax.sql.DataSource;
 import java.util.function.Function;
 
-public class EventStoreFactory {
+public class MySqlEventStoreFactory implements EventStoreFactory {
 
-    public static BlobEventStore makeEventStore(String jdbcUrl, String username, String password, Function<DataSource, DataSource> initializer) {
+    @Override
+    public BlobEventStore makeEventStore(String jdbcUrl, String username, String password, Function<DataSource, DataSource> initializer) {
         return makeEventStore(mysqlDataSource(jdbcUrl, username, password), initializer);
     }
 
-    static BlobEventStore makeEventStore(DataSource dataSource, Function<DataSource, DataSource> initializer) {
+    @Override
+    public BlobEventStore makeEventStore(DataSource dataSource, Function<DataSource, DataSource> initializer) {
         DataSourceConfiguration.migrateDatabase(dataSource);
         return new MySqlEventStore(initializer.apply(dataSource));
     }

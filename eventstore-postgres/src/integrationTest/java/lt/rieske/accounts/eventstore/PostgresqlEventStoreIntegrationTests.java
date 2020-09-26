@@ -27,7 +27,7 @@ class PostgresqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests
 
     @Override
     protected BlobEventStore blobEventStore() {
-        return EventStoreFactory.makeEventStore(POSTGRESQL.jdbcUrl(), POSTGRESQL.username(), POSTGRESQL.password(), Function.identity());
+        return new PostgresEventStoreFactory().makeEventStore(POSTGRESQL.jdbcUrl(), POSTGRESQL.username(), POSTGRESQL.password(), Function.identity());
     }
 
     @Override

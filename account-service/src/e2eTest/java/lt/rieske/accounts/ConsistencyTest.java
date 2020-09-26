@@ -29,17 +29,24 @@ class ConsistencyTest {
 
     private static final Logger log = LoggerFactory.getLogger(ConsistencyTest.class);
 
-    private static final DockerComposeContainer<?> environment =
-            new DockerComposeContainer<>(new File("src/e2eTest/resources/e2e-test.yml"))
-                    .withLocalCompose(true)
-                    .withLogConsumer(SERVICE_CONTAINER, new Slf4jLogConsumer(log).withPrefix(SERVICE_CONTAINER))
-                    .withLogConsumer(LB_CONTAINER, new Slf4jLogConsumer(log).withPrefix(LB_CONTAINER))
-                    .withExposedService(SERVICE_CONTAINER, 1, SERVICE_PORT, Wait.forListeningPort())
-                    .withExposedService(SERVICE_CONTAINER, 1, SERVICE_PORT, Wait.forHttp("/ping").forStatusCode(200))
-                    .withExposedService(SERVICE_CONTAINER, 2, SERVICE_PORT, Wait.forListeningPort())
-                    .withExposedService(SERVICE_CONTAINER, 2, SERVICE_PORT, Wait.forHttp("/ping").forStatusCode(200))
-                    .withExposedService(LB_CONTAINER, LB_PORT, Wait.forListeningPort())
-                    .withExposedService(LB_CONTAINER, LB_PORT, Wait.forHttp("/ping").forStatusCode(200));
+    private static final DockerComposeContainer<?> environment;
+
+    static {
+        String composeFile = "e2e-test.yml";
+        if ("mysql".equals(System.getProperty("eventstore"))) {
+            composeFile = "e2e-test-mysql.yml";
+        }
+        environment = new DockerComposeContainer<>(new File("src/e2eTest/resources/" + composeFile))
+                .withLocalCompose(true)
+                .withLogConsumer(SERVICE_CONTAINER, new Slf4jLogConsumer(log).withPrefix(SERVICE_CONTAINER))
+                .withLogConsumer(LB_CONTAINER, new Slf4jLogConsumer(log).withPrefix(LB_CONTAINER))
+                .withExposedService(SERVICE_CONTAINER, 1, SERVICE_PORT, Wait.forListeningPort())
+                .withExposedService(SERVICE_CONTAINER, 1, SERVICE_PORT, Wait.forHttp("/ping").forStatusCode(200))
+                .withExposedService(SERVICE_CONTAINER, 2, SERVICE_PORT, Wait.forListeningPort())
+                .withExposedService(SERVICE_CONTAINER, 2, SERVICE_PORT, Wait.forHttp("/ping").forStatusCode(200))
+                .withExposedService(LB_CONTAINER, LB_PORT, Wait.forListeningPort())
+                .withExposedService(LB_CONTAINER, LB_PORT, Wait.forHttp("/ping").forStatusCode(200));
+    }
 
     @BeforeAll
     static void setup() {
