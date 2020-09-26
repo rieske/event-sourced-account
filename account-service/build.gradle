@@ -4,44 +4,44 @@ plugins {
 }
 
 dependencies {
+    implementation(platform(project(":platform")))
+
     implementation(project(":eventstore-postgres"))
 
-    implementation("com.sparkjava:spark-core:2.9.2") {
+    implementation("com.sparkjava:spark-core") {
         exclude(group: "org.eclipse.jetty.websocket", module: "websocket-server")
         exclude(group: "org.eclipse.jetty.websocket", module: "websocket-servlet")
         exclude(group: "org.eclipse.jetty", module: "jetty-webapp")
     }
 
-    implementation("org.msgpack:msgpack-core:0.8.21")
+    implementation("org.msgpack:msgpack-core")
 
-    implementation("ch.qos.logback:logback-classic:1.2.3")
-    implementation("io.micrometer:micrometer-registry-prometheus:1.5.5")
-    implementation("io.zipkin.brave:brave-instrumentation-sparkjava:5.12.5")
-    implementation("io.zipkin.brave:brave-instrumentation-p6spy:5.12.5")
-    implementation("io.zipkin.reporter2:zipkin-sender-urlconnection:2.15.1")
+    implementation("ch.qos.logback:logback-classic")
+    implementation("io.micrometer:micrometer-registry-prometheus")
+    implementation("io.zipkin.brave:brave-instrumentation-sparkjava")
+    implementation("io.zipkin.brave:brave-instrumentation-p6spy")
+    implementation("io.zipkin.reporter2:zipkin-sender-urlconnection")
 
-    implementation("com.zaxxer:HikariCP:3.4.5")
+    implementation("com.zaxxer:HikariCP")
 
-    testFixturesApi("org.junit.jupiter:junit-jupiter:5.6.2")
-    testFixturesApi("org.assertj:assertj-core:3.17.2")
+    testFixturesApi(platform(project(":platform")))
+    testFixturesApi("org.junit.jupiter:junit-jupiter")
+    testFixturesApi("org.assertj:assertj-core")
 
-    testImplementation("com.tngtech.archunit:archunit-junit5:0.14.1")
-    testImplementation("io.rest-assured:rest-assured:4.3.1")
-    testImplementation("com.h2database:h2:1.4.200")
+    testImplementation(platform(project(":platform")))
+    testImplementation("com.tngtech.archunit:archunit-junit5")
+    testImplementation("io.rest-assured:rest-assured")
+    testImplementation("com.h2database:h2")
 
-    e2eTestImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
-    e2eTestImplementation("org.assertj:assertj-core:3.17.2")
-    e2eTestImplementation("org.testcontainers:testcontainers:1.14.3") {
+    e2eTestImplementation(platform(project(":platform")))
+    e2eTestImplementation("org.junit.jupiter:junit-jupiter")
+    e2eTestImplementation("org.assertj:assertj-core")
+    e2eTestImplementation("org.testcontainers:testcontainers") {
         exclude(group: "org.slf4j", module: "slf4j-api")
     }
-    e2eTestImplementation("org.slf4j:slf4j-api:1.7.30") {
-        because("there is an internal slf4j version conflict in testcontainers library")
-    }
-    e2eTestImplementation("org.apache.httpcomponents:httpclient:4.5.6")
-    e2eTestImplementation("org.apache.httpcomponents:httpasyncclient:4.1.4")
-    e2eTestImplementation("org.testcontainers:postgresql:1.14.3") {
-        exclude(group: "org.slf4j", module: "slf4j-api")
-    }
+    e2eTestImplementation("org.slf4j:slf4j-api")
+    e2eTestImplementation("org.apache.httpcomponents:httpclient")
+    e2eTestImplementation("org.apache.httpcomponents:httpasyncclient")
 }
 
 application {

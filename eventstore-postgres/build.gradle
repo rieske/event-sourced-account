@@ -5,13 +5,14 @@ plugins {
 dependencies {
     api(project(":eventstore"))
 
-    implementation("org.postgresql:postgresql:42.2.16")
+    implementation(platform(project(":platform")))
+    implementation("org.postgresql:postgresql")
 
     testImplementation(testFixtures(project(":eventstore")))
-    testImplementation("com.h2database:h2:1.4.200")
+    testImplementation("com.h2database:h2")
 
     integrationTestImplementation(testFixtures(project(":eventstore")))
-    integrationTestImplementation("org.testcontainers:postgresql:1.14.3") {
+    integrationTestImplementation("org.testcontainers:postgresql") {
         exclude(group: "org.slf4j", module: "slf4j-api")
     }
 }
