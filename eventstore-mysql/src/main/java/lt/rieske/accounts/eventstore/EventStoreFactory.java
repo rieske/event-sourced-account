@@ -8,10 +8,10 @@ import java.util.function.Function;
 public class EventStoreFactory {
 
     public static BlobEventStore makeEventStore(String jdbcUrl, String username, String password, Function<DataSource, DataSource> initializer) {
-        return mysqlEventStore(mysqlDataSource(jdbcUrl, username, password), initializer);
+        return makeEventStore(mysqlDataSource(jdbcUrl, username, password), initializer);
     }
 
-    static BlobEventStore mysqlEventStore(DataSource dataSource, Function<DataSource, DataSource> initializer) {
+    static BlobEventStore makeEventStore(DataSource dataSource, Function<DataSource, DataSource> initializer) {
         DataSourceConfiguration.migrateDatabase(dataSource);
         return new MySqlEventStore(initializer.apply(dataSource));
     }

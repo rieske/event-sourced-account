@@ -9,16 +9,19 @@ public class H2 {
 
     private final DataSource dataSource;
 
-    public static H2 mysql() {
+    public static BlobEventStore h2EventStore() {
+        if ("mysql".equals(System.getProperty("eventstore"))) {
+            return EventStoreFactory.makeEventStore(mysql().dataSource(), Function.identity());
+        }
+        return EventStoreFactory.makeEventStore(postgres().dataSource(), Function.identity());
+    }
+
+    private static H2 mysql() {
         return new H2("MySQL");
     }
 
-    public static H2 postgres() {
+    private static H2 postgres() {
         return new H2("PostgreSQL");
-    }
-
-    public static BlobEventStore postgresEventStore() {
-        return EventStoreFactory.postgresEventStore(postgres().dataSource(), Function.identity());
     }
 
     private H2(String mode) {

@@ -3,10 +3,11 @@ plugins {
     id("java-test-fixtures")
 }
 
+def eventstoreImpl = providers.gradleProperty("eventstore").forUseAtConfigurationTime().orElse("postgres")
+
 dependencies {
     implementation(platform(project(":platform")))
-
-    implementation(project(":eventstore-postgres"))
+    implementation(project(":eventstore-${eventstoreImpl.get()}"))
 
     implementation("com.sparkjava:spark-core") {
         exclude(group: "org.eclipse.jetty.websocket", module: "websocket-server")
@@ -43,6 +44,10 @@ dependencies {
 
 application {
     mainClass.set("lt.rieske.accounts.App")
+}
+
+tasks.named("test") {
+    it.systemProperty("eventstore", eventstoreImpl.get())
 }
 
 tasks.named("e2eTest") {

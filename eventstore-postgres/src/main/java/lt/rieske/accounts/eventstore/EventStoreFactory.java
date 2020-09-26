@@ -8,10 +8,10 @@ import java.util.function.Function;
 public class EventStoreFactory {
 
     public static BlobEventStore makeEventStore(String jdbcUrl, String username, String password, Function<DataSource, DataSource> initializer) {
-        return postgresEventStore(postgresDataSource(jdbcUrl, username, password), initializer);
+        return makeEventStore(postgresDataSource(jdbcUrl, username, password), initializer);
     }
 
-    static BlobEventStore postgresEventStore(DataSource dataSource, Function<DataSource, DataSource> initializer) {
+    static BlobEventStore makeEventStore(DataSource dataSource, Function<DataSource, DataSource> initializer) {
         DataSourceConfiguration.migrateDatabase(dataSource);
         return new PostgresEventStore(initializer.apply(dataSource));
     }
