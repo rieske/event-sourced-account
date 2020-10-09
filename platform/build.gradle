@@ -5,7 +5,7 @@ plugins {
 dependencies {
     constraints {
         // production
-        api("com.sparkjava:spark-core:2.9.2")
+        api("com.sparkjava:spark-core:2.9.3")
         api("org.msgpack:msgpack-core:0.8.21")
         api("ch.qos.logback:logback-classic:1.2.3")
         api("io.micrometer:micrometer-registry-prometheus:1.5.5")
