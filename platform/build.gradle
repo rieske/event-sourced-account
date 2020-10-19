@@ -15,7 +15,7 @@ dependencies {
         api("com.zaxxer:HikariCP:3.4.5")
         api("org.flywaydb:flyway-core:7.0.3")
         api("org.postgresql:postgresql:42.2.18")
-        api("mysql:mysql-connector-java:8.0.21")
+        api("mysql:mysql-connector-java:8.0.22")
 
         // test
         api("org.junit.jupiter:junit-jupiter:5.6.2")
