@@ -28,7 +28,7 @@ dependencies {
         api("org.slf4j:slf4j-api") { version { strictly("1.7.30") }}
         api("org.apache.httpcomponents:httpasyncclient:4.1.4")
         api("org.testcontainers:testcontainers:1.14.3")
-        api("org.testcontainers:postgresql:1.14.3")
+        api("org.testcontainers:postgresql:1.15.1")
         api("org.testcontainers:mysql:1.14.3")
     }
 }
