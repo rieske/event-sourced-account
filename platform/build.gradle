@@ -10,7 +10,7 @@ dependencies {
         api("ch.qos.logback:logback-classic:1.2.3")
         api("io.micrometer:micrometer-registry-prometheus:1.6.0")
         api("io.zipkin.brave:brave-instrumentation-sparkjava:5.12.5")
-        api("io.zipkin.brave:brave-instrumentation-p6spy:5.12.5")
+        api("io.zipkin.brave:brave-instrumentation-p6spy:5.13.2")
         api("io.zipkin.reporter2:zipkin-sender-urlconnection:2.15.1")
         api("com.zaxxer:HikariCP:3.4.5")
         api("org.flywaydb:flyway-core:7.3.2")
