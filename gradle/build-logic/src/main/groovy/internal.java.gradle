@@ -8,10 +8,6 @@ java {
     }
 }
 
-repositories {
-    mavenCentral()
-}
-
 tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += ["--enable-preview", "-Xlint:deprecation", "-Xlint:unchecked"]
 }

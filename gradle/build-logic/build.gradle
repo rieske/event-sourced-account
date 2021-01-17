@@ -2,10 +2,6 @@ plugins {
     id("groovy-gradle-plugin")
 }
 
-repositories {
-    gradlePluginPortal()
-}
-
 dependencies {
     implementation("gradle.plugin.org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.10.2")
 }
