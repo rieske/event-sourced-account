@@ -25,10 +25,11 @@ dependencies {
         api("com.h2database:h2:1.4.200")
         api("org.junit.jupiter:junit-jupiter:5.6.2")
         api("org.assertj:assertj-core:3.18.1")
-        api("org.slf4j:slf4j-api") { version { strictly("1.7.30") }}
+        api("org.slf4j:slf4j-api") { version { strictly("1.7.30") }} // internal conflict in testcontainers
+        api("net.java.dev.jna:jna") { version { strictly("5.5.0") }} // internal conflict in testcontainers
         api("org.apache.httpcomponents:httpasyncclient:4.1.4")
-        api("org.testcontainers:testcontainers:1.14.3")
-        api("org.testcontainers:postgresql:1.14.3")
-        api("org.testcontainers:mysql:1.14.3")
+        api("org.testcontainers:testcontainers:1.15.1")
+        api("org.testcontainers:postgresql:1.15.1")
+        api("org.testcontainers:mysql:1.15.1")
     }
 }
