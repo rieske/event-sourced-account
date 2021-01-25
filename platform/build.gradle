@@ -12,7 +12,7 @@ dependencies {
         api("io.zipkin.brave:brave-instrumentation-sparkjava:5.13.3")
         api("io.zipkin.brave:brave-instrumentation-p6spy:5.13.3")
         api("io.zipkin.reporter2:zipkin-sender-urlconnection:2.16.3")
-        api("com.zaxxer:HikariCP:3.4.5")
+        api("com.zaxxer:HikariCP:4.0.0")
         api("org.flywaydb:flyway-core:7.5.0")
         api("org.postgresql:postgresql:42.2.18")
         api("mysql:mysql-connector-java:8.0.23")
