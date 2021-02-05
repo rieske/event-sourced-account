@@ -19,7 +19,7 @@ jobs:
       run: ./gradlew --no-configuration-cache codeCoverageReport coveralls
     - name: Prepare Release
       id: release_config
-      if: ${{ github.ref == 'refs/heads/maste--no-configuration-cache r' }}
+      if: ${{ github.ref == 'refs/heads/master' }}
       run: |
         git fetch --unshallow
         echo "::set-output name=version::$(infrastructure/next-version.sh)"
