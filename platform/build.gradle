@@ -30,6 +30,6 @@ dependencies {
         api("org.apache.httpcomponents:httpasyncclient:4.1.4")
         api("org.testcontainers:testcontainers:1.15.1")
         api("org.testcontainers:postgresql:1.15.1")
-        api("org.testcontainers:mysql:1.15.1")
+        api("org.testcontainers:mysql:1.15.2")
     }
 }
