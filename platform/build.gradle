@@ -23,8 +23,6 @@ dependencies {
         api("com.tngtech.archunit:archunit-junit5:0.17.0")
         api("io.rest-assured:rest-assured:4.3.3")
         api("com.h2database:h2:1.4.200")
-        api("org.junit.jupiter:junit-jupiter:5.6.2")
-        api("org.assertj:assertj-core:3.19.0")
         api("org.slf4j:slf4j-api") { version { strictly("1.7.30") }} // internal conflict in testcontainers
         api("net.java.dev.jna:jna") { version { strictly("5.5.0") }} // internal conflict in testcontainers
         api("org.apache.httpcomponents:httpasyncclient:4.1.4")
