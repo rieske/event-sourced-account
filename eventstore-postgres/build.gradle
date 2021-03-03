@@ -5,12 +5,13 @@ plugins {
 dependencies {
     api(project(":eventstore"))
 
-    implementation(platform(project(":platform")))
-    implementation("org.postgresql:postgresql")
+    implementation(libs.postgresDriver)
+    implementation(libs.slf4j)
 
     testImplementation(testFixtures(project(":eventstore")))
-    testImplementation("com.h2database:h2")
+    testImplementation(libs.h2)
 
     integrationTestImplementation(testFixtures(project(":eventstore")))
-    integrationTestImplementation("org.testcontainers:postgresql")
+    integrationTestImplementation(libs.testcontainersPostgres)
+    integrationTestImplementation(libs.jna)
 }

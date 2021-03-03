@@ -3,9 +3,8 @@ plugins {
 }
 
 dependencies {
-    implementation(platform(project(":platform")))
-    implementation("org.slf4j:slf4j-api")
-    implementation("org.flywaydb:flyway-core")
+    implementation(libs.slf4j)
+    implementation(libs.flyway)
 
     testFixturesApi(testFixtures(project(":account-service")))
 }

@@ -5,14 +5,15 @@ plugins {
 dependencies {
     api(project(":eventstore"))
 
-    implementation(platform(project(":platform")))
-    implementation("mysql:mysql-connector-java") {
+    implementation(libs.mysqlDriver) {
         exclude(group: "com.google.protobuf", module: "protobuf-java")
     }
+    implementation(libs.slf4j)
 
     testImplementation(testFixtures(project(":eventstore")))
-    testImplementation("com.h2database:h2")
+    testImplementation(libs.h2)
 
     integrationTestImplementation(testFixtures(project(":eventstore")))
-    integrationTestImplementation("org.testcontainers:mysql")
+    integrationTestImplementation(libs.testcontainersMysql)
+    integrationTestImplementation(libs.jna)
 }

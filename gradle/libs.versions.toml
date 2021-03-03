@@ -1,0 +1,30 @@
+[versions]
+testcontainers = "1.15.1"
+zipkin = "5.13.3"
+
+[libraries]
+spark = "com.sparkjava:spark-core:2.9.3"
+msgpack = "org.msgpack:msgpack-core:0.8.22"
+logback = "ch.qos.logback:logback-classic:1.2.3"
+micrometerPrometheus = "io.micrometer:micrometer-registry-prometheus:1.6.4"
+zipkinSpark = { module = "io.zipkin.brave:brave-instrumentation-sparkjava", version.ref = "zipkin" }
+zipkinDb = { module = "io.zipkin.brave:brave-instrumentation-p6spy", version.ref = "zipkin" }
+zipkinSender = "io.zipkin.reporter2:zipkin-sender-urlconnection:2.16.3"
+hikari = "com.zaxxer:HikariCP:4.0.2"
+flyway = "org.flywaydb:flyway-core:7.5.4"
+postgresDriver = "org.postgresql:postgresql:42.2.19"
+mysqlDriver = "mysql:mysql-connector-java:8.0.23"
+slf4j = { module = "org.slf4j:slf4j-api", version = { strictly = "1.7.30" } }
+
+# test libraries
+junit = "org.junit.jupiter:junit-jupiter:5.6.2"
+assertj = "org.assertj:assertj-core:3.19.0"
+archunit = "com.tngtech.archunit:archunit-junit5:0.17.0"
+restAssured = "io.rest-assured:rest-assured:4.3.3"
+h2 = "com.h2database:h2:1.4.200"
+testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
+testcontainersPostgres = { module = "org.testcontainers:postgresql", version.ref = "testcontainers" }
+testcontainersMysql = { module = "org.testcontainers:mysql", version.ref = "testcontainers" }
+httpClient = "org.apache.httpcomponents:httpasyncclient:4.1.4"
+jna = { module = "net.java.dev.jna:jna", version = { strictly = "5.5.0" } }
+
