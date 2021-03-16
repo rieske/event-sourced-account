@@ -4,22 +4,17 @@ plugins {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(15)
+        languageVersion = JavaLanguageVersion.of(16)
     }
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.compilerArgs += ["--enable-preview", "-Xlint:deprecation", "-Xlint:unchecked"]
+    options.compilerArgs += ["-Xlint:deprecation", "-Xlint:unchecked"]
 }
 
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
     maxParallelForks = 8
-    jvmArgs += "--enable-preview"
-}
-
-tasks.withType(JavaExec).configureEach {
-    jvmArgs += "--enable-preview"
 }
 
 configurations {
