@@ -27,7 +27,7 @@ dependencies {
         api("net.java.dev.jna:jna") { version { strictly("5.5.0") }} // internal conflict in testcontainers
         api("org.apache.httpcomponents:httpasyncclient:4.1.4")
         api("org.testcontainers:testcontainers:1.15.2")
-        api("org.testcontainers:postgresql:1.15.2")
+        api("org.testcontainers:postgresql:1.15.3")
         api("org.testcontainers:mysql:1.15.2")
     }
 }
