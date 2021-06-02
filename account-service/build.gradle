@@ -6,7 +6,7 @@ def eventstoreImpl = providers.gradleProperty("eventstore").forUseAtConfiguratio
 
 dependencies {
     implementation(platform(project(":platform")))
-    implementation(project(":eventstore-${eventstoreImpl.get()}"))
+    implementation(project(":eventstore"))
 
     implementation("com.sparkjava:spark-core") {
         exclude(group: "org.eclipse.jetty.websocket", module: "websocket-server")
@@ -23,6 +23,8 @@ dependencies {
     implementation("io.zipkin.reporter2:zipkin-sender-urlconnection")
 
     implementation("com.zaxxer:HikariCP")
+
+    runtimeOnly(project(":eventstore-${eventstoreImpl.get()}"))
 
     testFixturesApi(platform(project(":platform")))
     testFixturesApi("org.junit.jupiter:junit-jupiter")
