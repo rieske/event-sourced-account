@@ -2,10 +2,93 @@ plugins {
     id("account.java-conventions")
 }
 
+group = "lt.rieske.account"
+
+sourceSets {
+    mysql
+    postgres
+    mysqlTest {
+        compileClasspath += sourceSets.testFixtures.output + sourceSets.mysql.output
+        runtimeClasspath += sourceSets.testFixtures.output + sourceSets.mysql.output
+    }
+    postgresTest {
+        compileClasspath += sourceSets.testFixtures.output + sourceSets.postgres.output
+        runtimeClasspath += sourceSets.testFixtures.output + sourceSets.postgres.output
+    }
+    mysqlIntegrationTest {
+        compileClasspath += sourceSets.testFixtures.output + sourceSets.mysql.output
+        runtimeClasspath += sourceSets.testFixtures.output + sourceSets.mysql.output
+    }
+    postgresIntegrationTest {
+        compileClasspath += sourceSets.testFixtures.output + sourceSets.postgres.output
+        runtimeClasspath += sourceSets.testFixtures.output + sourceSets.postgres.output
+    }
+}
+
+java {
+    registerFeature("mysql") {
+        usingSourceSet(sourceSets.mysql)
+    }
+    registerFeature("postgres") {
+        usingSourceSet(sourceSets.postgres)
+    }
+}
+
+configurations {
+    mysqlTestImplementation.extendsFrom(mysqlImplementation, testFixturesImplementation)
+    postgresTestImplementation.extendsFrom(postgresImplementation, testFixturesImplementation)
+
+    mysqlIntegrationTestImplementation.extendsFrom(mysqlImplementation, testFixturesImplementation)
+    postgresIntegrationTestImplementation.extendsFrom(postgresImplementation, testFixturesImplementation)
+}
+
+def mysqlTest = tasks.register("mysqlTest", Test) {
+    it.testClassesDirs = sourceSets.mysqlTest.output.classesDirs
+    it.classpath = sourceSets.mysqlTest.runtimeClasspath
+}
+def postgresTest = tasks.register("postgresTest", Test) {
+    it.testClassesDirs = sourceSets.postgresTest.output.classesDirs
+    it.classpath = sourceSets.postgresTest.runtimeClasspath
+}
+def mysqlIntegrationTest = tasks.register("mysqlIntegrationTest", Test) {
+    it.shouldRunAfter(mysqlTest)
+    it.testClassesDirs = sourceSets.mysqlIntegrationTest.output.classesDirs
+    it.classpath = sourceSets.mysqlIntegrationTest.runtimeClasspath
+}
+def postgresIntegrationTest = tasks.register("postgresIntegrationTest", Test) {
+    it.shouldRunAfter(postgresTest)
+    it.testClassesDirs = sourceSets.postgresIntegrationTest.output.classesDirs
+    it.classpath = sourceSets.postgresIntegrationTest.runtimeClasspath
+}
+tasks.named("check") { it.dependsOn(mysqlTest, postgresTest, mysqlIntegrationTest, postgresIntegrationTest) }
+
 dependencies {
     implementation(platform(project(":platform")))
     implementation("org.slf4j:slf4j-api")
     implementation("org.flywaydb:flyway-core")
 
-    testFixturesApi(testFixtures(project(":account-service")))
+    testFixturesApi(testFixtures(project(":account-service"))) {
+        exclude(module: "eventstore")
+    }
+
+    mysqlApi(project(":eventstore"))
+    mysqlImplementation(platform(project(":platform")))
+    mysqlImplementation("mysql:mysql-connector-java") {
+        exclude(group: "com.google.protobuf", module: "protobuf-java")
+    }
+
+    postgresApi(project(":eventstore"))
+    postgresImplementation(platform(project(":platform")))
+    postgresImplementation("org.postgresql:postgresql")
+
+    mysqlTestImplementation("com.h2database:h2")
+    postgresTestImplementation("com.h2database:h2")
+
+    mysqlIntegrationTestImplementation(platform(project(":platform")))
+    mysqlIntegrationTestImplementation("org.testcontainers:mysql")
+    mysqlIntegrationTestImplementation("com.h2database:h2")
+
+    postgresIntegrationTestImplementation(platform(project(":platform")))
+    postgresIntegrationTestImplementation("org.testcontainers:postgresql")
+    postgresIntegrationTestImplementation("com.h2database:h2")
 }

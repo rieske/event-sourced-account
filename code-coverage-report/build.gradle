@@ -5,6 +5,4 @@ plugins {
 dependencies {
     implementation(project(":account-service"))
     implementation(project(":eventstore"))
-    implementation(project(":eventstore-postgres"))
-    implementation(project(":eventstore-mysql"))
 }
