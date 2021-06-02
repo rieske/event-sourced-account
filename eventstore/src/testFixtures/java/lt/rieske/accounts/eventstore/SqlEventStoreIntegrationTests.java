@@ -13,7 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.UUID;
 
-abstract class SqlEventStoreIntegrationTests {
+public abstract class SqlEventStoreIntegrationTests {
 
     protected abstract DataSource dataSource();
 

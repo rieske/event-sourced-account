@@ -24,7 +24,11 @@ dependencies {
 
     implementation("com.zaxxer:HikariCP")
 
-    runtimeOnly(project(":eventstore-${eventstoreImpl.get()}"))
+    runtimeOnly(project(":eventstore")) {
+        capabilities {
+            it.requireCapability("account:eventstore-${eventstoreImpl.get()}")
+        }
+    }
 
     testFixturesApi(platform(project(":platform")))
     testFixturesApi("org.junit.jupiter:junit-jupiter")
@@ -48,7 +52,7 @@ application {
 }
 
 tasks.named("e2eTest") {
-    it.dependsOn(":eventstore-${eventstoreImpl.get()}:integrationTest")
+    it.dependsOn("integrationTest")
     it.systemProperty("eventstore", eventstoreImpl.get())
     it.inputs.files(jar.archiveFile, file("Dockerfile"), fileTree("../infrastructure"))
             .withPathSensitivity(PathSensitivity.RELATIVE)
