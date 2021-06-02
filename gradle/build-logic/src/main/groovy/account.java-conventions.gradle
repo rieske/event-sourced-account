@@ -35,6 +35,7 @@ configurations {
         visible = false
         canBeResolved = false
         canBeConsumed = true
+        extendsFrom(configurations.implementation)
         attributes {
             attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
             attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.DOCUMENTATION))
@@ -50,6 +51,7 @@ configurations {
         visible = false
         canBeResolved = false
         canBeConsumed = true
+        extendsFrom(configurations.implementation)
         attributes {
             attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
             attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.DOCUMENTATION))
