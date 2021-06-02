@@ -14,7 +14,7 @@ public class MySqlEventStoreFactory implements EventStoreFactory {
 
     @Override
     public BlobEventStore makeEventStore(DataSource dataSource, Function<DataSource, DataSource> initializer) {
-        DataSourceConfiguration.migrateDatabase(dataSource);
+        DataSourceConfiguration.migrateDatabase(dataSource, "db/migration/mysql");
         return new MySqlEventStore(initializer.apply(dataSource));
     }
 

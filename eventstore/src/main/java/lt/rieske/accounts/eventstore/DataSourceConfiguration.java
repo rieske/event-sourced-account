@@ -12,9 +12,13 @@ class DataSourceConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(DataSourceConfiguration.class);
 
-    static void migrateDatabase(DataSource dataSource) {
-        var flyway = Flyway.configure().dataSource(dataSource).schemas("event_store").load();
-        flyway.migrate();
+    static void migrateDatabase(DataSource dataSource, String migrationResourcesLocation) {
+        Flyway.configure()
+                .dataSource(dataSource)
+                .locations(migrationResourcesLocation)
+                .schemas("event_store")
+                .load()
+                .migrate();
     }
 
     static void waitForDatabaseToBeAvailable(DataSource dataSource) {
