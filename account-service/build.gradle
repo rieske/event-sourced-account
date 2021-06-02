@@ -1,6 +1,5 @@
 plugins {
     id("account.service-conventions")
-    id("java-test-fixtures")
 }
 
 def eventstoreImpl = providers.gradleProperty("eventstore").forUseAtConfigurationTime().orElse("postgres")
