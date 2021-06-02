@@ -3,9 +3,9 @@ plugins {
 }
 
 dependencies {
-    api(project(":eventstore"))
-
     implementation(platform(project(":platform")))
+    implementation(project(":eventstore"))
+
     implementation("org.postgresql:postgresql")
 
     testImplementation(testFixtures(project(":eventstore")))

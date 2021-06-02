@@ -3,9 +3,9 @@ plugins {
 }
 
 dependencies {
-    api(project(":eventstore"))
-
     implementation(platform(project(":platform")))
+    implementation(project(":eventstore"))
+
     implementation("mysql:mysql-connector-java") {
         exclude(group: "com.google.protobuf", module: "protobuf-java")
     }
