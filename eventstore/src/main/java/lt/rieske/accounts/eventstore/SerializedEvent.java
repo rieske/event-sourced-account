@@ -3,7 +3,7 @@ package lt.rieske.accounts.eventstore;
 import java.util.UUID;
 
 
-record SerializedEvent(
+public record SerializedEvent(
         UUID aggregateId,
         long sequenceNumber,
         UUID transactionId,

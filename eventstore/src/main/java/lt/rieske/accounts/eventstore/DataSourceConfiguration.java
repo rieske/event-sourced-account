@@ -8,11 +8,11 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.time.Duration;
 
-class DataSourceConfiguration {
+public class DataSourceConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(DataSourceConfiguration.class);
 
-    static void migrateDatabase(DataSource dataSource, String migrationResourcesLocation) {
+    public static void migrateDatabase(DataSource dataSource, String migrationResourcesLocation) {
         Flyway.configure()
                 .dataSource(dataSource)
                 .locations(migrationResourcesLocation)
@@ -21,7 +21,7 @@ class DataSourceConfiguration {
                 .migrate();
     }
 
-    static void waitForDatabaseToBeAvailable(DataSource dataSource) {
+    public static void waitForDatabaseToBeAvailable(DataSource dataSource) {
         var retryPeriod = Duration.ofSeconds(1);
         for (int i = 0; i < 20; i++) {
             try (var conn = dataSource.getConnection()) {

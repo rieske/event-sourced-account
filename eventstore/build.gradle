@@ -2,10 +2,36 @@ plugins {
     id("account.java-conventions")
 }
 
+java {
+    registerFeature("mysql") {
+        usingSourceSet(sourceSets.main)
+    }
+    registerFeature("postgres") {
+        usingSourceSet(sourceSets.main)
+    }
+}
+
+configurations {
+    integrationTestImplementation.extendsFrom(mysqlImplementation, postgresImplementation)
+}
+
 dependencies {
     implementation(platform(project(":platform")))
     implementation("org.slf4j:slf4j-api")
     implementation("org.flywaydb:flyway-core")
 
     testFixturesApi(testFixtures(project(":account-service")))
+
+    postgresImplementation("org.postgresql:postgresql")
+
+    mysqlImplementation("mysql:mysql-connector-java") {
+        exclude(group: "com.google.protobuf", module: "protobuf-java")
+    }
+
+    testImplementation(testFixtures(project(":eventstore")))
+    testImplementation("com.h2database:h2")
+
+    integrationTestImplementation(testFixtures(project(":eventstore")))
+    integrationTestImplementation("org.testcontainers:mysql")
+    integrationTestImplementation("org.testcontainers:postgresql")
 }

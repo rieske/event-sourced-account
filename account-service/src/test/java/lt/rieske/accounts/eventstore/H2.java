@@ -1,5 +1,7 @@
 package lt.rieske.accounts.eventstore;
 
+import lt.rieske.accounts.eventstore.mysql.MySqlEventStoreFactory;
+import lt.rieske.accounts.eventstore.postgres.PostgresEventStoreFactory;
 import org.h2.jdbcx.JdbcDataSource;
 
 import javax.sql.DataSource;
@@ -10,19 +12,17 @@ public class H2 {
     private final DataSource dataSource;
 
     public static BlobEventStore h2EventStore() {
-        var eventStoreFactory = Configuration.instantiateEventStoreFactory();
-        if (eventStoreFactory.getClass().getName().equals("lt.rieske.accounts.eventstore.MySqlEventStoreFactory")) {
-            return eventStoreFactory.makeEventStore(mysql().dataSource(), Function.identity());
+        try {
+            Class.forName("org.postgresql.ds.PGSimpleDataSource");
+            return new PostgresEventStoreFactory().makeEventStore(new H2("PostgreSQL").dataSource(), Function.identity());
+        } catch (ClassNotFoundException e) {
+            try {
+                Class.forName("com.mysql.cj.jdbc.MysqlDataSource");
+                return new MySqlEventStoreFactory().makeEventStore(new H2("MySQL").dataSource(), Function.identity());
+            } catch (ClassNotFoundException classNotFoundException) {
+                throw new IllegalStateException("None of supported eventstore drivers found on classpath. This is a build configuration error.");
+            }
         }
-        return eventStoreFactory.makeEventStore(postgres().dataSource(), Function.identity());
-    }
-
-    private static H2 mysql() {
-        return new H2("MySQL");
-    }
-
-    private static H2 postgres() {
-        return new H2("PostgreSQL");
     }
 
     private H2(String mode) {
