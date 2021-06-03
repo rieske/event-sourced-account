@@ -53,9 +53,8 @@ coveralls {
 
 tasks.named("coveralls") {
     doFirst {
-        println(configurations.sourcesPath.flatten())
         coveralls {
-            sourceDirs = configurations.sourcesPath.flatten()
+            sourceDirs += configurations.sourcesPath.incoming.artifactView { it.lenient(true) }.files.files
         }
     }
 }
