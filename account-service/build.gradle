@@ -61,6 +61,7 @@ tasks.named("codeCoverageReport") {
     })
 }
 
+
 tasks.named("e2eTest") {
     it.dependsOn("integrationTest")
     it.systemProperty("eventstore", eventstoreImpl.get())

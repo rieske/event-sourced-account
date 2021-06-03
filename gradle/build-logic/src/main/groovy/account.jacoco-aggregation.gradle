@@ -53,9 +53,9 @@ coveralls {
 
 tasks.named("coveralls") {
     doFirst {
+        println(configurations.sourcesPath.flatten())
         coveralls {
-            // FIXME: all sources should be resolved in sourcesPath configuration
-            sourceDirs += configurations.sourcesPath.incoming.artifactView { it.lenient(true) }.files.files + sourceSets.main.java.sourceDirectories
+            sourceDirs = configurations.sourcesPath.flatten()
         }
     }
 }
