@@ -9,7 +9,7 @@ configurations {
         visible = false
         canBeResolved = true
         canBeConsumed = false
-        extendsFrom(configurations.implementation)
+        extendsFrom(runtimeClasspath)
         attributes {
             attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
             attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.DOCUMENTATION))
@@ -22,7 +22,7 @@ configurations {
         visible = false
         canBeResolved = true
         canBeConsumed = false
-        extendsFrom(configurations.implementation)
+        extendsFrom(runtimeClasspath)
         attributes {
             attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
             attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.DOCUMENTATION))
@@ -34,7 +34,7 @@ configurations {
 // Task to gather code coverage from multiple subprojects
 def codeCoverageReport = tasks.register("codeCoverageReport", JacocoReport) {
     it.additionalClassDirs(configurations.runtimeClasspath.asFileTree.filter { it.path.contains("/build/libs/") })
-    it.additionalSourceDirs(configurations.sourcesPath)
+    it.additionalSourceDirs(configurations.sourcesPath.incoming.artifactView { it.lenient(true) }.files)
     it.executionData(configurations.coverageDataPath.incoming.artifactView { it.lenient(true) }.files.filter { it.exists() })
 
     it.reports {
