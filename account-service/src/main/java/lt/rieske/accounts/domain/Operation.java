@@ -11,7 +11,7 @@ public final class Operation {
     }
 
     public static Consumer<Account> deposit(long amount) {
-        return  a -> a.deposit(amount);
+        return a -> a.deposit(amount);
     }
 
     public static Consumer<Account> withdraw(long amount) {

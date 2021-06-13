@@ -7,7 +7,7 @@ public record SequencedEvent<T>(
         UUID aggregateId,
         long sequenceNumber,
         UUID transactionId,
-        Event<T>event
+        Event<T> event
 ) {
     void apply(T aggregate) {
         event.accept(aggregate);

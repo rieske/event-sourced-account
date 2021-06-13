@@ -1,7 +1,5 @@
-package lt.rieske.accounts.eventstore.postgres;
+package lt.rieske.accounts.eventstore;
 
-import lt.rieske.accounts.eventstore.BlobEventStore;
-import lt.rieske.accounts.eventstore.SerializedEvent;
 import org.postgresql.util.PSQLException;
 
 import javax.sql.DataSource;

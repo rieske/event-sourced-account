@@ -1,7 +1,5 @@
-package lt.rieske.accounts.eventstore.mysql;
+package lt.rieske.accounts.eventstore;
 
-import lt.rieske.accounts.eventstore.BlobEventStore;
-import lt.rieske.accounts.eventstore.SqlEventStoreIntegrationTests;
 import org.h2.jdbcx.JdbcDataSource;
 
 import javax.sql.DataSource;
@@ -10,7 +8,7 @@ import java.sql.SQLException;
 import java.util.UUID;
 import java.util.function.Function;
 
-import static lt.rieske.accounts.eventstore.mysql.MySqlEventStore.uuidToBytes;
+import static lt.rieske.accounts.eventstore.MySqlEventStore.uuidToBytes;
 
 class H2MySqlEventStoreTests extends SqlEventStoreIntegrationTests {
 
@@ -27,7 +25,7 @@ class H2MySqlEventStoreTests extends SqlEventStoreIntegrationTests {
 
     @Override
     protected BlobEventStore blobEventStore() {
-        return new MySqlEventStoreFactory().makeEventStore(dataSource(), Function.identity());
+        return EventStoreFactory.mysqlEventStore(dataSource(), Function.identity());
     }
 
     @Override

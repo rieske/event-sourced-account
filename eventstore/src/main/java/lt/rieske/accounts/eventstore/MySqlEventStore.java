@@ -1,7 +1,4 @@
-package lt.rieske.accounts.eventstore.mysql;
-
-import lt.rieske.accounts.eventstore.BlobEventStore;
-import lt.rieske.accounts.eventstore.SerializedEvent;
+package lt.rieske.accounts.eventstore;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -19,7 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 
-public class MySqlEventStore implements BlobEventStore {
+class MySqlEventStore implements BlobEventStore {
 
     private static final String APPEND_EVENT_SQL =
             "INSERT INTO event_store.Event(aggregateId, sequenceNumber, transactionId, payload) VALUES(?, ?, ?, ?)";

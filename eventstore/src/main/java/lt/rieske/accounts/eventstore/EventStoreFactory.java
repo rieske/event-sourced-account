@@ -1,31 +1,73 @@
 package lt.rieske.accounts.eventstore;
 
-import lt.rieske.accounts.eventstore.mysql.MySqlEventStoreFactory;
-import lt.rieske.accounts.eventstore.postgres.PostgresEventStoreFactory;
+import com.mysql.cj.jdbc.MysqlDataSource;
+import org.postgresql.ds.PGSimpleDataSource;
 
 import javax.sql.DataSource;
 import java.util.function.Function;
 
-public interface EventStoreFactory {
-    BlobEventStore makeEventStore(String jdbcUrl, String username, String password, Function<DataSource, DataSource> initializer);
+public final class EventStoreFactory {
 
-    BlobEventStore makeEventStore(DataSource dataSource, Function<DataSource, DataSource> initializer);
-
-    static BlobEventStore makeEventStoreFoo(String jdbcUrl, String username, String password, Function<DataSource, DataSource> initializer) {
-        return eventStoreFactory().makeEventStore(jdbcUrl, username, password, initializer);
+    private EventStoreFactory() {
     }
 
-    private static EventStoreFactory eventStoreFactory() {
+    public static BlobEventStore makeEventStore(String jdbcUrl, String username, String password, Function<DataSource, DataSource> initializer) {
         try {
             Class.forName("org.postgresql.ds.PGSimpleDataSource");
-            return new PostgresEventStoreFactory();
+            var dataSource = postgresDataSource(jdbcUrl, username, password);
+            return postgresEventStore(dataSource, initializer);
         } catch (ClassNotFoundException e) {
             try {
                 Class.forName("com.mysql.cj.jdbc.MysqlDataSource");
-                return new MySqlEventStoreFactory();
+                var dataSource = mysqlDataSource(jdbcUrl, username, password);
+                return mysqlEventStore(dataSource, initializer);
             } catch (ClassNotFoundException classNotFoundException) {
                 throw new IllegalStateException("None of supported eventstore drivers found on classpath. This is a build configuration error.");
             }
         }
+    }
+
+    static BlobEventStore postgresEventStore(String jdbcUrl, String username, String password, Function<DataSource, DataSource> initializer) {
+        var dataSource = postgresDataSource(jdbcUrl, username, password);
+        DataSourceConfiguration.migrateDatabase(dataSource, "db/migration/postgres");
+        return new PostgresEventStore(initializer.apply(dataSource));
+    }
+
+    static BlobEventStore mysqlEventStore(String jdbcUrl, String username, String password, Function<DataSource, DataSource> initializer) {
+        var dataSource = mysqlDataSource(jdbcUrl, username, password);
+        DataSourceConfiguration.migrateDatabase(dataSource, "db/migration/mysql");
+        return new MySqlEventStore(initializer.apply(dataSource));
+    }
+
+    static BlobEventStore postgresEventStore(DataSource dataSource, Function<DataSource, DataSource> initializer) {
+        DataSourceConfiguration.migrateDatabase(dataSource, "db/migration/postgres");
+        return new PostgresEventStore(initializer.apply(dataSource));
+    }
+
+    static BlobEventStore mysqlEventStore(DataSource dataSource, Function<DataSource, DataSource> initializer) {
+        DataSourceConfiguration.migrateDatabase(dataSource, "db/migration/mysql");
+        return new MySqlEventStore(initializer.apply(dataSource));
+    }
+
+    private static DataSource postgresDataSource(String jdbcUrl, String username, String password) {
+        var dataSource = new PGSimpleDataSource();
+        dataSource.setUrl(jdbcUrl);
+        dataSource.setUser(username);
+        dataSource.setPassword(password);
+
+        DataSourceConfiguration.waitForDatabaseToBeAvailable(dataSource);
+
+        return dataSource;
+    }
+
+    private static DataSource mysqlDataSource(String jdbcUrl, String username, String password) {
+        var dataSource = new MysqlDataSource();
+        dataSource.setUrl(jdbcUrl);
+        dataSource.setUser(username);
+        dataSource.setPassword(password);
+
+        DataSourceConfiguration.waitForDatabaseToBeAvailable(dataSource);
+
+        return dataSource;
     }
 }

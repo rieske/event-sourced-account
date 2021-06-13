@@ -1,7 +1,5 @@
-package lt.rieske.accounts.eventstore.postgres;
+package lt.rieske.accounts.eventstore;
 
-import lt.rieske.accounts.eventstore.BlobEventStore;
-import lt.rieske.accounts.eventstore.SqlEventStoreIntegrationTests;
 import org.h2.jdbcx.JdbcDataSource;
 
 import javax.sql.DataSource;
@@ -25,7 +23,7 @@ class H2PostgresEventStoreTests extends SqlEventStoreIntegrationTests {
 
     @Override
     protected BlobEventStore blobEventStore() {
-        return new PostgresEventStoreFactory().makeEventStore(dataSource(), Function.identity());
+        return EventStoreFactory.postgresEventStore(dataSource(), Function.identity());
     }
 
     @Override

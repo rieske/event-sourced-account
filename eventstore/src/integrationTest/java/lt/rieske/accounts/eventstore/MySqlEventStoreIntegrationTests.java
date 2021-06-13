@@ -1,8 +1,6 @@
-package lt.rieske.accounts.eventstore.mysql;
+package lt.rieske.accounts.eventstore;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
-import lt.rieske.accounts.eventstore.BlobEventStore;
-import lt.rieske.accounts.eventstore.SqlEventStoreIntegrationTests;
 import org.junit.jupiter.api.AfterAll;
 import org.testcontainers.containers.MySQLContainer;
 
@@ -29,7 +27,7 @@ class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
 
     @Override
     protected BlobEventStore blobEventStore() {
-        return new MySqlEventStoreFactory().makeEventStore(MYSQL.jdbcUrl(), MYSQL.username(), MYSQL.password(), Function.identity());
+        return EventStoreFactory.mysqlEventStore(MYSQL.jdbcUrl(), MYSQL.username(), MYSQL.password(), Function.identity());
     }
 
     @Override
