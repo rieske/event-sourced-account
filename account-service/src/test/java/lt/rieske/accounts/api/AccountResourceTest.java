@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.notNullValue;
 class AccountResourceTest {
 
     private static final Server SERVER = ApiConfiguration.server(
-            (t, m) -> H2.h2EventStore(), null);
+            (t, m) -> H2.eventStore(), null);
     private static int serverPort;
 
     @BeforeAll

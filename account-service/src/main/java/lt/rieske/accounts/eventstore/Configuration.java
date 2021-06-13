@@ -17,7 +17,7 @@ public class Configuration {
 
     public static BlobEventStore blobEventStore(String jdbcUrl, String username, String password,
                                                 TracingConfiguration tracingConfiguration, MeterRegistry meterRegistry) {
-        return EventStoreFactory.makeEventStoreFoo(jdbcUrl, username, password, ds -> pooledMeteredDataSource(tracingConfiguration.decorate(ds), meterRegistry));
+        return EventStoreFactory.makeEventStore(jdbcUrl, username, password, ds -> pooledMeteredDataSource(tracingConfiguration.decorate(ds), meterRegistry));
     }
 
     private static DataSource pooledMeteredDataSource(DataSource dataSource, MeterRegistry meterRegistry) {

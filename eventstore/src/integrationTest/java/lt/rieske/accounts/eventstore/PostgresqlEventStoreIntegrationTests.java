@@ -1,7 +1,5 @@
-package lt.rieske.accounts.eventstore.postgres;
+package lt.rieske.accounts.eventstore;
 
-import lt.rieske.accounts.eventstore.BlobEventStore;
-import lt.rieske.accounts.eventstore.SqlEventStoreIntegrationTests;
 import org.junit.jupiter.api.AfterAll;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -29,7 +27,7 @@ class PostgresqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests
 
     @Override
     protected BlobEventStore blobEventStore() {
-        return new PostgresEventStoreFactory().makeEventStore(POSTGRESQL.jdbcUrl(), POSTGRESQL.username(), POSTGRESQL.password(), Function.identity());
+        return EventStoreFactory.postgresEventStore(POSTGRESQL.jdbcUrl(), POSTGRESQL.username(), POSTGRESQL.password(), Function.identity());
     }
 
     @Override

@@ -7,6 +7,6 @@ public record SerializedEvent(
         UUID aggregateId,
         long sequenceNumber,
         UUID transactionId,
-        byte[]payload
+        byte[] payload
 ) {
 }
