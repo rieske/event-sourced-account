@@ -1,5 +1,6 @@
 plugins {
     id("account.service-conventions")
+    id("account.jacoco-aggregation")
 }
 
 def eventstoreImpl = providers.gradleProperty("eventstore").forUseAtConfigurationTime().orElse("postgres")
