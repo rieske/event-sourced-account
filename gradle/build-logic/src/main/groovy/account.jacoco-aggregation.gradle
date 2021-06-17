@@ -31,11 +31,16 @@ configurations {
     }
 }
 
+def currentProjectTestCoverageProvider = tasks.named("test").map { task ->
+    task.extensions.getByType(JacocoTaskExtension).destinationFile
+}
 // Task to gather code coverage from multiple subprojects
 def codeCoverageReport = tasks.register("codeCoverageReport", JacocoReport) {
+    it.sourceSets(sourceSets.main)
     it.additionalClassDirs(configurations.runtimeClasspath.asFileTree.filter { it.path.contains("/build/libs/") })
     it.additionalSourceDirs(configurations.sourcesPath.incoming.artifactView { it.lenient(true) }.files)
     it.executionData(configurations.coverageDataPath.incoming.artifactView { it.lenient(true) }.files.filter { it.exists() })
+    it.executionData(currentProjectTestCoverageProvider)
 
     it.reports {
         xml.enabled true
@@ -55,6 +60,7 @@ tasks.named("coveralls") {
     doFirst {
         coveralls {
             sourceDirs += configurations.sourcesPath.incoming.artifactView { it.lenient(true) }.files.files
+            sourceDirs += sourceSets.main.java.srcDirs
         }
     }
 }

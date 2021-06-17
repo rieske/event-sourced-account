@@ -1,7 +1,0 @@
-plugins {
-    id("account.jacoco-aggregation")
-}
-
-dependencies {
-    implementation(project(":account-service"))
-}
