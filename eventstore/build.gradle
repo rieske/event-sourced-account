@@ -1,5 +1,5 @@
 plugins {
-    id("account.java-conventions")
+    id("account.library")
 }
 
 java {

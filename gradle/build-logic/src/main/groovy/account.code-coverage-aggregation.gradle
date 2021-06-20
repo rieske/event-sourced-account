@@ -1,5 +1,5 @@
 plugins {
-    id("internal.jacoco")
+    id("account.jacoco")
     id("com.github.kt3k.coveralls")
 }
 
@@ -43,8 +43,8 @@ def codeCoverageReport = tasks.register("codeCoverageReport", JacocoReport) {
     it.executionData(currentProjectTestCoverageProvider)
 
     it.reports {
-        xml.enabled true
-        html.enabled true
+        xml.required = true
+        html.required = true
     }
 }
 

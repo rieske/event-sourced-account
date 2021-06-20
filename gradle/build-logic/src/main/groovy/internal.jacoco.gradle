@@ -1,8 +1,0 @@
-plugins {
-    id("jacoco")
-    id("internal.java")
-}
-
-jacoco {
-    toolVersion = "0.8.6"
-}

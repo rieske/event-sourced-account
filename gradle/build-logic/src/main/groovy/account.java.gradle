@@ -1,7 +1,30 @@
 plugins {
-    id("internal.java")
-    id("internal.jacoco")
+    id("account.jacoco")
+    id("java")
     id("java-test-fixtures")
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(16)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += ["-Xlint:deprecation", "-Xlint:unchecked"]
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+    maxParallelForks = 8
+}
+
+configurations {
+    all {
+        resolutionStrategy {
+            failOnVersionConflict()
+        }
+    }
 }
 
 sourceSets {
