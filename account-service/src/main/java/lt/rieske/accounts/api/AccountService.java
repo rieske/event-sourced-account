@@ -51,7 +51,7 @@ class AccountService {
     }
 
     List<SequencedEvent<AccountEventsVisitor>> getEvents(UUID accountId) {
-        return eventStore.getEvents(accountId, 0).collect(Collectors.toUnmodifiableList());
+        return eventStore.getEvents(accountId, 0).toList();
     }
 
     private static void withRetryOnConcurrentModification(Runnable r) {

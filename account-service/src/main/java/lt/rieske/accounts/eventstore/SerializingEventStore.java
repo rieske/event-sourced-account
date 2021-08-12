@@ -26,11 +26,9 @@ class SerializingEventStore<T> implements EventStore<T> {
             Collection<SequencedEvent<T>> uncommittedSnapshots,
             UUID transactionId) {
         var serializedEvents = uncommittedEvents.stream()
-                .map(e -> serialize(e, transactionId))
-                .collect(Collectors.toUnmodifiableList());
+                .map(e -> serialize(e, transactionId)).toList();
         var serializedSnapshots = uncommittedSnapshots.stream()
-                .map(s -> serialize(s, null))
-                .collect(Collectors.toUnmodifiableList());
+                .map(s -> serialize(s, null)).toList();
 
         blobStore.append(serializedEvents, serializedSnapshots, transactionId);
     }
