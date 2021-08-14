@@ -5,6 +5,8 @@ import com.tngtech.archunit.core.importer.Location;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
+import com.tngtech.archunit.library.Architectures;
+import lt.rieske.accounts.api.ApiConfiguration;
 
 import java.util.regex.Pattern;
 
@@ -13,6 +15,20 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 @AnalyzeClasses(packages = "lt.rieske.accounts", importOptions = ArchitectureTest.DoNotIncludeTests.class)
 class ArchitectureTest {
+
+    @ArchTest
+    static final ArchRule onionArchitecture = Architectures.onionArchitecture()
+            .domainModels("lt.rieske.accounts.domain", "lt.rieske.accounts.eventsourcing")
+            .adapter("eventstore", "lt.rieske.accounts.eventstore")
+            .adapter("api", "lt.rieske.accounts.api")
+            .applicationServices("lt.rieske.accounts", "lt.rieske.accounts.infrastructure")
+            .ignoreDependency(App.class, lt.rieske.accounts.eventstore.Configuration.class)
+            .ignoreDependency(App.class, lt.rieske.accounts.eventstore.BlobEventStore.class)
+            .ignoreDependency(App.class, lt.rieske.accounts.api.ApiConfiguration.class)
+            .ignoreDependency(App.class, lt.rieske.accounts.api.Server.class)
+            .ignoreDependency(lt.rieske.accounts.api.ApiConfiguration.class, lt.rieske.accounts.eventstore.Configuration.class)
+            .ignoreDependency(lt.rieske.accounts.api.ApiConfiguration.EventStoreSupplier.class, lt.rieske.accounts.eventstore.BlobEventStore.class)
+            .withOptionalLayers(true);
 
     @ArchTest
     static final ArchRule domainShouldNotDependOnEventstore =
