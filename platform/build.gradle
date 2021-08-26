@@ -8,7 +8,7 @@ dependencies {
         api("com.sparkjava:spark-core:2.9.3")
         api("org.msgpack:msgpack-core:0.9.0")
         api("ch.qos.logback:logback-classic:1.2.5")
-        api("io.micrometer:micrometer-registry-prometheus:1.7.1")
+        api("io.micrometer:micrometer-registry-prometheus:1.7.3")
         api("io.zipkin.brave:brave-instrumentation-sparkjava:5.13.3")
         api("io.zipkin.brave:brave-instrumentation-p6spy:5.13.3")
         api("io.zipkin.reporter2:zipkin-sender-urlconnection:2.16.3")
