@@ -32,8 +32,8 @@ dependencies {
             because("internal conflict in testcontainers library")
         }
         api("org.apache.httpcomponents:httpasyncclient:4.1.4")
-        api("org.testcontainers:testcontainers:1.15.3")
-        api("org.testcontainers:postgresql:1.15.3")
-        api("org.testcontainers:mysql:1.15.3")
+        api("org.testcontainers:testcontainers:1.16.0")
+        api("org.testcontainers:postgresql:1.16.0")
+        api("org.testcontainers:mysql:1.16.0")
     }
 }
