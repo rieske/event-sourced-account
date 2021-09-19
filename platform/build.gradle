@@ -16,6 +16,9 @@ dependencies {
         api("org.flywaydb:flyway-core:7.15.0")
         api("org.postgresql:postgresql:42.2.23")
         api("mysql:mysql-connector-java:8.0.26")
+        api("org.slf4j:slf4j-api") {
+            version { strictly("1.7.32") }
+        }
 
         // test
         api("org.junit.jupiter:junit-jupiter:5.7.2")
@@ -23,9 +26,6 @@ dependencies {
         api("com.tngtech.archunit:archunit-junit5:0.21.0")
         api("io.rest-assured:rest-assured:4.4.0")
         api("com.h2database:h2:1.4.200")
-        api("org.slf4j:slf4j-api") {
-            version { strictly("1.7.32") }
-        }
         api("org.apache.httpcomponents:httpasyncclient:4.1.4")
         api("org.testcontainers:testcontainers:1.16.0")
         api("org.testcontainers:postgresql:1.16.0")
