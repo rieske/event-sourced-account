@@ -24,12 +24,7 @@ dependencies {
         api("io.rest-assured:rest-assured:4.4.0")
         api("com.h2database:h2:1.4.200")
         api("org.slf4j:slf4j-api") {
-            version { strictly("1.7.30") }
-            because("internal conflict in testcontainers library")
-        }
-        api("net.java.dev.jna:jna") {
-            version { strictly("5.5.0") }
-            because("internal conflict in testcontainers library")
+            version { strictly("1.7.32") }
         }
         api("org.apache.httpcomponents:httpasyncclient:4.1.4")
         api("org.testcontainers:testcontainers:1.16.0")
