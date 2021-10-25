@@ -28,7 +28,7 @@ dependencies {
         api("com.h2database:h2:1.4.200")
         api("org.apache.httpcomponents:httpasyncclient:4.1.4")
         api("org.testcontainers:testcontainers:1.16.0")
-        api("org.testcontainers:postgresql:1.16.0")
+        api("org.testcontainers:postgresql:1.16.2")
         api("org.testcontainers:mysql:1.16.0")
     }
 }
