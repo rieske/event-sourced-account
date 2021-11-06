@@ -14,6 +14,18 @@ tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += ["-Xlint:deprecation", "-Xlint:unchecked"]
 }
 
+testing.suites {
+    integrationTest(JvmTestSuite) {
+        targets {
+            all {
+                testTask.configure {
+                    shouldRunAfter(test)
+                }
+            }
+        }
+    }
+}
+
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
     maxParallelForks = 8
@@ -27,25 +39,11 @@ configurations {
     }
 }
 
-sourceSets {
-    integrationTest {
-        compileClasspath += sourceSets.testFixtures.output
-        runtimeClasspath += sourceSets.testFixtures.output
-    }
-}
-
 configurations {
     integrationTestImplementation.extendsFrom(implementation)
 }
 
-def integrationTest = tasks.register("integrationTest", Test) {
-    it.shouldRunAfter("test")
-
-    it.testClassesDirs = sourceSets.integrationTest.output.classesDirs
-    it.classpath = sourceSets.integrationTest.runtimeClasspath
-}
-
-tasks.named("check") { it.dependsOn(integrationTest) }
+tasks.named("check") { it.dependsOn(testing.suites.integrationTest) }
 
 // Do not generate reports for individual projects
 tasks.named("jacocoTestReport") {
