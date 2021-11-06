@@ -14,14 +14,12 @@ tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += ["-Xlint:deprecation", "-Xlint:unchecked"]
 }
 
-testing {
-    suites {
-        integrationTest(JvmTestSuite) {
-            targets {
-                all {
-                    testTask.configure {
-                        shouldRunAfter(test)
-                    }
+testing.suites {
+    integrationTest(JvmTestSuite) {
+        targets {
+            all {
+                testTask.configure {
+                    shouldRunAfter(test)
                 }
             }
         }

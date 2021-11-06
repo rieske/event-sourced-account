@@ -3,14 +3,12 @@ plugins {
     id("application")
 }
 
-testing {
-    suites {
-        e2eTest(JvmTestSuite) {
-            targets {
-                all {
-                    testTask.configure {
-                        dependsOn("assemble")
-                    }
+testing.suites {
+    e2eTest(JvmTestSuite) {
+        targets {
+            all {
+                testTask.configure {
+                    dependsOn("assemble")
                 }
             }
         }
