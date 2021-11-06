@@ -59,13 +59,13 @@ tasks.named("e2eTest") {
 }
 
 tasks.register("stressTest", JavaExec) {
-    classpath = sourceSets.e2eTest.runtimeClasspath
-    main = "lt.rieske.accounts.StressTests"
+    it.classpath = sourceSets.e2eTest.runtimeClasspath
+    it.mainClass.set("lt.rieske.accounts.StressTests")
 }
 
 tasks.register("asyncStressTest", JavaExec) {
-    classpath = sourceSets.e2eTest.runtimeClasspath
-    main = "lt.rieske.accounts.AsyncStressTests"
+    it.classpath = sourceSets.e2eTest.runtimeClasspath
+    it.mainClass.set("lt.rieske.accounts.AsyncStressTests")
 }
 
 tasks.register("composeUp", Exec) {
