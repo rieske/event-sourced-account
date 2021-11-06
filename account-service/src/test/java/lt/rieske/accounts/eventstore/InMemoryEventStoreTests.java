@@ -114,7 +114,7 @@ class InMemoryEventStore<T> implements EventStore<T> {
         return events
                 .stream()
                 .filter(e -> e.aggregateId().equals(aggregateId))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private void append(SequencedEvent<T> event, UUID transactionId) {

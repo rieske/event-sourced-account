@@ -131,12 +131,9 @@ class ConsistencyTest {
         while (true) {
             int response = s.get();
             switch (response) {
-                case 204:
-                    break concurrentModificationRetryLoop;
-                case 409:
-                    continue;
-                default:
-                    throw new IllegalStateException("Unexpected response from server: " + response);
+                case 204 -> { break concurrentModificationRetryLoop; }
+                case 409 -> {}
+                default -> throw new IllegalStateException("Unexpected response from server: " + response);
             }
         }
     }
