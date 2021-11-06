@@ -14,4 +14,4 @@ def e2eTest = tasks.register("e2eTest", Test) {
     it.classpath = sourceSets.e2eTest.runtimeClasspath
 }
 
-tasks.named("check") { it.dependsOn("test", e2eTest) }
+tasks.named("check") { it.dependsOn(e2eTest) }

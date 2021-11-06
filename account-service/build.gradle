@@ -35,7 +35,6 @@ dependencies {
     testFixturesApi("org.junit.jupiter:junit-jupiter")
     testFixturesApi("org.assertj:assertj-core")
 
-    testImplementation(platform(project(":platform")))
     testImplementation("com.tngtech.archunit:archunit-junit5")
     testImplementation("io.rest-assured:rest-assured")
     testImplementation("com.h2database:h2")
