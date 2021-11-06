@@ -28,7 +28,6 @@ dependencies {
         exclude(group: "com.google.protobuf", module: "protobuf-java")
     }
 
-    testImplementation(testFixtures(project(":eventstore")))
     testImplementation("com.h2database:h2")
 
     integrationTestImplementation(testFixtures(project(":eventstore")))

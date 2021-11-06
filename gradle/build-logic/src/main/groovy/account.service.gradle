@@ -3,15 +3,18 @@ plugins {
     id("application")
 }
 
-sourceSets {
-    e2eTest
+testing {
+    suites {
+        e2eTest(JvmTestSuite) {
+            targets {
+                all {
+                    testTask.configure {
+                        dependsOn("assemble")
+                    }
+                }
+            }
+        }
+    }
 }
 
-def e2eTest = tasks.register("e2eTest", Test) {
-    it.dependsOn("assemble")
-
-    it.testClassesDirs = sourceSets.e2eTest.output.classesDirs
-    it.classpath = sourceSets.e2eTest.runtimeClasspath
-}
-
-tasks.named("check") { it.dependsOn("test", e2eTest) }
+tasks.named("check") { it.dependsOn(testing.suites.e2eTest) }
