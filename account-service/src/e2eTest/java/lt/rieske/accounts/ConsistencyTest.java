@@ -41,9 +41,9 @@ class ConsistencyTest {
                 .withLogConsumer(SERVICE_CONTAINER, new Slf4jLogConsumer(log).withPrefix(SERVICE_CONTAINER))
                 .withLogConsumer(LB_CONTAINER, new Slf4jLogConsumer(log).withPrefix(LB_CONTAINER))
                 .withExposedService(SERVICE_CONTAINER, 1, SERVICE_PORT, Wait.forListeningPort())
-                .withExposedService(SERVICE_CONTAINER, 1, SERVICE_PORT, Wait.forHttp("/ping").forStatusCode(200))
+                .withExposedService(SERVICE_CONTAINER, 1, SERVICE_PORT, Wait.forHealthcheck())
                 .withExposedService(SERVICE_CONTAINER, 2, SERVICE_PORT, Wait.forListeningPort())
-                .withExposedService(SERVICE_CONTAINER, 2, SERVICE_PORT, Wait.forHttp("/ping").forStatusCode(200))
+                .withExposedService(SERVICE_CONTAINER, 2, SERVICE_PORT, Wait.forHealthcheck())
                 .withExposedService(LB_CONTAINER, LB_PORT, Wait.forListeningPort())
                 .withExposedService(LB_CONTAINER, LB_PORT, Wait.forHttp("/ping").forStatusCode(200));
     }
