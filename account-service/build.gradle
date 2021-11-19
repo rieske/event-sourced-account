@@ -54,7 +54,7 @@ application {
 tasks.named("e2eTest") {
     it.dependsOn("integrationTest")
     it.systemProperty("eventstore", eventstoreImpl.get())
-    it.inputs.files(jar.archiveFile, file("Dockerfile"), fileTree("../infrastructure"))
+    it.inputs.files(tasks.named("distTar"), file("Dockerfile"), fileTree("../infrastructure"))
             .withPathSensitivity(PathSensitivity.RELATIVE)
 }
 
