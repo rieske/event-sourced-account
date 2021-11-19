@@ -12,11 +12,17 @@ jobs:
       with:
         java-version: 17
     - name: Build
-      run: ./gradlew build --stacktrace
+      uses: burrunan/gradle-cache-action@v1
+      with:
+        multi-cache-enabled: false
+        arguments: build --stacktrace
     - name: Upload code coverage report to coveralls
+      uses: burrunan/gradle-cache-action@v1
       env:
         COVERALLS_REPO_TOKEN: ${{secrets.COVERALLS_REPO_TOKEN}}
-      run: ./gradlew --no-configuration-cache codeCoverageReport coveralls
+      with:
+        multi-cache-enabled: false
+        arguments: codeCoverageReport coveralls
     - name: Prepare Release
       id: release_config
       if: ${{ github.ref == 'refs/heads/master' }}

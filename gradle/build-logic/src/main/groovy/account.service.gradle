@@ -15,4 +15,9 @@ testing.suites {
     }
 }
 
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
+
 tasks.named("check") { it.dependsOn(testing.suites.e2eTest) }
