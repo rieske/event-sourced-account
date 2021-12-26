@@ -24,6 +24,7 @@ dependencies {
 
     postgresImplementation("org.postgresql:postgresql")
 
+    mysqlImplementation("org.flywaydb:flyway-mysql")
     mysqlImplementation("mysql:mysql-connector-java") {
         exclude(group: "com.google.protobuf", module: "protobuf-java")
     }
