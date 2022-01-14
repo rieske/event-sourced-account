@@ -206,50 +206,51 @@ Kept external dependencies to a minimum, here's what's used and what for:
 
 Here is the runtime dependency tree:
 ```
-+--- project :eventstore-postgres                                                            
-|    +--- project :eventstore                                                                
-|    |    +--- project :platform (*)                                                         
-|    |    +--- org.slf4j:slf4j-api -> 1.7.25                                                 
-|    |    \--- org.flywaydb:flyway-core -> 6.5.6                                             
-|    +--- project :platform (*)                                                              
-|    \--- org.postgresql:postgresql -> 42.2.16                                               
-|         \--- org.checkerframework:checker-qual:3.5.0                                       
-+--- com.sparkjava:spark-core -> 2.9.2                                                       
-|    +--- org.slf4j:slf4j-api:1.7.25                                                         
-|    \--- org.eclipse.jetty:jetty-server:9.4.30.v20200611                                    
-|         +--- javax.servlet:javax.servlet-api:3.1.0                                         
-|         +--- org.eclipse.jetty:jetty-http:9.4.30.v20200611                                 
-|         |    +--- org.eclipse.jetty:jetty-util:9.4.30.v20200611                            
-|         |    \--- org.eclipse.jetty:jetty-io:9.4.30.v20200611                              
-|         |         \--- org.eclipse.jetty:jetty-util:9.4.30.v20200611                       
-|         \--- org.eclipse.jetty:jetty-io:9.4.30.v20200611 (*)                               
-+--- org.msgpack:msgpack-core -> 0.8.21                                                      
-+--- ch.qos.logback:logback-classic -> 1.2.3                                                 
-|    +--- ch.qos.logback:logback-core:1.2.3                                                  
-|    \--- org.slf4j:slf4j-api:1.7.25                                                         
-+--- io.micrometer:micrometer-registry-prometheus -> 1.5.5                                   
-|    +--- io.micrometer:micrometer-core:1.5.5                                                
-|    |    +--- org.hdrhistogram:HdrHistogram:2.1.12                      
-|    |    \--- org.latencyutils:LatencyUtils:2.0.3                       
-|    \--- io.prometheus:simpleclient_common:0.8.1                        
-|         \--- io.prometheus:simpleclient:0.8.1                          
-+--- io.zipkin.brave:brave-instrumentation-sparkjava -> 5.12.5           
-|    +--- io.zipkin.brave:brave-instrumentation-servlet:5.12.5           
-|    |    +--- io.zipkin.brave:brave-instrumentation-http:5.12.5                             
-|    |    |    \--- io.zipkin.brave:brave:5.12.5                                             
-|    |    |         \--- io.zipkin.reporter2:zipkin-reporter-brave:2.15.1                    
-|    |    |              +--- io.zipkin.reporter2:zipkin-reporter:2.15.1                     
-|    |    |              |    \--- io.zipkin.zipkin2:zipkin:2.21.7                           
-|    |    |              \--- io.zipkin.zipkin2:zipkin:2.21.7                                
-|    |    \--- io.zipkin.brave:brave:5.12.5 (*)                                              
-|    \--- io.zipkin.brave:brave:5.12.5 (*)                                                   
-+--- io.zipkin.brave:brave-instrumentation-p6spy -> 5.12.5                                   
-|    +--- p6spy:p6spy:3.9.0                                                                  
-|    \--- io.zipkin.brave:brave:5.12.5 (*)                                                   
++--- project :eventstore-postgres
+|    +--- project :eventstore
+|    |    +--- project :platform (*)
+|    |    +--- org.slf4j:slf4j-api -> 1.7.25
+|    |    \--- org.flywaydb:flyway-core -> 6.5.6
+|    +--- project :platform (*)
+|    \--- org.postgresql:postgresql -> 42.2.16
+|         \--- org.checkerframework:checker-qual:3.5.0
++--- com.sparkjava:spark-core -> 2.9.2
+|    +--- org.slf4j:slf4j-api:1.7.25
+|    \--- org.eclipse.jetty:jetty-server:9.4.30.v20200611
+|         +--- javax.servlet:javax.servlet-api:3.1.0
+|         +--- org.eclipse.jetty:jetty-http:9.4.30.v20200611
+|         |    +--- org.eclipse.jetty:jetty-util:9.4.30.v20200611
+|         |    \--- org.eclipse.jetty:jetty-io:9.4.30.v20200611
+|         |         \--- org.eclipse.jetty:jetty-util:9.4.30.v20200611
+|         \--- org.eclipse.jetty:jetty-io:9.4.30.v20200611 (*)
++--- org.msgpack:msgpack-core -> 0.8.21
++--- ch.qos.logback:logback-classic -> 1.2.3
+|    +--- ch.qos.logback:logback-core:1.2.3
+|    \--- org.slf4j:slf4j-api:1.7.25
++--- io.micrometer:micrometer-registry-prometheus -> 1.5.5
+|    +--- io.micrometer:micrometer-core:1.5.5
+|    |    +--- org.hdrhistogram:HdrHistogram:2.1.12
+|    |    \--- org.latencyutils:LatencyUtils:2.0.3
+|    \--- io.prometheus:simpleclient_common:0.8.1
+|         \--- io.prometheus:simpleclient:0.8.1
++--- io.zipkin.brave:brave-instrumentation-sparkjava -> 5.12.5
+|    +--- io.zipkin.brave:brave-instrumentation-servlet:5.12.5
+|    |    +--- io.zipkin.brave:brave-instrumentation-http:5.12.5
+|    |    |    \--- io.zipkin.brave:brave:5.12.5
+|    |    |         \--- io.zipkin.reporter2:zipkin-reporter-brave:2.15.1
+|    |    |              +--- io.zipkin.reporter2:zipkin-reporter:2.15.1
+|    |    |              |    \--- io.zipkin.zipkin2:zipkin:2.21.7
+|    |    |              \--- io.zipkin.zipkin2:zipkin:2.21.7
+|    |    \--- io.zipkin.brave:brave:5.12.5 (*)
+|    \--- io.zipkin.brave:brave:5.12.5 (*)
++--- io.zipkin.brave:brave-instrumentation-p6spy -> 5.12.5
+|    +--- p6spy:p6spy:3.9.0
+|    \--- io.zipkin.brave:brave:5.12.5 (*)
 +--- io.zipkin.reporter2:zipkin-sender-urlconnection -> 2.15.1
 |    +--- io.zipkin.reporter2:zipkin-reporter:2.15.1 (*)
 |    \--- io.zipkin.zipkin2:zipkin:2.21.7
 \--- com.zaxxer:HikariCP -> 3.4.5
      \--- org.slf4j:slf4j-api:1.7.25
 ```
+
 
