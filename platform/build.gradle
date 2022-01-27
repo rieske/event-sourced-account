@@ -14,7 +14,7 @@ dependencies {
         api("io.zipkin.reporter2:zipkin-sender-urlconnection:2.16.3")
         api("com.zaxxer:HikariCP:5.0.0")
         api("org.flywaydb:flyway-core:8.3.0")
-        api("org.flywaydb:flyway-mysql:8.3.0")
+        api("org.flywaydb:flyway-mysql:8.4.3")
         api("org.postgresql:postgresql:42.3.1")
         api("mysql:mysql-connector-java:8.0.27")
         api("org.slf4j:slf4j-api") {
