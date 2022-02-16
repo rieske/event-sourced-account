@@ -30,7 +30,7 @@ dependencies {
         api("io.rest-assured:rest-assured:4.5.1")
         api("com.h2database:h2:2.1.210")
         api("org.apache.httpcomponents:httpasyncclient:4.1.4")
-        def testcontainersVersoin = "1.16.2"
+        def testcontainersVersoin = "1.16.3"
         api("org.testcontainers:testcontainers:$testcontainersVersoin")
         api("org.testcontainers:postgresql:$testcontainersVersoin")
         api("org.testcontainers:mysql:$testcontainersVersoin")
