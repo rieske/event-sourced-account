@@ -9,12 +9,14 @@ dependencies {
         api("org.msgpack:msgpack-core:0.9.0")
         api("ch.qos.logback:logback-classic:1.2.10")
         api("io.micrometer:micrometer-registry-prometheus:1.8.2")
-        api("io.zipkin.brave:brave-instrumentation-sparkjava:5.13.7")
-        api("io.zipkin.brave:brave-instrumentation-p6spy:5.13.7")
+        def braveVersion = "5.13.7"
+        api("io.zipkin.brave:brave-instrumentation-sparkjava:$braveVersion")
+        api("io.zipkin.brave:brave-instrumentation-p6spy:$braveVersion")
         api("io.zipkin.reporter2:zipkin-sender-urlconnection:2.16.3")
         api("com.zaxxer:HikariCP:5.0.1")
-        api("org.flywaydb:flyway-core:8.3.0")
-        api("org.flywaydb:flyway-mysql:8.3.0")
+        def flywayVersion = "8.3.0"
+        api("org.flywaydb:flyway-core:$flywayVersion")
+        api("org.flywaydb:flyway-mysql:$flywayVersion")
         api("org.postgresql:postgresql:42.3.3")
         api("mysql:mysql-connector-java:8.0.28")
         api("org.slf4j:slf4j-api") {
@@ -28,8 +30,9 @@ dependencies {
         api("io.rest-assured:rest-assured:4.5.1")
         api("com.h2database:h2:2.1.210")
         api("org.apache.httpcomponents:httpasyncclient:4.1.4")
-        api("org.testcontainers:testcontainers:1.16.2")
-        api("org.testcontainers:postgresql:1.16.2")
-        api("org.testcontainers:mysql:1.16.2")
+        def testcontainersVersoin = "1.16.2"
+        api("org.testcontainers:testcontainers:$testcontainersVersoin")
+        api("org.testcontainers:postgresql:$testcontainersVersoin")
+        api("org.testcontainers:mysql:$testcontainersVersoin")
     }
 }
