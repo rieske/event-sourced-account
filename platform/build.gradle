@@ -9,7 +9,7 @@ dependencies {
         api("org.msgpack:msgpack-core:0.9.0")
         api("ch.qos.logback:logback-classic:1.2.10")
         api("io.micrometer:micrometer-registry-prometheus:1.8.2")
-        api("io.zipkin.brave:brave-instrumentation-sparkjava:5.13.6")
+        api("io.zipkin.brave:brave-instrumentation-sparkjava:5.13.7")
         api("io.zipkin.brave:brave-instrumentation-p6spy:5.13.6")
         api("io.zipkin.reporter2:zipkin-sender-urlconnection:2.16.3")
         api("com.zaxxer:HikariCP:5.0.1")
