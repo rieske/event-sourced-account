@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-    implementation("gradle.plugin.org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.11.0")
+    implementation("gradle.plugin.org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.12.0")
 }
