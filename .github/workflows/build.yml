@@ -49,7 +49,7 @@ jobs:
           ${{ steps.release_config.outputs.changes }}
         draft: false
     - name: Publish docker image
-      uses: docker/build-push-action@v1
+      uses: docker/build-push-action@v2
       if: ${{ github.ref == 'refs/heads/master' }}
       with:
         path: account-service
