@@ -8,7 +8,7 @@ dependencies {
         api("com.sparkjava:spark-core:2.9.3")
         api("org.msgpack:msgpack-core:0.9.0")
         api("ch.qos.logback:logback-classic:1.2.10")
-        api("io.micrometer:micrometer-registry-prometheus:1.8.2")
+        api("io.micrometer:micrometer-registry-prometheus:1.8.3")
         def braveVersion = "5.13.7"
         api("io.zipkin.brave:brave-instrumentation-sparkjava:$braveVersion")
         api("io.zipkin.brave:brave-instrumentation-p6spy:$braveVersion")
