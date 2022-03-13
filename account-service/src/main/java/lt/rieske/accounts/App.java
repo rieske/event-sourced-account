@@ -19,6 +19,7 @@ public class App {
                         getRequiredEnvVariable("DB_PASSWORD"), tracing, metrics),
                 System.getenv("ZIPKIN_URL")).start(8080);
         log.info("Server started on port: {}", port);
+        System.out.println("TESTING");
     }
 
     private static String getRequiredEnvVariable(String variableName) {
