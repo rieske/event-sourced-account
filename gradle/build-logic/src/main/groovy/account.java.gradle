@@ -1,5 +1,5 @@
 plugins {
-    id("account.jacoco")
+    id("jacoco")
     id("java")
     id("java-test-fixtures")
 }

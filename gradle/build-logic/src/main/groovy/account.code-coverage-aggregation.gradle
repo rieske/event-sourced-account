@@ -1,46 +1,15 @@
 plugins {
-    id("account.jacoco")
+    id("jacoco-report-aggregation")
     id("com.github.kt3k.coveralls")
 }
 
-configurations {
-    // A resolvable configuration to collect source code
-    sourcesPath {
-        visible = false
-        canBeResolved = true
-        canBeConsumed = false
-        extendsFrom(runtimeClasspath)
-        attributes {
-            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
-            attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.DOCUMENTATION))
-            attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType, "source-folders"))
-        }
-    }
-
-    // A resolvable configuration to collect JaCoCo coverage data
-    coverageDataPath {
-        visible = false
-        canBeResolved = true
-        canBeConsumed = false
-        extendsFrom(runtimeClasspath)
-        attributes {
-            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
-            attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.DOCUMENTATION))
-            attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType, "jacoco-coverage-data"))
-        }
-    }
-}
-
-def currentProjectTestCoverageProvider = tasks.named("test").map { task ->
-    task.extensions.getByType(JacocoTaskExtension).destinationFile
-}
-// Task to gather code coverage from multiple subprojects
+// Task to aggregate code coverage reports from test and integrationTest reports
 def codeCoverageReport = tasks.register("codeCoverageReport", JacocoReport) {
     it.sourceSets(sourceSets.main)
-    it.additionalClassDirs(configurations.runtimeClasspath.asFileTree.filter { it.path.contains("/build/libs/") })
-    it.additionalSourceDirs(configurations.sourcesPath.incoming.artifactView { it.lenient(true) }.files)
-    it.executionData(configurations.coverageDataPath.incoming.artifactView { it.lenient(true) }.files.filter { it.exists() })
-    it.executionData(currentProjectTestCoverageProvider)
+    it.additionalSourceDirs(tasks.named("testCodeCoverageReport").map { it.allSourceDirs }.get())
+    it.additionalClassDirs(tasks.named("testCodeCoverageReport").map { it.allClassDirs }.get())
+    it.executionData(tasks.named("testCodeCoverageReport").map { it.executionData})
+    it.executionData(tasks.named("integrationTestCodeCoverageReport").map { it.executionData})
 
     it.reports {
         xml.required = true
