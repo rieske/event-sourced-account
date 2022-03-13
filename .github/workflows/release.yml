@@ -1,6 +1,9 @@
 name: build
+concurrency: release
 
-on: [push]
+on:
+  push:
+    branches: ["master"]
 
 jobs:
   build:
@@ -24,7 +27,6 @@ jobs:
         arguments: codeCoverageReport coveralls
     - name: Prepare Release
       id: release_config
-      if: ${{ github.ref == 'refs/heads/master' }}
       run: |
         git fetch --unshallow
         echo "::set-output name=version::$(infrastructure/next-version.sh)"
@@ -38,7 +40,6 @@ jobs:
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
-      if: ${{ github.ref == 'refs/heads/master' }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -49,7 +50,6 @@ jobs:
         draft: false
     - name: Publish docker image
       uses: docker/build-push-action@v1
-      if: ${{ github.ref == 'refs/heads/master' }}
       with:
         path: account-service
         username: ${{ secrets.DOCKER_USERNAME }}

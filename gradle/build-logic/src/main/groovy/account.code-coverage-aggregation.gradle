@@ -8,8 +8,8 @@ def codeCoverageReport = tasks.register("codeCoverageReport", JacocoReport) {
     it.sourceSets(sourceSets.main)
     it.additionalSourceDirs(tasks.named("testCodeCoverageReport").map { it.allSourceDirs }.get())
     it.additionalClassDirs(tasks.named("testCodeCoverageReport").map { it.allClassDirs }.get())
-    it.executionData(tasks.named("testCodeCoverageReport").map { it.executionData})
-    it.executionData(tasks.named("integrationTestCodeCoverageReport").map { it.executionData})
+    it.executionData(tasks.named("testCodeCoverageReport").map { it.executionData })
+    it.executionData(tasks.named("integrationTestCodeCoverageReport").map { it.executionData })
 
     it.reports {
         xml.required = true
@@ -28,7 +28,7 @@ coveralls {
 tasks.named("coveralls") {
     doFirst {
         coveralls {
-            sourceDirs += configurations.sourcesPath.incoming.artifactView { it.lenient(true) }.files.files
+            sourceDirs += tasks.named("testCodeCoverageReport").map { it.allSourceDirs }.get().files
             sourceDirs += sourceSets.main.java.srcDirs
         }
     }
