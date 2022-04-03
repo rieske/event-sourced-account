@@ -58,5 +58,7 @@ jobs:
         VERSION: ${{ steps.release_config.outputs.version }}
       run: |
         docker tag ${SERVICE_NAME}:snapshot $DOCKER_USER/$SERVICE_NAME:$VERSION
+        docker tag ${SERVICE_NAME}:snapshot $DOCKER_USER/$SERVICE_NAME
         docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
         docker push $DOCKER_USER/$SERVICE_NAME:$VERSION
+        docker push $DOCKER_USER/$SERVICE_NAME
