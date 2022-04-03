@@ -3,6 +3,6 @@ plugins {
 }
 
 dependencies {
-    implementation("com.palantir.gradle.docker:gradle-docker:0.32.0")
-    implementation("gradle.plugin.org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.12.0")
+    implementation(libs.dockerGradle)
+    implementation(libs.coveralls)
 }

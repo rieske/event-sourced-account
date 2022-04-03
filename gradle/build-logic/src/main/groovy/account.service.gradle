@@ -1,5 +1,6 @@
 plugins {
     id("account.java")
+    id("account.code-coverage-aggregation")
     id("application")
     id("com.palantir.docker")
 }

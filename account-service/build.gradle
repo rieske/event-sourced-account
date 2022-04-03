@@ -1,6 +1,5 @@
 plugins {
     id("account.service")
-    id("account.code-coverage-aggregation")
 }
 
 def eventstoreImpl = providers.gradleProperty("eventstore").orElse("postgres")
