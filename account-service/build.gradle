@@ -45,6 +45,7 @@ dependencies {
     e2eTestImplementation("org.testcontainers:testcontainers")
     e2eTestImplementation("org.apache.httpcomponents:httpclient")
     e2eTestImplementation("org.apache.httpcomponents:httpasyncclient")
+    e2eTestImplementation("ch.qos.logback:logback-classic")
 }
 
 application {
