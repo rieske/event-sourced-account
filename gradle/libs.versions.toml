@@ -1,7 +1,6 @@
 [versions]
 brave = "5.13.7"
 flyway = "8.5.5"
-apacheHttpClient = "4.1.5"
 testcontainers = "1.16.3"
 
 [libraries]
@@ -29,8 +28,8 @@ archunit = "com.tngtech.archunit:archunit-junit5:0.23.1"
 restAssured = "io.rest-assured:rest-assured:5.0.0"
 h2 = "com.h2database:h2:2.1.210"
 
-apacheHttpClient = { module = "org.apache.httpcomponents:httpclient", version.ref = "apacheHttpClient" }
-apacheHttpAsyncClient = { module = "org.apache.httpcomponents:httpasyncclient", version.ref = "apacheHttpClient" }
+apacheHttpClient = "org.apache.httpcomponents:httpclient:4.1.5"
+apacheHttpAsyncClient = "org.apache.httpcomponents:httpasyncclient:4.1.5"
 
 testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
 testcontainersPostgres = { module = "org.testcontainers:postgresql", version.ref = "testcontainers" }
