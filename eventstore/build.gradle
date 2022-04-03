@@ -16,22 +16,21 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(project(":platform")))
-    implementation("org.slf4j:slf4j-api")
-    implementation("org.flywaydb:flyway-core")
+    implementation(libs.flyway)
+    implementation(libs.slf4j)
 
     testFixturesApi(testFixtures(project(":account-service")))
 
-    postgresImplementation("org.postgresql:postgresql")
+    postgresImplementation(libs.postgres)
 
-    mysqlImplementation("org.flywaydb:flyway-mysql")
-    mysqlImplementation("mysql:mysql-connector-java") {
+    mysqlImplementation(libs.flywayMysql)
+    mysqlImplementation(libs.mysql) {
         exclude(group: "com.google.protobuf", module: "protobuf-java")
     }
 
-    testImplementation("com.h2database:h2")
+    testImplementation(libs.h2)
 
     integrationTestImplementation(testFixtures(project(":eventstore")))
-    integrationTestImplementation("org.testcontainers:mysql")
-    integrationTestImplementation("org.testcontainers:postgresql")
+    integrationTestImplementation(libs.testcontainersMysql)
+    integrationTestImplementation(libs.testcontainersPostgres)
 }

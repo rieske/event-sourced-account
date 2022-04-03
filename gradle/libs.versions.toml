@@ -1,0 +1,40 @@
+[versions]
+brave = "5.13.7"
+flyway = "8.5.5"
+apacheHttpClient = "4.1.5"
+testcontainers = "1.16.3"
+
+[libraries]
+# Production
+sparkJava = "com.sparkjava:spark-core:2.9.3"
+msgpack = "org.msgpack:msgpack-core:0.9.1"
+slf4j = "org.slf4j:slf4j-api:1.7.32"
+logback = "ch.qos.logback:logback-classic:1.2.11"
+micrometer = "io.micrometer:micrometer-registry-prometheus:1.8.4"
+hikari = "com.zaxxer:HikariCP:5.0.1"
+
+zipkinSparkJava = { module = "io.zipkin.brave:brave-instrumentation-sparkjava", version.ref = "brave" }
+zipkinDatabase = { module = "io.zipkin.brave:brave-instrumentation-p6spy", version.ref = "brave" }
+zipkinSender = "io.zipkin.reporter2:zipkin-sender-urlconnection:2.16.3"
+
+flyway = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
+flywayMysql = { module = "org.flywaydb:flyway-mysql", version.ref = "flyway" }
+postgres = "org.postgresql:postgresql:42.3.3"
+mysql = "mysql:mysql-connector-java:8.0.28"
+
+# Test
+junit = "org.junit.jupiter:junit-jupiter:5.8.2"
+assertj = "org.assertj:assertj-core:3.22.0"
+archunit = "com.tngtech.archunit:archunit-junit5:0.23.1"
+restAssured = "io.rest-assured:rest-assured:5.0.0"
+h2 = "com.h2database:h2:2.1.210"
+
+apacheHttpClient = { module = "org.apache.httpcomponents:httpclient", version.ref = "apacheHttpClient" }
+apacheHttpAsyncClient = { module = "org.apache.httpcomponents:httpasyncclient", version.ref = "apacheHttpClient" }
+
+testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
+testcontainersPostgres = { module = "org.testcontainers:postgresql", version.ref = "testcontainers" }
+testcontainersMysql = { module = "org.testcontainers:mysql", version.ref = "testcontainers" }
+
+[bundles]
+zipkin = ["zipkinSparkJava", "zipkinDatabase", "zipkinSender"]

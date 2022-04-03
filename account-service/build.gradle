@@ -6,24 +6,19 @@ plugins {
 def eventstoreImpl = providers.gradleProperty("eventstore").orElse("postgres")
 
 dependencies {
-    implementation(platform(project(":platform")))
     implementation(project(":eventstore"))
 
-    implementation("com.sparkjava:spark-core") {
+    implementation(libs.sparkJava) {
         exclude(group: "org.eclipse.jetty.websocket", module: "websocket-server")
         exclude(group: "org.eclipse.jetty.websocket", module: "websocket-servlet")
         exclude(group: "org.eclipse.jetty", module: "jetty-webapp")
     }
 
-    implementation("org.msgpack:msgpack-core")
-
-    implementation("ch.qos.logback:logback-classic")
-    implementation("io.micrometer:micrometer-registry-prometheus")
-    implementation("io.zipkin.brave:brave-instrumentation-sparkjava")
-    implementation("io.zipkin.brave:brave-instrumentation-p6spy")
-    implementation("io.zipkin.reporter2:zipkin-sender-urlconnection")
-
-    implementation("com.zaxxer:HikariCP")
+    implementation(libs.msgpack)
+    implementation(libs.logback)
+    implementation(libs.micrometer)
+    implementation(libs.hikari)
+    implementation(libs.bundles.zipkin)
 
     runtimeOnly(project(":eventstore")) {
         capabilities {
@@ -31,21 +26,19 @@ dependencies {
         }
     }
 
-    testFixturesApi(platform(project(":platform")))
-    testFixturesApi("org.junit.jupiter:junit-jupiter")
-    testFixturesApi("org.assertj:assertj-core")
+    testFixturesApi(libs.junit)
+    testFixturesApi(libs.assertj)
 
-    testImplementation("com.tngtech.archunit:archunit-junit5")
-    testImplementation("io.rest-assured:rest-assured")
-    testImplementation("com.h2database:h2")
+    testImplementation(libs.archunit)
+    testImplementation(libs.restAssured)
+    testImplementation(libs.h2)
 
-    e2eTestImplementation(platform(project(":platform")))
-    e2eTestImplementation("org.junit.jupiter:junit-jupiter")
-    e2eTestImplementation("org.assertj:assertj-core")
-    e2eTestImplementation("org.testcontainers:testcontainers")
-    e2eTestImplementation("org.apache.httpcomponents:httpclient")
-    e2eTestImplementation("org.apache.httpcomponents:httpasyncclient")
-    e2eTestImplementation("ch.qos.logback:logback-classic")
+    e2eTestImplementation(libs.junit)
+    e2eTestImplementation(libs.assertj)
+    e2eTestImplementation(libs.testcontainers)
+    e2eTestImplementation(libs.apacheHttpClient)
+    e2eTestImplementation(libs.apacheHttpAsyncClient)
+    e2eTestImplementation(libs.logback)
 }
 
 application {
