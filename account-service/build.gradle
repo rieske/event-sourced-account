@@ -3,7 +3,7 @@ plugins {
     id("account.code-coverage-aggregation")
 }
 
-def eventstoreImpl = providers.gradleProperty("eventstore").forUseAtConfigurationTime().orElse("postgres")
+def eventstoreImpl = providers.gradleProperty("eventstore").orElse("postgres")
 
 dependencies {
     implementation(platform(project(":platform")))
