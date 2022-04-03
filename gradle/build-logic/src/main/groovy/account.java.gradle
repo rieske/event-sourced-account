@@ -32,20 +32,7 @@ tasks.withType(Test).configureEach {
 }
 
 configurations {
-    all {
-        resolutionStrategy {
-            failOnVersionConflict()
-        }
-    }
-}
-
-configurations {
     integrationTestImplementation.extendsFrom(implementation)
 }
 
 tasks.named("check") { it.dependsOn(testing.suites.integrationTest) }
-
-// Do not generate reports for individual projects
-tasks.named("jacocoTestReport") {
-    enabled = false
-}
