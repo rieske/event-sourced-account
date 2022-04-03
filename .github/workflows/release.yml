@@ -5,6 +5,9 @@ on:
   push:
     branches: ["master"]
 
+env:
+  SERVICE_NAME: account
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -48,14 +51,11 @@ jobs:
         body: |
           ${{ steps.release_config.outputs.changes }}
         draft: false
-    - name: Publish docker image
-      uses: docker/build-push-action@v1
-      with:
-        path: account-service
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_TOKEN }}
-        repository: rieske/account
-        tags: ${{ steps.release_config.outputs.version }}
-        tag_with_ref: true
-        add_git_labels: true
-        push: true
+    - name: Publish
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_TOKEN }}
+      run: |
+        docker tag ${SERVICE_NAME}:snapshot ${DOCKER_USER}/${SERVICE_NAME}:${{ steps.release_config.outputs.version }}
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+        docker push $DOCKER_USER/${SERVICE_NAME}

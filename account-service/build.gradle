@@ -45,6 +45,10 @@ application {
     mainClass.set("lt.rieske.accounts.App")
 }
 
+docker {
+    name = "account:snapshot"
+}
+
 tasks.named("e2eTest") {
     it.dependsOn("integrationTest")
     it.systemProperty("eventstore", eventstoreImpl.get())

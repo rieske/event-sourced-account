@@ -1,6 +1,7 @@
 plugins {
     id("account.java")
     id("application")
+    id("com.palantir.docker")
 }
 
 testing.suites {
@@ -8,7 +9,8 @@ testing.suites {
         targets {
             all {
                 testTask.configure {
-                    dependsOn("assemble")
+                    dependsOn("docker")
+                    inputs.files(file("Dockerfile"), tasks.named("distTar")).withPathSensitivity(PathSensitivity.RELATIVE)
                 }
             }
         }
@@ -18,6 +20,14 @@ testing.suites {
 tasks.withType(AbstractArchiveTask).configureEach {
     preserveFileTimestamps = false
     reproducibleFileOrder = true
+}
+
+tasks.named("build") {
+    it.dependsOn(tasks.named("docker"))
+}
+
+docker {
+    files(tasks.named("distTar"))
 }
 
 tasks.named("check") { it.dependsOn(testing.suites.e2eTest) }

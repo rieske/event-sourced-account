@@ -13,7 +13,7 @@ services:
     mem_limit: 32M
 
   account:
-    build: ../../..
+    image: account:snapshot
     ports:
       - 8080
     environment:
