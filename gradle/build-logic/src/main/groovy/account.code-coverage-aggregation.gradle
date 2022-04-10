@@ -29,7 +29,6 @@ tasks.named("coveralls") {
     doFirst {
         coveralls {
             sourceDirs += tasks.named("testCodeCoverageReport").map { it.allSourceDirs }.get().files
-            sourceDirs += sourceSets.main.java.srcDirs
         }
     }
 }
