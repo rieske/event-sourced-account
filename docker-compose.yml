@@ -43,7 +43,7 @@ services:
     mem_limit: 64M
 
   grafana:
-    image: grafana/grafana:8.4.5
+    image: grafana/grafana:8.4.6
     ports:
       - 3000:3000
     environment:
