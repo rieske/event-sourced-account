@@ -38,6 +38,7 @@ class ConsistencyTest {
         }
         environment = new DockerComposeContainer<>(new File("src/e2eTest/resources/" + composeFile))
                 .withLocalCompose(true)
+                .withOptions("--compatibility")
                 .withLogConsumer(SERVICE_CONTAINER, new Slf4jLogConsumer(log).withPrefix(SERVICE_CONTAINER))
                 .withLogConsumer(LB_CONTAINER, new Slf4jLogConsumer(log).withPrefix(LB_CONTAINER))
                 .withExposedService(SERVICE_CONTAINER, 1, SERVICE_PORT, Wait.forListeningPort())
