@@ -36,7 +36,7 @@ services:
     mem_limit: 512M
 
   prometheus:
-    image: prom/prometheus:v2.36.2
+    image: prom/prometheus:v2.37.0
     ports:
       - 9090:9090
     volumes:
