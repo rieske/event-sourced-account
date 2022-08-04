@@ -37,7 +37,7 @@ class PostgresqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests
 
     static class Postgresql {
 
-        private final PostgreSQLContainer<?> postgresql = new PostgreSQLContainer<>("postgres:13.4")
+        private final PostgreSQLContainer<?> postgresql = new PostgreSQLContainer<>("postgres:14.4")
                 .withDatabaseName("event_store");
 
         Postgresql() {

@@ -29,6 +29,8 @@ testing.suites {
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
     maxParallelForks = 8
+    systemProperties["junit.jupiter.execution.parallel.enabled"] = true
+    systemProperties["junit.jupiter.execution.parallel.mode.default"] = "concurrent"
 }
 
 configurations {
