@@ -33,8 +33,4 @@ tasks.withType(Test).configureEach {
     systemProperties["junit.jupiter.execution.parallel.mode.default"] = "concurrent"
 }
 
-configurations {
-    integrationTestImplementation.extendsFrom(implementation)
-}
-
 tasks.named("check") { it.dependsOn(testing.suites.integrationTest) }
