@@ -41,11 +41,7 @@ dependencies {
 }
 
 application {
-    mainClass.set("lt.rieske.accounts.App")
-}
-
-docker {
-    name = "account:snapshot"
+    mainClass = "lt.rieske.accounts.App"
 }
 
 tasks.named("e2eTest") {

@@ -28,6 +28,7 @@ tasks.named("build") {
 }
 
 docker {
+    name = "${rootProject.name}:snapshot"
     files(tasks.named("distTar"))
 }
 
