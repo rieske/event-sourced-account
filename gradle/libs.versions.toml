@@ -1,5 +1,5 @@
 [versions]
-brave = "5.13.10"
+brave = "5.13.11"
 flyway = "9.1.5"
 testcontainers = "1.17.3"
 
