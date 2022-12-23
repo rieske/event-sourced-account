@@ -28,7 +28,7 @@ archunit = "com.tngtech.archunit:archunit-junit5:1.0.1"
 restAssured = "io.rest-assured:rest-assured:5.3.0"
 h2 = "com.h2database:h2:2.1.214"
 
-apacheHttpClient = "org.apache.httpcomponents:httpclient:4.5.13"
+apacheHttpClient = "org.apache.httpcomponents:httpclient:4.5.14"
 apacheHttpAsyncClient = "org.apache.httpcomponents:httpasyncclient:4.1.5"
 
 testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
