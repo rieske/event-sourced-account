@@ -28,7 +28,7 @@ tasks.named("build") {
 }
 
 tasks.register("prepareDockerContext", Copy) {
-    into("build/docker")
+    into(layout.buildDirectory.dir("docker"))
     from(tasks.named("distTar"))
     from("Dockerfile")
 }
