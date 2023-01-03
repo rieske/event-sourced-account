@@ -11,7 +11,7 @@ testing.suites {
             all {
                 testTask.configure {
                     dependsOn("docker")
-                    inputs.files(file("Dockerfile"), tasks.named("distTar")).withPathSensitivity(PathSensitivity.RELATIVE)
+                    inputs.files(file("Dockerfile"), tasks.named("distTar").map(AbstractArchiveTask::getArchiveFile)).withPathSensitivity(PathSensitivity.RELATIVE)
                 }
             }
         }
@@ -35,7 +35,7 @@ tasks.register("prepareDockerContext", Copy) {
 
 tasks.register("docker", com.bmuschko.gradle.docker.tasks.image.DockerBuildImage) {
     dependsOn("prepareDockerContext")
-    images.add("${rootProject.name}:snapshot")
+    images.add("${rootProject.name}:snapshot".toString())
 }
 
 tasks.named("check") { it.dependsOn(testing.suites.e2eTest) }

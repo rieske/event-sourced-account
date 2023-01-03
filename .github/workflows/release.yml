@@ -27,7 +27,7 @@ jobs:
       env:
         COVERALLS_REPO_TOKEN: ${{secrets.COVERALLS_REPO_TOKEN}}
       with:
-        arguments: codeCoverageReport coveralls
+        arguments: codeCoverageReport coveralls --no-configuration-cache
     - name: Prepare Release
       id: release_config
       run: |
