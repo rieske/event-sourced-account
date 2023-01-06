@@ -1,41 +1,5 @@
 plugins {
     id("account.java")
     id("account.code-coverage-aggregation")
-    id("application")
-    id("com.bmuschko.docker-remote-api")
+    id("io.github.rieske.java-service")
 }
-
-testing.suites {
-    e2eTest(JvmTestSuite) {
-        targets {
-            all {
-                testTask.configure {
-                    dependsOn("docker")
-                    inputs.files(file("Dockerfile"), tasks.named("distTar").map(AbstractArchiveTask::getArchiveFile)).withPathSensitivity(PathSensitivity.RELATIVE)
-                }
-            }
-        }
-    }
-}
-
-tasks.withType(AbstractArchiveTask).configureEach {
-    preserveFileTimestamps = false
-    reproducibleFileOrder = true
-}
-
-tasks.named("build") {
-    it.dependsOn(tasks.named("docker"))
-}
-
-tasks.register("prepareDockerContext", Copy) {
-    into(layout.buildDirectory.dir("docker"))
-    from(tasks.named("distTar"))
-    from("Dockerfile")
-}
-
-tasks.register("docker", com.bmuschko.gradle.docker.tasks.image.DockerBuildImage) {
-    dependsOn("prepareDockerContext")
-    images.add("${rootProject.name}:snapshot".toString())
-}
-
-tasks.named("check") { it.dependsOn(testing.suites.e2eTest) }
