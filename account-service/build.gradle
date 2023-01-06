@@ -32,29 +32,29 @@ dependencies {
     testImplementation(libs.restAssured)
     testImplementation(libs.h2)
 
-    e2eTestImplementation(libs.junit)
-    e2eTestImplementation(libs.assertj)
-    e2eTestImplementation(libs.testcontainers)
-    e2eTestImplementation(libs.apacheHttpClient)
-    e2eTestImplementation(libs.apacheHttpAsyncClient)
-    e2eTestImplementation(libs.logback)
+    blackBoxTestImplementation(libs.junit)
+    blackBoxTestImplementation(libs.assertj)
+    blackBoxTestImplementation(libs.testcontainers)
+    blackBoxTestImplementation(libs.apacheHttpClient)
+    blackBoxTestImplementation(libs.apacheHttpAsyncClient)
+    blackBoxTestImplementation(libs.logback)
 }
 
 application {
     mainClass = "lt.rieske.accounts.App"
 }
 
-tasks.named("e2eTest") {
+tasks.named("blackBoxTest") {
     it.systemProperty("eventstore", eventstoreImpl.get())
 }
 
 tasks.register("stressTest", JavaExec) {
-    it.classpath = sourceSets.e2eTest.runtimeClasspath
+    it.classpath = sourceSets.blackBoxTest.runtimeClasspath
     it.mainClass.set("lt.rieske.accounts.StressTests")
 }
 
 tasks.register("asyncStressTest", JavaExec) {
-    it.classpath = sourceSets.e2eTest.runtimeClasspath
+    it.classpath = sourceSets.blackBoxTest.runtimeClasspath
     it.mainClass.set("lt.rieske.accounts.AsyncStressTests")
 }
 

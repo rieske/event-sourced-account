@@ -3,6 +3,6 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.dockerGradle)
+    implementation(libs.servicePlugins)
     implementation(libs.coveralls)
 }
