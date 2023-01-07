@@ -1,28 +1,23 @@
 package lt.rieske.accounts.infrastructure;
 
-import brave.Tracing;
-import brave.sampler.Sampler;
-import brave.sparkjava.SparkTracing;
 import com.p6spy.engine.spy.P6DataSource;
-import spark.ExceptionHandler;
+import io.helidon.tracing.Tracer;
+import io.helidon.tracing.TracerBuilder;
 import zipkin2.Span;
 import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.Sender;
-import zipkin2.reporter.brave.ZipkinSpanHandler;
 import zipkin2.reporter.urlconnection.URLConnectionSender;
 
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-
-import static spark.Spark.afterAfter;
-import static spark.Spark.before;
+import java.net.URI;
 
 public interface TracingConfiguration {
-    void init();
+    Tracer tracer();
+
     void closeResources();
 
-    <T extends Exception> ExceptionHandler<? super T> exception(ExceptionHandler<? super T> handler);
     DataSource decorate(DataSource dataSource);
 
     static TracingConfiguration create(String zipkinUrl) {
@@ -36,16 +31,12 @@ public interface TracingConfiguration {
 
 class NoOpTracingConfiguration implements TracingConfiguration {
     @Override
-    public void init() {
+    public Tracer tracer() {
+        return Tracer.noOp();
     }
 
     @Override
     public void closeResources() {
-    }
-
-    @Override
-    public <T extends Exception> ExceptionHandler<? super T> exception(ExceptionHandler<? super T> handler) {
-        return handler;
     }
 
     @Override
@@ -56,26 +47,21 @@ class NoOpTracingConfiguration implements TracingConfiguration {
 
 class ZipkinTracingConfiguration implements TracingConfiguration {
 
+    private final String zipkinUrl;
     private final Sender sender;
     private final AsyncReporter<Span> spanReporter;
-    private final SparkTracing sparkTracing;
 
     public ZipkinTracingConfiguration(String zipkinUrl) {
+        this.zipkinUrl = zipkinUrl;
         this.sender = URLConnectionSender.create(zipkinUrl);
         this.spanReporter = AsyncReporter.create(sender);
-
-        var tracing = Tracing.newBuilder()
-                .localServiceName("account")
-                .sampler(Sampler.NEVER_SAMPLE)
-                .addSpanHandler(ZipkinSpanHandler.create(spanReporter))
-                .build();
-        this.sparkTracing = SparkTracing.create(tracing);
     }
 
     @Override
-    public void init() {
-        before(sparkTracing.before());
-        afterAfter(sparkTracing.afterAfter());
+    public Tracer tracer() {
+        return TracerBuilder.create("account")
+                .collectorUri(URI.create(zipkinUrl))
+                .build();
     }
 
     @Override
@@ -86,12 +72,6 @@ class ZipkinTracingConfiguration implements TracingConfiguration {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends Exception> ExceptionHandler<T> exception(ExceptionHandler<? super T> handler) {
-        return sparkTracing.exception(handler);
     }
 
     @Override

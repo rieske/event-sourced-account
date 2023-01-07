@@ -1,15 +1,14 @@
 package lt.rieske.accounts.api;
 
+import io.helidon.common.http.MediaType;
+import io.helidon.webserver.ServerRequest;
+import io.helidon.webserver.ServerResponse;
 import lt.rieske.accounts.domain.AccountSnapshot;
-import spark.Request;
-import spark.Response;
 
 import java.util.UUID;
 
 
 class AccountResource {
-
-    private static final String APPLICATION_JSON = "application/json";
 
     private final AccountService accountService;
 
@@ -17,27 +16,27 @@ class AccountResource {
         this.accountService = accountService;
     }
 
-    String openAccount(Request request, Response response) {
+    void openAccount(ServerRequest request, ServerResponse response) {
         var accountId = accountIdPathParam(request);
         var ownerId = UUID.fromString(getMandatoryQueryParameter(request, "owner"));
 
         accountService.openAccount(accountId, ownerId);
 
-        response.header("Location", "/account/" + accountId);
+        response.addHeader("Location", "/account/" + accountId);
         response.status(201);
-        return "";
+        response.send();
     }
 
-    String getAccount(Request request, Response response) {
+    void getAccount(ServerRequest request, ServerResponse response) {
         var accountId = accountIdPathParam(request);
 
         var account = accountService.queryAccount(accountId);
 
-        response.type(APPLICATION_JSON);
-        return accountJson(account);
+        response.headers().contentType(MediaType.APPLICATION_JSON);
+        response.send(accountJson(account));
     }
 
-    String deposit(Request request, Response response) {
+    void deposit(ServerRequest request, ServerResponse response) {
         var accountId = accountIdPathParam(request);
         long amount = amountQueryParam(request);
         var transactionId = transactionIdQueryParam(request);
@@ -45,10 +44,10 @@ class AccountResource {
         accountService.deposit(accountId, amount, transactionId);
 
         response.status(204);
-        return "";
+        response.send();
     }
 
-    String withdraw(Request request, Response response) {
+    void withdraw(ServerRequest request, ServerResponse response) {
         var accountId = accountIdPathParam(request);
         long amount = amountQueryParam(request);
         var transactionId = transactionIdQueryParam(request);
@@ -56,10 +55,10 @@ class AccountResource {
         accountService.withdraw(accountId, amount, transactionId);
 
         response.status(204);
-        return "";
+        response.send();
     }
 
-    String transfer(Request request, Response response) {
+    void transfer(ServerRequest request, ServerResponse response) {
         var sourceAccountId = accountIdPathParam(request);
         var targetAccountId = UUID.fromString(getMandatoryQueryParameter(request, "targetAccount"));
         long amount = amountQueryParam(request);
@@ -68,58 +67,58 @@ class AccountResource {
         accountService.transfer(sourceAccountId, targetAccountId, amount, transactionId);
 
         response.status(204);
-        return "";
+        response.send();
     }
 
-    String close(Request request, Response response) {
+    void close(ServerRequest request, ServerResponse response) {
         var accountId = accountIdPathParam(request);
 
         accountService.close(accountId);
 
         response.status(204);
-        return "";
+        response.send();
     }
 
-    String getEvents(Request request, Response response) {
+    void getEvents(ServerRequest request, ServerResponse response) {
         var accountId = accountIdPathParam(request);
 
         var events = accountService.getEvents(accountId);
 
-        response.type(APPLICATION_JSON);
-        return new EventStreamJsonSerializer().toJson(events);
+        response.headers().contentType(MediaType.APPLICATION_JSON);
+        response.send(new EventStreamJsonSerializer().toJson(events));
     }
 
-    <T extends Exception> void badRequest(T e, Request request, Response response) {
+    <T extends Exception> void badRequest(ServerRequest request, ServerResponse response, T e) {
         errorJson(response, 400, e.getMessage());
     }
 
-    <T extends Exception> void notFound(T e, Request request, Response response) {
+    <T extends Exception> void notFound(ServerRequest request, ServerResponse response, T e) {
         errorJson(response, 404, e.getMessage());
     }
 
-    <T extends Exception> void conflict(T e, Request request, Response response) {
+    <T extends Exception> void conflict(ServerRequest request, ServerResponse response, T e) {
         response.status(409);
-        response.body("");
+        response.send();
     }
 
-    private static UUID accountIdPathParam(Request request) {
-        return UUID.fromString(request.params("accountId"));
+    private static UUID accountIdPathParam(ServerRequest request) {
+        return UUID.fromString(request.path().param("accountId"));
     }
 
-    private static long amountQueryParam(Request request) {
+    private static long amountQueryParam(ServerRequest request) {
         return Long.parseLong(getMandatoryQueryParameter(request, "amount"));
     }
 
-    private static UUID transactionIdQueryParam(Request request) {
+    private static UUID transactionIdQueryParam(ServerRequest request) {
         return UUID.fromString(getMandatoryQueryParameter(request, "transactionId"));
     }
 
-    private static String getMandatoryQueryParameter(Request request, String paramName) {
-        var param = request.queryParams(paramName);
-        if (param == null) {
+    private static String getMandatoryQueryParameter(ServerRequest request, String paramName) {
+        var param = request.queryParams().first(paramName);
+        if (param.isEmpty()) {
             throw new IllegalArgumentException(String.format("'%s' query parameter is required", paramName));
         }
-        return param;
+        return param.get();
     }
 
     private static String accountJson(AccountSnapshot account) {
@@ -131,10 +130,10 @@ class AccountResource {
                 "}";
     }
 
-    private static void errorJson(Response response, int status, String message) {
+    private static void errorJson(ServerResponse response, int status, String message) {
         response.status(status);
-        response.type(APPLICATION_JSON);
-        response.body("{\"message\":\"" + message.replaceAll("\"", "'") + "\"}");
+        response.headers().contentType(MediaType.APPLICATION_JSON);
+        response.send("{\"message\":\"" + message.replaceAll("\"", "'") + "\"}");
     }
 
 }

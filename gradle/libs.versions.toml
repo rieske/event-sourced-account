@@ -5,14 +5,17 @@ testcontainers = "1.17.6"
 
 [libraries]
 # Production
-sparkJava = "com.sparkjava:spark-core:2.9.4"
+helidonBom = "io.helidon:helidon-bom:3.1.0"
+helidonWebserver = { module = "io.helidon.webserver:helidon-webserver" }
+helidonMicrometer = { module = "io.helidon.integrations.micrometer:helidon-integrations-micrometer" }
+helidonTracingZipkin = { module = "io.helidon.tracing:helidon-tracing-zipkin" }
+
 msgpack = "org.msgpack:msgpack-core:0.9.3"
 slf4j = "org.slf4j:slf4j-api:2.0.6"
 logback = "ch.qos.logback:logback-classic:1.4.5"
 micrometer = "io.micrometer:micrometer-registry-prometheus:1.10.2"
 hikari = "com.zaxxer:HikariCP:5.0.1"
 
-zipkinSparkJava = { module = "io.zipkin.brave:brave-instrumentation-sparkjava", version.ref = "brave" }
 zipkinDatabase = { module = "io.zipkin.brave:brave-instrumentation-p6spy", version.ref = "brave" }
 zipkinSender = "io.zipkin.reporter2:zipkin-sender-urlconnection:2.16.3"
 
@@ -36,4 +39,4 @@ testcontainersPostgres = { module = "org.testcontainers:postgresql", version.ref
 testcontainersMysql = { module = "org.testcontainers:mysql", version.ref = "testcontainers" }
 
 [bundles]
-zipkin = ["zipkinSparkJava", "zipkinDatabase", "zipkinSender"]
+zipkin = ["zipkinDatabase", "zipkinSender"]

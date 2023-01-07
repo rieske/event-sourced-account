@@ -13,11 +13,11 @@ public class App {
     private static final Logger log = LoggerFactory.getLogger(App.class);
 
     public static void main(String[] args) {
-        var port = ApiConfiguration.server(
+        int port = ApiConfiguration.server(
                 (tracing, metrics) -> Configuration.blobEventStore(
                         getRequiredEnvVariable("JDBC_URL"), getRequiredEnvVariable("DB_USER"),
                         getRequiredEnvVariable("DB_PASSWORD"), tracing, metrics),
-                System.getenv("ZIPKIN_URL")).start(8080);
+                System.getenv("ZIPKIN_URL"), 8080).start();
         log.info("Server started on port: {}", port);
     }
 

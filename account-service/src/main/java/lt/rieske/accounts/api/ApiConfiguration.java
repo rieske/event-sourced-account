@@ -26,7 +26,7 @@ public class ApiConfiguration {
         BlobEventStore supply(TracingConfiguration tracingConfiguration, MeterRegistry meterRegistry);
     }
 
-    public static Server server(EventStoreSupplier eventStoreSupplier, String zipkinUrl) {
+    public static Server server(EventStoreSupplier eventStoreSupplier, String zipkinUrl, int port) {
         var meterRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
         new ClassLoaderMetrics().bindTo(meterRegistry);
         new JvmMemoryMetrics().bindTo(meterRegistry);
@@ -43,7 +43,7 @@ public class ApiConfiguration {
         var accountService = new AccountService(accountRepository, eventStore);
         var accountResource = new AccountResource(accountService);
 
-        return new Server(accountResource, meterRegistry, tracingConfiguration);
+        return new Server(accountResource, meterRegistry, tracingConfiguration, port);
     }
 
     public static AggregateRepository<Account, AccountEventsVisitor> accountRepository(EventStore<AccountEventsVisitor> eventStore) {

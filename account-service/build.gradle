@@ -7,11 +7,10 @@ def eventstoreImpl = providers.gradleProperty("eventstore").orElse("postgres")
 dependencies {
     implementation(project(":eventstore"))
 
-    implementation(libs.sparkJava) {
-        exclude(group: "org.eclipse.jetty.websocket", module: "websocket-server")
-        exclude(group: "org.eclipse.jetty.websocket", module: "websocket-servlet")
-        exclude(group: "org.eclipse.jetty", module: "jetty-webapp")
-    }
+    implementation(platform(libs.helidonBom))
+    implementation(libs.helidonWebserver)
+    implementation(libs.helidonMicrometer)
+    implementation(libs.helidonTracingZipkin)
 
     implementation(libs.msgpack)
     implementation(libs.logback)
