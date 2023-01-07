@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17.0.5_8-jre
+FROM eclipse-temurin:19.0.1_10-jre
 EXPOSE 8080
 
 ENV SERVICE_NAME=account-service
