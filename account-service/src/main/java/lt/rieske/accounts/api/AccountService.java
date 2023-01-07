@@ -11,7 +11,6 @@ import lt.rieske.accounts.eventsourcing.SequencedEvent;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 class AccountService {
 
