@@ -73,7 +73,6 @@ public final class EventStoreFactory {
         Flyway.configure()
                 .dataSource(dataSource)
                 .locations(migrationResourcesLocation)
-                .schemas("event_store")
                 .load()
                 .migrate();
     }

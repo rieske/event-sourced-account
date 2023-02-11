@@ -19,19 +19,19 @@ import java.util.UUID;
 class MySqlEventStore implements BlobEventStore {
 
     private static final String APPEND_EVENT_SQL =
-            "INSERT INTO event_store.Event(aggregateId, sequenceNumber, transactionId, payload) VALUES(?, ?, ?, ?)";
+            "INSERT INTO Event(aggregateId, sequenceNumber, transactionId, payload) VALUES(?, ?, ?, ?)";
     private static final String SELECT_EVENTS_SQL =
-            "SELECT sequenceNumber, transactionId, payload FROM event_store.Event WHERE aggregateId = ? AND sequenceNumber > ? ORDER BY sequenceNumber ASC";
+            "SELECT sequenceNumber, transactionId, payload FROM Event WHERE aggregateId = ? AND sequenceNumber > ? ORDER BY sequenceNumber ASC";
 
     private static final String REMOVE_SNAPSHOT_SQL =
-            "DELETE FROM event_store.Snapshot WHERE aggregateId = ?";
+            "DELETE FROM Snapshot WHERE aggregateId = ?";
     private static final String STORE_SNAPSHOT_SQL =
-            "INSERT INTO event_store.Snapshot(aggregateId, sequenceNumber, payload) VALUES(?, ?, ?)";
+            "INSERT INTO Snapshot(aggregateId, sequenceNumber, payload) VALUES(?, ?, ?)";
     private static final String SELECT_SNAPSHOT_SQL =
-            "SELECT sequenceNumber, payload FROM event_store.Snapshot WHERE aggregateId = ?";
+            "SELECT sequenceNumber, payload FROM Snapshot WHERE aggregateId = ?";
 
     private static final String SELECT_TRANSACTION_SQL =
-            "SELECT aggregateId FROM event_store.Event WHERE aggregateId = ? AND transactionId = ?";
+            "SELECT aggregateId FROM Event WHERE aggregateId = ? AND transactionId = ?";
 
     private final DataSource dataSource;
 
