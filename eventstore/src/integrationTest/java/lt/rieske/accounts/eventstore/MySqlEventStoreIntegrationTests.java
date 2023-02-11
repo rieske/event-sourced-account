@@ -37,8 +37,7 @@ class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
 
     static class MySql {
 
-        private final MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.0.30")
-                .withDatabaseName("event_store");
+        private final MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.0.30");
 
         MySql() {
             mysql.withTmpFs(Map.of("/var/lib/mysql", "rw"));

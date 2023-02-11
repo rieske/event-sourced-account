@@ -37,8 +37,7 @@ class PostgresqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests
 
     static class Postgresql {
 
-        private final PostgreSQLContainer<?> postgresql = new PostgreSQLContainer<>("postgres:14.4")
-                .withDatabaseName("event_store");
+        private final PostgreSQLContainer<?> postgresql = new PostgreSQLContainer<>("postgres:14.4");
 
         Postgresql() {
             postgresql.withTmpFs(Map.of("/var/lib/postgresql/data", "rw"));
@@ -55,8 +54,6 @@ class PostgresqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests
             dataSource.setUrl(jdbcUrl());
             dataSource.setUser(username());
             dataSource.setPassword(password());
-            dataSource.setDatabaseName(postgresql.getDatabaseName());
-            dataSource.setCurrentSchema(postgresql.getDatabaseName());
             return dataSource;
         }
 

@@ -31,7 +31,7 @@ public abstract class SqlEventStoreTest {
 
         try (var connection = dataSource.getConnection();
              var statement = connection.prepareStatement(
-                     "SELECT COUNT(*) FROM event_store.Event WHERE aggregateId=?")) {
+                     "SELECT COUNT(*) FROM Event WHERE aggregateId=?")) {
             setUUID(statement, 1, aggregateId);
             try (var resultSet = statement.executeQuery()) {
                 assertThat(resultSet.next()).isTrue();
@@ -53,7 +53,7 @@ public abstract class SqlEventStoreTest {
 
         try (var connection = dataSource.getConnection();
              var statement = connection.prepareStatement(
-                     "SELECT COUNT(*) FROM event_store.Event WHERE aggregateId=?")) {
+                     "SELECT COUNT(*) FROM Event WHERE aggregateId=?")) {
             setUUID(statement, 1, aggregateId);
             try (var resultSet = statement.executeQuery()) {
                 assertThat(resultSet.next()).isTrue();
@@ -123,7 +123,7 @@ public abstract class SqlEventStoreTest {
 
         try (var connection = dataSource.getConnection();
              var statement = connection.prepareStatement(
-                     "SELECT COUNT(*) FROM event_store.Snapshot WHERE aggregateId=?")) {
+                     "SELECT COUNT(*) FROM Snapshot WHERE aggregateId=?")) {
             setUUID(statement, 1, aggregateId);
             try (var resultSet = statement.executeQuery()) {
                 assertThat(resultSet.next()).isTrue();
