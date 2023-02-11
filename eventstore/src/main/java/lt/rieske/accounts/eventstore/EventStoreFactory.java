@@ -33,21 +33,21 @@ public final class EventStoreFactory {
     }
 
     static BlobEventStore postgresEventStore(String jdbcUrl, String username, String password, Function<DataSource, DataSource> initializer) {
-        log.info("Creating PostgreSQL event store");
         return postgresEventStore(postgresDataSource(jdbcUrl, username, password), initializer);
     }
 
     static BlobEventStore mysqlEventStore(String jdbcUrl, String username, String password, Function<DataSource, DataSource> initializer) {
-        log.info("Creating MySQL event store");
         return mysqlEventStore(mysqlDataSource(jdbcUrl, username, password), initializer);
     }
 
     static BlobEventStore postgresEventStore(DataSource dataSource, Function<DataSource, DataSource> initializer) {
+        log.info("Creating PostgreSQL event store");
         migrateDatabase(dataSource, "db/migration/postgres");
         return new PostgresEventStore(initializer.apply(dataSource));
     }
 
     static BlobEventStore mysqlEventStore(DataSource dataSource, Function<DataSource, DataSource> initializer) {
+        log.info("Creating MySQL event store");
         migrateDatabase(dataSource, "db/migration/mysql");
         return new MySqlEventStore(initializer.apply(dataSource));
     }

@@ -1,72 +1,44 @@
 package lt.rieske.accounts.eventstore;
 
-import org.junit.jupiter.api.AfterAll;
-import org.postgresql.ds.PGSimpleDataSource;
-import org.testcontainers.containers.PostgreSQLContainer;
+import io.github.rieske.dbtest.extension.DatabaseTestExtension;
+import io.github.rieske.dbtest.extension.PostgreSQLFastTestExtension;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
 class PostgresqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
 
-    private static final Postgresql POSTGRESQL = new Postgresql();
+    static class PostgresEventStoreExtension extends PostgreSQLFastTestExtension {
 
-    @AfterAll
-    static void stopDatabase() {
-        POSTGRESQL.stop();
+        public PostgresEventStoreExtension() {
+            super("14.4", Mode.DATABASE_PER_EXECUTION);
+        }
+
+        @Override
+        protected void migrateDatabase(DataSource dataSource) {
+            EventStoreFactory.postgresEventStore(dataSource, Function.identity());
+        }
     }
+
+    @RegisterExtension
+    private final DatabaseTestExtension database = new PostgresEventStoreExtension();
 
     @Override
     protected DataSource dataSource() {
-        return POSTGRESQL.dataSource();
+        return database.getDataSource();
     }
 
     @Override
     protected BlobEventStore blobEventStore() {
-        return EventStoreFactory.postgresEventStore(POSTGRESQL.jdbcUrl(), POSTGRESQL.username(), POSTGRESQL.password(), Function.identity());
+        return new PostgresEventStore(dataSource());
     }
 
     @Override
     protected void setUUID(PreparedStatement statement, int column, UUID uuid) throws SQLException {
         statement.setObject(column, uuid);
-    }
-
-    static class Postgresql {
-
-        private final PostgreSQLContainer<?> postgresql = new PostgreSQLContainer<>("postgres:14.4");
-
-        Postgresql() {
-            postgresql.withTmpFs(Map.of("/var/lib/postgresql/data", "rw"));
-
-            postgresql.start();
-        }
-
-        void stop() {
-            postgresql.stop();
-        }
-
-        DataSource dataSource() {
-            var dataSource = new PGSimpleDataSource();
-            dataSource.setUrl(jdbcUrl());
-            dataSource.setUser(username());
-            dataSource.setPassword(password());
-            return dataSource;
-        }
-
-        String jdbcUrl() {
-            return postgresql.getJdbcUrl();
-        }
-
-        String username() {
-            return postgresql.getUsername();
-        }
-
-        String password() {
-            return postgresql.getPassword();
-        }
     }
 }
