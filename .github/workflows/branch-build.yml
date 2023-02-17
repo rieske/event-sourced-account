@@ -16,10 +16,19 @@ jobs:
       with:
         java-version: 19
         distribution: temurin
+
     - name: Build
       uses: burrunan/gradle-cache-action@v1
       with:
         arguments: build --stacktrace
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: Test results
+        path: "**/build/reports/tests/"
+
     - name: Upload code coverage report to coveralls
       uses: burrunan/gradle-cache-action@v1
       env:
