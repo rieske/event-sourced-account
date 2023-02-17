@@ -15,7 +15,7 @@ class PostgresqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests
     static class PostgresEventStoreExtension extends PostgreSQLFastTestExtension {
 
         public PostgresEventStoreExtension() {
-            super("14.4", Mode.DATABASE_PER_EXECUTION);
+            super("14.4", Mode.DATABASE_PER_TEST_METHOD);
         }
 
         @Override

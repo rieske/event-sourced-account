@@ -15,7 +15,7 @@ class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
     static class MysqlEventStoreExtension extends MySQLFastTestExtension {
 
         public MysqlEventStoreExtension() {
-            super("8.0.30", Mode.DATABASE_PER_EXECUTION);
+            super("8.0.30", Mode.DATABASE_PER_TEST_METHOD);
         }
 
         @Override
