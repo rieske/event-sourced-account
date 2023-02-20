@@ -2,7 +2,7 @@
 brave = "5.16.0"
 flyway = "9.17.0"
 testcontainers = "1.18.1"
-dbtest = "0.0.2"
+dbtest = "0.0.3"
 
 [libraries]
 # Production
