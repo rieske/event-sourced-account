@@ -8,7 +8,7 @@ testcontainers = "1.18.0"
 sparkJava = "com.sparkjava:spark-core:2.9.4"
 msgpack = "org.msgpack:msgpack-core:0.9.3"
 slf4j = "org.slf4j:slf4j-api:2.0.7"
-logback = "ch.qos.logback:logback-classic:1.4.6"
+logback = "ch.qos.logback:logback-classic:1.4.7"
 micrometer = "io.micrometer:micrometer-registry-prometheus:1.10.6"
 hikari = "com.zaxxer:HikariCP:5.0.1"
 
