@@ -25,7 +25,7 @@ class PostgresqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests
     }
 
     @RegisterExtension
-    private final DatabaseTestExtension database = new PostgresEventStoreExtension();
+    public final DatabaseTestExtension database = new PostgresEventStoreExtension();
 
     @Override
     protected DataSource dataSource() {

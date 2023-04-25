@@ -1,6 +1,8 @@
 package lt.rieske.accounts.eventstore;
 
-import org.h2.jdbcx.JdbcDataSource;
+import io.github.rieske.dbtest.extension.DatabaseTestExtension;
+import io.github.rieske.dbtest.extension.H2Mode;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
@@ -12,15 +14,15 @@ import static lt.rieske.accounts.eventstore.MySqlEventStore.uuidToBytes;
 
 class H2MySqlEventStoreTests extends SqlEventStoreIntegrationTests {
 
-    private static final JdbcDataSource dataSource = new JdbcDataSource();
-
-    static {
-        dataSource.setUrl("jdbc:h2:mem:event_store_MySQL;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1");
-    }
+    @RegisterExtension
+    public final DatabaseTestExtension database = new H2EventStoreExtension(
+            H2Mode.MYSQL,
+            dataSource -> EventStoreFactory.mysqlEventStore(dataSource, Function.identity())
+    );
 
     @Override
     protected DataSource dataSource() {
-        return dataSource;
+        return database.getDataSource();
     }
 
     @Override

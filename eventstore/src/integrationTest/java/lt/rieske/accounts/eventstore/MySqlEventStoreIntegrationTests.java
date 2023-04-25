@@ -25,7 +25,7 @@ class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
     }
 
     @RegisterExtension
-    private final DatabaseTestExtension database = new MysqlEventStoreExtension();
+    public final DatabaseTestExtension database = new MysqlEventStoreExtension();
 
     @Override
     protected DataSource dataSource() {
