@@ -22,7 +22,7 @@ postgres = "org.postgresql:postgresql:42.6.0"
 mysql = "mysql:mysql-connector-java:8.0.33"
 
 # Test
-junit = "org.junit.jupiter:junit-jupiter:5.9.2"
+junit = "org.junit.jupiter:junit-jupiter:5.9.3"
 assertj = "org.assertj:assertj-core:3.24.2"
 archunit = "com.tngtech.archunit:archunit-junit5:1.0.1"
 restAssured = "io.rest-assured:rest-assured:5.3.0"
