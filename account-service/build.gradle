@@ -63,8 +63,8 @@ tasks.register("composeUp", Exec) {
     def composeFile = eventstoreImpl.get() == "mysql" ? "docker-compose-mysql.yml" : "docker-compose.yml"
     it.inputs.files(file("${rootProject.projectDir}/$composeFile")).withPathSensitivity(PathSensitivity.RELATIVE)
     it.workingDir(rootProject.projectDir)
-    it.executable("docker-compose")
-    it.args("-f", "$composeFile", "up", "--build", "-d")
+    it.executable("docker")
+    it.args("compose", "-f", "$composeFile", "up", "--build", "-d")
     it.doLast {
         println("\n\n")
         println("Eventstore backend: ${eventstoreImpl.get()}\n")
@@ -77,6 +77,6 @@ tasks.register("composeUp", Exec) {
 
 tasks.register("composeDown", Exec) {
     it.workingDir(rootProject.projectDir)
-    it.executable("docker-compose")
-    it.args("down")
+    it.executable("docker")
+    it.args("compose", "down")
 }
