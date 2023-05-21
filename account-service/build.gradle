@@ -60,7 +60,7 @@ tasks.register("asyncStressTest", JavaExec) {
 
 tasks.register("composeUp", Exec) {
     it.dependsOn("build")
-    def composeFile = eventstoreImpl.get() == "mysql" ? "docker-compose-mysql.yml" : "docker-compose.yml"
+    def composeFile = eventstoreImpl.get() == "mysql" ? "docker compose-mysql.yml" : "docker-compose.yml"
     it.inputs.files(file("${rootProject.projectDir}/$composeFile")).withPathSensitivity(PathSensitivity.RELATIVE)
     it.workingDir(rootProject.projectDir)
     it.executable("docker-compose")
@@ -77,6 +77,6 @@ tasks.register("composeUp", Exec) {
 
 tasks.register("composeDown", Exec) {
     it.workingDir(rootProject.projectDir)
-    it.executable("docker-compose")
+    it.executable("docker compose")
     it.args("down")
 }

@@ -156,7 +156,7 @@ To run the full suite, run:
 
 ### Running
 
-The service can be spawned in a minimal production-like environment using `docker-compose`.
+The service can be spawned in a minimal production-like environment using `docker compose`.
 The environment consists of two service instances packaged in a docker container, connected to a Postgres container, and
 exposed via Envoy Proxy. A minimal monitoring setup is available, as well.
 
