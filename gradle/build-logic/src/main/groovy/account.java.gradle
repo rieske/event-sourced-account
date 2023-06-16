@@ -10,6 +10,10 @@ java {
     }
 }
 
+jacoco {
+    toolVersion = "0.8.10"
+}
+
 tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += ["-Xlint:deprecation", "-Xlint:unchecked"]
 }
