@@ -6,8 +6,12 @@ plugins {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(19)
+        languageVersion = JavaLanguageVersion.of(20)
     }
+}
+
+jacoco {
+    toolVersion = "0.8.10"
 }
 
 tasks.withType(JavaCompile).configureEach {
