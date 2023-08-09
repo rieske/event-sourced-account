@@ -24,7 +24,7 @@ mysql = "mysql:mysql-connector-java:8.0.33"
 # Test
 junit = "org.junit.jupiter:junit-jupiter:5.10.0"
 assertj = "org.assertj:assertj-core:3.24.2"
-archunit = "com.tngtech.archunit:archunit-junit5:1.0.1"
+archunit = "com.tngtech.archunit:archunit-junit5:1.1.0"
 restAssured = "io.rest-assured:rest-assured:5.3.1"
 h2 = "com.h2database:h2:2.2.220"
 
