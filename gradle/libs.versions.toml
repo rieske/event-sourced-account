@@ -1,6 +1,6 @@
 [versions]
 brave = "5.16.0"
-flyway = "9.22.0"
+flyway = "9.22.1"
 testcontainers = "1.19.0"
 
 [libraries]
