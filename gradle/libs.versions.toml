@@ -9,7 +9,7 @@ sparkJava = "com.sparkjava:spark-core:2.9.4"
 msgpack = "org.msgpack:msgpack-core:0.9.6"
 slf4j = "org.slf4j:slf4j-api:2.0.9"
 logback = "ch.qos.logback:logback-classic:1.4.11"
-micrometer = "io.micrometer:micrometer-registry-prometheus:1.11.4"
+micrometer = "io.micrometer:micrometer-registry-prometheus:1.11.5"
 hikari = "com.zaxxer:HikariCP:5.0.1"
 
 zipkinSparkJava = { module = "io.zipkin.brave:brave-instrumentation-sparkjava", version.ref = "brave" }
