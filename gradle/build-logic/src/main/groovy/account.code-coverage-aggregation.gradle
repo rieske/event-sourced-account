@@ -3,10 +3,6 @@ plugins {
     id("com.github.kt3k.coveralls")
 }
 
-jacoco {
-    toolVersion = "0.8.10"
-}
-
 // Task to aggregate code coverage reports from test and integrationTest reports
 def codeCoverageReport = tasks.register("codeCoverageReport", JacocoReport) {
     it.sourceSets(sourceSets.main)
