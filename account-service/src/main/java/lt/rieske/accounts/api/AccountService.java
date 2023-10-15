@@ -1,7 +1,7 @@
 package lt.rieske.accounts.api;
 
 import lt.rieske.accounts.domain.Account;
-import lt.rieske.accounts.domain.AccountEventsVisitor;
+import lt.rieske.accounts.domain.AccountEvent;
 import lt.rieske.accounts.domain.AccountSnapshot;
 import lt.rieske.accounts.domain.Operation;
 import lt.rieske.accounts.eventsourcing.AggregateRepository;
@@ -14,10 +14,10 @@ import java.util.UUID;
 
 class AccountService {
 
-    private final AggregateRepository<Account, AccountEventsVisitor> accountRepository;
-    private final EventStore<AccountEventsVisitor> eventStore;
+    private final AggregateRepository<Account, AccountEvent> accountRepository;
+    private final EventStore<AccountEvent> eventStore;
 
-    AccountService(AggregateRepository<Account, AccountEventsVisitor> accountRepository, EventStore<AccountEventsVisitor> eventStore) {
+    AccountService(AggregateRepository<Account, AccountEvent> accountRepository, EventStore<AccountEvent> eventStore) {
         this.accountRepository = accountRepository;
         this.eventStore = eventStore;
     }
@@ -49,7 +49,7 @@ class AccountService {
         return accountRepository.query(accountId).snapshot();
     }
 
-    List<SequencedEvent<AccountEventsVisitor>> getEvents(UUID accountId) {
+    List<SequencedEvent<AccountEvent>> getEvents(UUID accountId) {
         return eventStore.getEvents(accountId, 0).toList();
     }
 

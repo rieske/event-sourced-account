@@ -1,7 +1,5 @@
 package lt.rieske.accounts.domain;
 
-import lt.rieske.accounts.eventsourcing.Event;
-
 import java.util.UUID;
 
 public record AccountSnapshot(
@@ -9,10 +7,5 @@ public record AccountSnapshot(
         UUID ownerId,
         long balance,
         boolean open
-) implements Event<AccountEventsVisitor> {
-
-    @Override
-    public void accept(AccountEventsVisitor visitor) {
-        visitor.visit(this);
-    }
+) implements AccountEvent {
 }

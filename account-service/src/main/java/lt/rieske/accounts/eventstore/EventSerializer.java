@@ -2,8 +2,7 @@ package lt.rieske.accounts.eventstore;
 
 import lt.rieske.accounts.eventsourcing.Event;
 
-
-interface EventSerializer<T> {
-    byte[] serialize(Event<T> event);
-    Event<T> deserialize(byte[] serializedEvent);
+interface EventSerializer<E extends Event> {
+    byte[] serialize(Event event);
+    E deserialize(byte[] serializedEvent);
 }

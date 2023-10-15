@@ -2,7 +2,7 @@ package lt.rieske.accounts.eventsourcing;
 
 import lt.rieske.accounts.api.ApiConfiguration;
 import lt.rieske.accounts.domain.Account;
-import lt.rieske.accounts.domain.AccountEventsVisitor;
+import lt.rieske.accounts.domain.AccountEvent;
 import lt.rieske.accounts.domain.Operation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,9 +13,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class IdempotencyTest {
 
-    private AggregateRepository<Account, AccountEventsVisitor> accountRepository;
+    private AggregateRepository<Account, AccountEvent> accountRepository;
 
-    protected abstract EventStore<AccountEventsVisitor> getEventStore();
+    protected abstract EventStore<AccountEvent> getEventStore();
 
     private final UUID ownerId = UUID.randomUUID();
 

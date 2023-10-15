@@ -2,7 +2,7 @@ package lt.rieske.accounts.eventsourcing;
 
 import lt.rieske.accounts.api.ApiConfiguration;
 import lt.rieske.accounts.domain.Account;
-import lt.rieske.accounts.domain.AccountEventsVisitor;
+import lt.rieske.accounts.domain.AccountEvent;
 import lt.rieske.accounts.domain.AccountOpenedEvent;
 import lt.rieske.accounts.domain.AccountSnapshot;
 import lt.rieske.accounts.domain.MoneyDepositedEvent;
@@ -21,11 +21,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public abstract class AccountEventSourcingTest {
 
-    private EventStore<AccountEventsVisitor> eventStore;
-    private AggregateRepository<Account, AccountEventsVisitor> accountRepository;
-    private AggregateRepository<Account, AccountEventsVisitor> snapshottingAccountRepository;
+    private EventStore<AccountEvent> eventStore;
+    private AggregateRepository<Account, AccountEvent> accountRepository;
+    private AggregateRepository<Account, AccountEvent> snapshottingAccountRepository;
 
-    protected abstract EventStore<AccountEventsVisitor> getEventStore();
+    protected abstract EventStore<AccountEvent> getEventStore();
 
     @BeforeEach
     void init() {
@@ -34,9 +34,8 @@ public abstract class AccountEventSourcingTest {
         snapshottingAccountRepository = ApiConfiguration.snapshottingAccountRepository(eventStore, 5);
     }
 
-    @SafeVarargs
-    private void givenEvents(UUID accountId, UUID transactionId, Event<AccountEventsVisitor>... events) {
-        List<SequencedEvent<AccountEventsVisitor>> sequencedEvents = new ArrayList<>();
+    private void givenEvents(UUID accountId, UUID transactionId, AccountEvent... events) {
+        List<SequencedEvent<AccountEvent>> sequencedEvents = new ArrayList<>();
         for (int i = 0; i < events.length; i++) {
             sequencedEvents.add(new SequencedEvent<>(accountId, i + 1, null, events[i]));
         }
@@ -131,12 +130,12 @@ public abstract class AccountEventSourcingTest {
         var ownerId = UUID.randomUUID();
         givenEvents(accountId, UUID.randomUUID(), new AccountOpenedEvent(ownerId));
 
-        var eventStream1 = new TransactionalEventStream<Account, AccountEventsVisitor>(eventStore, (aggregate, version) -> null);
+        var eventStream1 = new TransactionalEventStream<Account, AccountEvent>(eventStore, (aggregate, version) -> null);
         var account1 = new Account(eventStream1, accountId);
         eventStream1.replay(account1, accountId);
         account1.deposit(42);
 
-        var eventStream2 = new TransactionalEventStream<Account, AccountEventsVisitor>(eventStore, (aggregate, version) -> null);
+        var eventStream2 = new TransactionalEventStream<Account, AccountEvent>(eventStore, (aggregate, version) -> null);
         var account2 = new Account(eventStream2, accountId);
         eventStream2.replay(account2, accountId);
         account2.deposit(42);

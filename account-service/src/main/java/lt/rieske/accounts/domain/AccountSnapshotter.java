@@ -2,7 +2,7 @@ package lt.rieske.accounts.domain;
 
 import lt.rieske.accounts.eventsourcing.Snapshotter;
 
-public class AccountSnapshotter implements Snapshotter<Account, AccountEventsVisitor> {
+public class AccountSnapshotter implements Snapshotter<Account, AccountEvent> {
 
     private final int snapshottingFrequencyEvents;
 
