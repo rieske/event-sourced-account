@@ -1,6 +1,6 @@
 package lt.rieske.accounts.eventstore;
 
-import lt.rieske.accounts.domain.AccountEventsVisitor;
+import lt.rieske.accounts.domain.AccountEvent;
 import lt.rieske.accounts.eventsourcing.AccountConsistencyTest;
 import lt.rieske.accounts.eventsourcing.AccountEventSourcingTest;
 import lt.rieske.accounts.eventsourcing.EventStore;
@@ -21,7 +21,7 @@ public abstract class SqlEventStoreIntegrationTests {
 
     protected abstract void setUUID(PreparedStatement statement, int column, UUID uuid) throws SQLException;
 
-    private final EventStore<AccountEventsVisitor> eventStore = Configuration.accountEventStore(blobEventStore());
+    private final EventStore<AccountEvent> eventStore = Configuration.accountEventStore(blobEventStore());
 
     @Nested
     class SpecificSqlEventStoreTest extends SqlEventStoreTest {
@@ -45,7 +45,7 @@ public abstract class SqlEventStoreIntegrationTests {
     class SqlAccountEventSourcingTest extends AccountEventSourcingTest {
 
         @Override
-        protected EventStore<AccountEventsVisitor> getEventStore() {
+        protected EventStore<AccountEvent> getEventStore() {
             return eventStore;
         }
     }
@@ -54,7 +54,7 @@ public abstract class SqlEventStoreIntegrationTests {
     class SqlMoneyTransferTest extends MoneyTransferTest {
 
         @Override
-        protected EventStore<AccountEventsVisitor> getEventStore() {
+        protected EventStore<AccountEvent> getEventStore() {
             return eventStore;
         }
 
@@ -64,7 +64,7 @@ public abstract class SqlEventStoreIntegrationTests {
     class SqlIdempotencyTest extends IdempotencyTest {
 
         @Override
-        protected EventStore<AccountEventsVisitor> getEventStore() {
+        protected EventStore<AccountEvent> getEventStore() {
             return eventStore;
         }
     }
@@ -73,7 +73,7 @@ public abstract class SqlEventStoreIntegrationTests {
     class SqlAccountConsistencyTest extends AccountConsistencyTest {
 
         @Override
-        protected EventStore<AccountEventsVisitor> getEventStore() {
+        protected EventStore<AccountEvent> getEventStore() {
             return eventStore;
         }
 

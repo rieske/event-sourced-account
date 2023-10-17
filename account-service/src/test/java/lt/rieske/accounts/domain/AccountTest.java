@@ -1,6 +1,5 @@
 package lt.rieske.accounts.domain;
 
-import lt.rieske.accounts.eventsourcing.Event;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -121,8 +120,7 @@ class AccountTest {
                 .hasMessageContaining("Balance outstanding");
     }
 
-    void apply(Event<AccountEventsVisitor> event, Account aggregate, UUID aggregateId) {
-        event.accept(aggregate);
+    void apply(AccountEvent event, Account aggregate, UUID aggregateId) {
+        aggregate.visit(event);
     }
-
 }

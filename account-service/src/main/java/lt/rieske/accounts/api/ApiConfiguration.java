@@ -12,7 +12,7 @@ import io.micrometer.core.instrument.binder.system.UptimeMetrics;
 import io.micrometer.prometheus.PrometheusConfig;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import lt.rieske.accounts.domain.Account;
-import lt.rieske.accounts.domain.AccountEventsVisitor;
+import lt.rieske.accounts.domain.AccountEvent;
 import lt.rieske.accounts.domain.AccountSnapshotter;
 import lt.rieske.accounts.eventsourcing.AggregateRepository;
 import lt.rieske.accounts.eventsourcing.EventStore;
@@ -46,12 +46,12 @@ public class ApiConfiguration {
         return new Server(accountResource, meterRegistry, tracingConfiguration);
     }
 
-    public static AggregateRepository<Account, AccountEventsVisitor> accountRepository(EventStore<AccountEventsVisitor> eventStore) {
+    public static AggregateRepository<Account, AccountEvent> accountRepository(EventStore<AccountEvent> eventStore) {
         return new AggregateRepository<>(eventStore, Account::new);
     }
 
-    public static AggregateRepository<Account, AccountEventsVisitor> snapshottingAccountRepository(
-            EventStore<AccountEventsVisitor> eventStore, int snapshottingFrequency) {
+    public static AggregateRepository<Account, AccountEvent> snapshottingAccountRepository(
+            EventStore<AccountEvent> eventStore, int snapshottingFrequency) {
         return new AggregateRepository<>(eventStore, Account::new, new AccountSnapshotter(snapshottingFrequency));
     }
 

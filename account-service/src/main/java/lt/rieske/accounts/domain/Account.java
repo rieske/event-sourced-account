@@ -1,12 +1,13 @@
 package lt.rieske.accounts.domain;
 
 import lt.rieske.accounts.eventsourcing.EventStream;
+import lt.rieske.accounts.eventsourcing.EventVisitor;
 
 import java.util.UUID;
 
 
-public class Account implements AccountEventsVisitor {
-    private final EventStream<Account, AccountEventsVisitor> eventStream;
+public class Account implements EventVisitor<AccountEvent> {
+    private final EventStream<Account, AccountEvent> eventStream;
 
     private final UUID accountId;
 
@@ -14,7 +15,7 @@ public class Account implements AccountEventsVisitor {
     private long balance;
     private boolean open;
 
-    public Account(EventStream<Account, AccountEventsVisitor> eventStream, UUID accountId) {
+    public Account(EventStream<Account, AccountEvent> eventStream, UUID accountId) {
         this.eventStream = eventStream;
         this.accountId = accountId;
     }
@@ -78,39 +79,28 @@ public class Account implements AccountEventsVisitor {
         return open;
     }
 
-    @Override
-    public void visit(AccountSnapshot snapshot) {
-        this.ownerId = snapshot.ownerId();
-        this.balance = snapshot.balance();
-        this.open = snapshot.open();
-    }
-
-    @Override
-    public void visit(AccountOpenedEvent event) {
-        this.ownerId = event.ownerId();
-        this.balance = 0;
-        this.open = true;
-    }
-
-    @Override
-    public void visit(MoneyDepositedEvent event) {
-        this.balance = event.balance();
-    }
-
-    @Override
-    public void visit(MoneyWithdrawnEvent event) {
-        this.balance = event.balance();
-    }
-
-    @Override
-    public void visit(AccountClosedEvent event) {
-        this.open = false;
-    }
-
     private void requireOpenAccount() {
         if (!open) {
             throw new IllegalStateException("Account not open");
         }
     }
 
+    @Override
+    public void visit(AccountEvent event) {
+        switch (event) {
+            case AccountSnapshot snapshot -> {
+                this.ownerId = snapshot.ownerId();
+                this.balance = snapshot.balance();
+                this.open = snapshot.open();
+            }
+            case AccountOpenedEvent accountOpened -> {
+                this.ownerId = accountOpened.ownerId();
+                this.balance = 0;
+                this.open = true;
+            }
+            case AccountClosedEvent accountClosed -> this.open = false;
+            case MoneyDepositedEvent moneyDeposited -> this.balance = moneyDeposited.balance();
+            case MoneyWithdrawnEvent moneyWithdrawn -> this.balance = moneyWithdrawn.balance();
+        }
+    }
 }
