@@ -3,7 +3,7 @@ package lt.rieske.accounts.eventsourcing;
 import lt.rieske.accounts.api.ApiConfiguration;
 import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.domain.AccountEvent;
-import lt.rieske.accounts.domain.Operation;
+import lt.rieske.accounts.domain.AtomicOperation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -44,7 +44,7 @@ public abstract class AccountEventSourcingTest {
         var ownerId = UUID.randomUUID();
 
         var transactionId = UUID.randomUUID();
-        accountRepository.create(accountId, transactionId, Operation.open(ownerId));
+        accountRepository.create(accountId, transactionId, AtomicOperation.open(ownerId));
         var account = accountRepository.query(accountId);
 
         assertThat(account.id()).isEqualTo(accountId);
@@ -60,9 +60,9 @@ public abstract class AccountEventSourcingTest {
         var ownerId = UUID.randomUUID();
 
         var transactionId = UUID.randomUUID();
-        accountRepository.create(accountId, transactionId, Operation.open(ownerId));
+        accountRepository.create(accountId, transactionId, AtomicOperation.open(ownerId));
 
-        assertThatThrownBy(() -> accountRepository.create(accountId, transactionId, Operation.open(UUID.randomUUID())))
+        assertThatThrownBy(() -> accountRepository.create(accountId, transactionId, AtomicOperation.open(UUID.randomUUID())))
                 .isInstanceOf(ConcurrentModificationException.class);
     }
 
@@ -110,7 +110,7 @@ public abstract class AccountEventSourcingTest {
         givenEvents(accountId, openTxId, new AccountEvent.AccountOpenedEvent(ownerId));
 
         var transactionId = UUID.randomUUID();
-        accountRepository.transact(accountId, transactionId, Operation.deposit(42));
+        accountRepository.transact(accountId, transactionId, AtomicOperation.deposit(42));
 
         var account = accountRepository.query(accountId);
         assertThat(account.balance()).isEqualTo(42);
@@ -148,9 +148,9 @@ public abstract class AccountEventSourcingTest {
         givenEvents(accountId, openTxId, new AccountEvent.AccountOpenedEvent(ownerId));
 
         var tx1 = UUID.randomUUID();
-        accountRepository.transact(accountId, tx1, Operation.deposit(1));
+        accountRepository.transact(accountId, tx1, AtomicOperation.deposit(1));
         var tx2 = UUID.randomUUID();
-        accountRepository.transact(accountId, tx2, Operation.deposit(1));
+        accountRepository.transact(accountId, tx2, AtomicOperation.deposit(1));
 
         var account = accountRepository.query(accountId);
         assertThat(account.balance()).isEqualTo(2);
@@ -205,7 +205,7 @@ public abstract class AccountEventSourcingTest {
         );
 
         var withdrawalTxId = UUID.randomUUID();
-        accountRepository.transact(accountId, withdrawalTxId, Operation.withdraw(5));
+        accountRepository.transact(accountId, withdrawalTxId, AtomicOperation.withdraw(5));
 
         var account = accountRepository.query(accountId);
         assertThat(account.balance()).isEqualTo(5);
@@ -256,9 +256,9 @@ public abstract class AccountEventSourcingTest {
                 new AccountEvent.AccountOpenedEvent(ownerId),
                 new AccountEvent.MoneyDepositedEvent(10, 10)
         );
-        snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), Operation.deposit(5));
-        snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), Operation.deposit(5));
-        snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), Operation.deposit(5));
+        snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), AtomicOperation.deposit(5));
+        snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), AtomicOperation.deposit(5));
+        snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), AtomicOperation.deposit(5));
 
         var snapshot = eventStore.loadSnapshot(accountId);
         assertThat(snapshot.aggregateId()).isEqualTo(accountId);
@@ -270,11 +270,11 @@ public abstract class AccountEventSourcingTest {
         assertThat(snapshotEvent.balance()).isEqualTo(25);
         assertThat(snapshotEvent.open()).isTrue();
 
-        snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), Operation.deposit(5));
-        snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), Operation.deposit(5));
-        snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), Operation.deposit(5));
-        snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), Operation.deposit(5));
-        snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), Operation.deposit(5));
+        snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), AtomicOperation.deposit(5));
+        snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), AtomicOperation.deposit(5));
+        snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), AtomicOperation.deposit(5));
+        snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), AtomicOperation.deposit(5));
+        snapshottingAccountRepository.transact(accountId, UUID.randomUUID(), AtomicOperation.deposit(5));
 
         snapshot = eventStore.loadSnapshot(accountId);
         assertThat(snapshot.aggregateId()).isEqualTo(accountId);
