@@ -1,11 +1,6 @@
 package lt.rieske.accounts.eventstore;
 
-import lt.rieske.accounts.domain.AccountClosedEvent;
 import lt.rieske.accounts.domain.AccountEvent;
-import lt.rieske.accounts.domain.AccountOpenedEvent;
-import lt.rieske.accounts.domain.AccountSnapshot;
-import lt.rieske.accounts.domain.MoneyDepositedEvent;
-import lt.rieske.accounts.domain.MoneyWithdrawnEvent;
 import lt.rieske.accounts.eventsourcing.Event;
 import lt.rieske.accounts.eventsourcing.EventVisitor;
 import org.msgpack.core.MessageBufferPacker;
@@ -50,11 +45,11 @@ class MessagePackAccountEventSerializer implements EventSerializer<AccountEvent>
 
     private static AccountEvent deserializeEvent(int eventType, MessageUnpacker unpacker) throws IOException {
         return switch (eventType) {
-            case ACCOUNT_SNAPSHOT -> new AccountSnapshot(unpackUUID(unpacker), unpackUUID(unpacker), unpacker.unpackLong(), unpacker.unpackBoolean());
-            case ACCOUNT_OPENED -> new AccountOpenedEvent(unpackUUID(unpacker));
-            case MONEY_DEPOSITED -> new MoneyDepositedEvent(unpacker.unpackLong(), unpacker.unpackLong());
-            case MONEY_WITHDRAWN -> new MoneyWithdrawnEvent(unpacker.unpackLong(), unpacker.unpackLong());
-            case ACCOUNT_CLOSED -> new AccountClosedEvent();
+            case ACCOUNT_SNAPSHOT -> new AccountEvent.AccountSnapshot(unpackUUID(unpacker), unpackUUID(unpacker), unpacker.unpackLong(), unpacker.unpackBoolean());
+            case ACCOUNT_OPENED -> new AccountEvent.AccountOpenedEvent(unpackUUID(unpacker));
+            case MONEY_DEPOSITED -> new AccountEvent.MoneyDepositedEvent(unpacker.unpackLong(), unpacker.unpackLong());
+            case MONEY_WITHDRAWN -> new AccountEvent.MoneyWithdrawnEvent(unpacker.unpackLong(), unpacker.unpackLong());
+            case ACCOUNT_CLOSED -> new AccountEvent.AccountClosedEvent();
             default -> throw new IllegalArgumentException("Unrecognized serialized event type: " + eventType);
         };
     }
@@ -78,7 +73,7 @@ class MessagePackAccountEventSerializer implements EventSerializer<AccountEvent>
         @Override
         public void visit(AccountEvent event) {
             switch (event) {
-                case AccountSnapshot snapshot -> {
+                case AccountEvent.AccountSnapshot snapshot -> {
                     try {
                         packer.packInt(ACCOUNT_SNAPSHOT);
                         packUUID(packer, snapshot.accountId());
@@ -90,7 +85,7 @@ class MessagePackAccountEventSerializer implements EventSerializer<AccountEvent>
                         throw new UncheckedIOException(e);
                     }
                 }
-                case AccountOpenedEvent accountOpened -> {
+                case AccountEvent.AccountOpenedEvent accountOpened -> {
                     try {
                         packer.packInt(ACCOUNT_OPENED);
                         packUUID(packer, accountOpened.ownerId());
@@ -99,14 +94,14 @@ class MessagePackAccountEventSerializer implements EventSerializer<AccountEvent>
                         throw new UncheckedIOException(e);
                     }
                 }
-                case AccountClosedEvent accountClosed -> {
+                case AccountEvent.AccountClosedEvent accountClosed -> {
                     try {
                         packer.packInt(ACCOUNT_CLOSED).close();
                     } catch (IOException e) {
                         throw new UncheckedIOException(e);
                     }
                 }
-                case MoneyDepositedEvent moneyDeposited -> {
+                case AccountEvent.MoneyDepositedEvent moneyDeposited -> {
                     try {
                         packer.packInt(MONEY_DEPOSITED)
                                 .packLong(moneyDeposited.amountDeposited())
@@ -116,7 +111,7 @@ class MessagePackAccountEventSerializer implements EventSerializer<AccountEvent>
                         throw new UncheckedIOException(e);
                     }
                 }
-                case MoneyWithdrawnEvent moneyWithdrawn -> {
+                case AccountEvent.MoneyWithdrawnEvent moneyWithdrawn -> {
                     try {
                         packer.packInt(MONEY_WITHDRAWN)
                                 .packLong(moneyWithdrawn.amountWithdrawn())

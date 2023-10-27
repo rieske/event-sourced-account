@@ -2,7 +2,6 @@ package lt.rieske.accounts.api;
 
 import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.domain.AccountEvent;
-import lt.rieske.accounts.domain.AccountSnapshot;
 import lt.rieske.accounts.domain.Operation;
 import lt.rieske.accounts.eventsourcing.AggregateRepository;
 import lt.rieske.accounts.eventsourcing.EventStore;
@@ -45,7 +44,7 @@ class AccountService {
         accountRepository.transact(accountId, UUID.randomUUID(), Operation.close());
     }
 
-    AccountSnapshot queryAccount(UUID accountId) {
+    AccountEvent.AccountSnapshot queryAccount(UUID accountId) {
         return accountRepository.query(accountId).snapshot();
     }
 
