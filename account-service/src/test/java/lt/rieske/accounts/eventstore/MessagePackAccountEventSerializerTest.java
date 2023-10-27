@@ -1,6 +1,6 @@
 package lt.rieske.accounts.eventstore;
 
-import lt.rieske.accounts.domain.AccountOpenedEvent;
+import lt.rieske.accounts.domain.AccountEvent;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -13,7 +13,7 @@ class MessagePackAccountEventSerializerTest {
 
     @Test
     void serializesAndDeserializesAnEvent() {
-        var event = new AccountOpenedEvent(UUID.randomUUID());
+        var event = new AccountEvent.AccountOpenedEvent(UUID.randomUUID());
 
         var serializedEvent = serializer.serialize(event);
         var deserializedEvent = serializer.deserialize(serializedEvent);

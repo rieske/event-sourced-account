@@ -1,6 +1,6 @@
 package lt.rieske.accounts.api;
 
-import lt.rieske.accounts.domain.AccountSnapshot;
+import lt.rieske.accounts.domain.AccountEvent;
 import spark.Request;
 import spark.Response;
 
@@ -122,7 +122,7 @@ class AccountResource {
         return param;
     }
 
-    private static String accountJson(AccountSnapshot account) {
+    private static String accountJson(AccountEvent.AccountSnapshot account) {
         return "{" +
                 "\"accountId\":\"" + account.accountId() + "\"," +
                 "\"ownerId\":\"" + account.ownerId() + "\"," +
