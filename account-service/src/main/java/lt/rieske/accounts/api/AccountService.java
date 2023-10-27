@@ -2,7 +2,7 @@ package lt.rieske.accounts.api;
 
 import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.domain.AccountEvent;
-import lt.rieske.accounts.domain.Operation;
+import lt.rieske.accounts.domain.AtomicOperation;
 import lt.rieske.accounts.eventsourcing.AggregateRepository;
 import lt.rieske.accounts.eventsourcing.EventStore;
 import lt.rieske.accounts.eventsourcing.SequencedEvent;
@@ -22,26 +22,26 @@ class AccountService {
     }
 
     void openAccount(UUID accountId, UUID ownerId) {
-        accountRepository.create(accountId, UUID.randomUUID(), Operation.open(ownerId));
+        accountRepository.create(accountId, UUID.randomUUID(), AtomicOperation.open(ownerId));
     }
 
     void deposit(UUID accountId, long amount, UUID transactionId) {
         withRetryOnConcurrentModification(() ->
-                accountRepository.transact(accountId, transactionId, Operation.deposit(amount)));
+                accountRepository.transact(accountId, transactionId, AtomicOperation.deposit(amount)));
     }
 
     void withdraw(UUID accountId, long amount, UUID transactionId) {
         withRetryOnConcurrentModification(() ->
-                accountRepository.transact(accountId, transactionId, Operation.withdraw(amount)));
+                accountRepository.transact(accountId, transactionId, AtomicOperation.withdraw(amount)));
     }
 
     void transfer(UUID sourceAccountId, UUID targetAccountId, long amount, UUID transactionId) {
         withRetryOnConcurrentModification(() ->
-                accountRepository.transact(sourceAccountId, targetAccountId, transactionId, Operation.transfer(amount)));
+                accountRepository.transact(sourceAccountId, targetAccountId, transactionId, AtomicOperation.transfer(amount)));
     }
 
     void close(UUID accountId) {
-        accountRepository.transact(accountId, UUID.randomUUID(), Operation.close());
+        accountRepository.transact(accountId, UUID.randomUUID(), AtomicOperation.close());
     }
 
     AccountEvent.AccountSnapshot queryAccount(UUID accountId) {

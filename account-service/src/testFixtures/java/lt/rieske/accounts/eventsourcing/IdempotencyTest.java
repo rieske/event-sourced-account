@@ -3,7 +3,7 @@ package lt.rieske.accounts.eventsourcing;
 import lt.rieske.accounts.api.ApiConfiguration;
 import lt.rieske.accounts.domain.Account;
 import lt.rieske.accounts.domain.AccountEvent;
-import lt.rieske.accounts.domain.Operation;
+import lt.rieske.accounts.domain.AtomicOperation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,11 +27,11 @@ public abstract class IdempotencyTest {
     @Test
     void depositTransactionShouldBeIdempotent() {
         var accountId = UUID.randomUUID();
-        accountRepository.create(accountId, UUID.randomUUID(), Operation.open(ownerId));
+        accountRepository.create(accountId, UUID.randomUUID(), AtomicOperation.open(ownerId));
 
         var transactionId = UUID.randomUUID();
-        accountRepository.transact(accountId, transactionId, Operation.deposit(10));
-        accountRepository.transact(accountId, transactionId, Operation.deposit(10));
+        accountRepository.transact(accountId, transactionId, AtomicOperation.deposit(10));
+        accountRepository.transact(accountId, transactionId, AtomicOperation.deposit(10));
 
         var account = accountRepository.query(accountId);
         assertThat(account.balance()).isEqualTo(10);
@@ -40,12 +40,12 @@ public abstract class IdempotencyTest {
     @Test
     void withdrawalTransactionShouldBeIdempotent() {
         var accountId = UUID.randomUUID();
-        accountRepository.create(accountId, UUID.randomUUID(), Operation.open(ownerId));
-        accountRepository.transact(accountId, UUID.randomUUID(), Operation.deposit(100));
+        accountRepository.create(accountId, UUID.randomUUID(), AtomicOperation.open(ownerId));
+        accountRepository.transact(accountId, UUID.randomUUID(), AtomicOperation.deposit(100));
 
         var transactionId = UUID.randomUUID();
-        accountRepository.transact(accountId, transactionId, Operation.withdraw(10));
-        accountRepository.transact(accountId, transactionId, Operation.withdraw(10));
+        accountRepository.transact(accountId, transactionId, AtomicOperation.withdraw(10));
+        accountRepository.transact(accountId, transactionId, AtomicOperation.withdraw(10));
 
         var account = accountRepository.query(accountId);
         assertThat(account.balance()).isEqualTo(90);
@@ -54,15 +54,15 @@ public abstract class IdempotencyTest {
     @Test
     void moneyTransferTransactionShouldBeIdempotent() {
         var sourceAccountId = UUID.randomUUID();
-        accountRepository.create(sourceAccountId, UUID.randomUUID(), Operation.open(ownerId));
-        accountRepository.transact(sourceAccountId, UUID.randomUUID(), Operation.deposit(100));
+        accountRepository.create(sourceAccountId, UUID.randomUUID(), AtomicOperation.open(ownerId));
+        accountRepository.transact(sourceAccountId, UUID.randomUUID(), AtomicOperation.deposit(100));
 
         var targetAccountId = UUID.randomUUID();
-        accountRepository.create(targetAccountId, UUID.randomUUID(), Operation.open(ownerId));
+        accountRepository.create(targetAccountId, UUID.randomUUID(), AtomicOperation.open(ownerId));
 
         var transactionId = UUID.randomUUID();
-        accountRepository.transact(sourceAccountId, targetAccountId, transactionId, Operation.transfer(60));
-        accountRepository.transact(sourceAccountId, targetAccountId, transactionId, Operation.transfer(60));
+        accountRepository.transact(sourceAccountId, targetAccountId, transactionId, AtomicOperation.transfer(60));
+        accountRepository.transact(sourceAccountId, targetAccountId, transactionId, AtomicOperation.transfer(60));
 
         var sourceAccount = accountRepository.query(sourceAccountId);
         assertThat(sourceAccount.balance()).isEqualTo(40);
