@@ -25,7 +25,7 @@ services:
     scale: 2
 
   database:
-    image: mysql:8.1.0
+    image: mysql:8.2.0
     environment:
       MYSQL_ROOT_PASSWORD: test
       MYSQL_USER: test
