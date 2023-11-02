@@ -90,20 +90,19 @@ class ConsistencyTest {
 
         var operationCount = 1000;
         var threadCount = 8;
-        var executor = Executors.newFixedThreadPool(threadCount);
-
-        for (int i = 0; i < operationCount; i++) {
-            var latch = new CountDownLatch(threadCount);
-            var transactionId = UUID.randomUUID();
-            for (int j = 0; j < threadCount; j++) {
-                executor.submit(() -> {
-                    withRetryOnConflict(() -> client.deposit(accountId, 1, transactionId));
-                    latch.countDown();
-                });
+        try (var executor = Executors.newFixedThreadPool(threadCount)) {
+            for (int i = 0; i < operationCount; i++) {
+                var latch = new CountDownLatch(threadCount);
+                var transactionId = UUID.randomUUID();
+                for (int j = 0; j < threadCount; j++) {
+                    executor.submit(() -> {
+                        withRetryOnConflict(() -> client.deposit(accountId, 1, transactionId));
+                        latch.countDown();
+                    });
+                }
+                latch.await();
             }
-            latch.await();
         }
-        executor.shutdown();
 
         assertOpenAccountWithBalance(accountId, operationCount);
     }
