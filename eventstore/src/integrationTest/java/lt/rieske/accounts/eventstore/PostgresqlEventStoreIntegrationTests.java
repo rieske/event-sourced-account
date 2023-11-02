@@ -37,7 +37,7 @@ class PostgresqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests
 
     static class Postgresql {
 
-        private final PostgreSQLContainer<?> postgresql = new PostgreSQLContainer<>("postgres:14.4");
+        private final PostgreSQLContainer<?> postgresql = new PostgreSQLContainer<>("postgres:16.0");
 
         Postgresql() {
             postgresql.withTmpFs(Map.of("/var/lib/postgresql/data", "rw"));
