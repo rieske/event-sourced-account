@@ -1,6 +1,6 @@
 [versions]
 brave = "5.16.0"
-flyway = "9.22.3"
+flyway = "10.0.0"
 testcontainers = "1.19.1"
 
 [libraries]
@@ -18,8 +18,9 @@ zipkinSender = "io.zipkin.reporter2:zipkin-sender-urlconnection:2.16.4"
 
 flyway = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flywayMysql = { module = "org.flywaydb:flyway-mysql", version.ref = "flyway" }
+flywayPostgres = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 postgres = "org.postgresql:postgresql:42.6.0"
-mysql = "mysql:mysql-connector-java:8.0.33"
+mysql = "com.mysql:mysql-connector-j:8.2.0"
 
 # Test
 junit = "org.junit.jupiter:junit-jupiter:5.10.0"

@@ -22,11 +22,12 @@ dependencies {
     testFixturesApi(testFixtures(project(":account-service")))
 
     postgresImplementation(libs.postgres)
+    postgresImplementation(libs.flywayPostgres)
 
-    mysqlImplementation(libs.flywayMysql)
     mysqlImplementation(libs.mysql) {
         exclude(group: "com.google.protobuf", module: "protobuf-java")
     }
+    mysqlImplementation(libs.flywayMysql)
 
     testImplementation(libs.h2)
 
