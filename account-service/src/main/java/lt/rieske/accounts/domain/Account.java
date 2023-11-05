@@ -1,12 +1,13 @@
 package lt.rieske.accounts.domain;
 
 import lt.rieske.accounts.eventsourcing.EventStream;
+import lt.rieske.accounts.eventsourcing.EventVisitor;
 
 import java.util.UUID;
 
 
-public class Account implements AccountEventsVisitor {
-    private final EventStream<Account, AccountEventsVisitor> eventStream;
+public class Account implements EventVisitor<AccountEvent> {
+    private final EventStream<Account, AccountEvent> eventStream;
 
     private final UUID accountId;
 
@@ -14,20 +15,20 @@ public class Account implements AccountEventsVisitor {
     private long balance;
     private boolean open;
 
-    public Account(EventStream<Account, AccountEventsVisitor> eventStream, UUID accountId) {
+    public Account(EventStream<Account, AccountEvent> eventStream, UUID accountId) {
         this.eventStream = eventStream;
         this.accountId = accountId;
     }
 
-    public AccountSnapshot snapshot() {
-        return new AccountSnapshot(accountId, ownerId, balance, open);
+    public AccountEvent.AccountSnapshot snapshot() {
+        return new AccountEvent.AccountSnapshot(accountId, ownerId, balance, open);
     }
 
     public void open(UUID ownerId) {
         if (this.ownerId != null) {
             throw new IllegalStateException("Account already has an owner");
         }
-        eventStream.append(new AccountOpenedEvent(ownerId), this, accountId);
+        eventStream.append(new AccountEvent.AccountOpenedEvent(ownerId), this, accountId);
     }
 
     public void deposit(long amount) {
@@ -38,7 +39,7 @@ public class Account implements AccountEventsVisitor {
         if (amount < 0) {
             throw new IllegalArgumentException("Can not deposit negative amount: " + amount);
         }
-        eventStream.append(new MoneyDepositedEvent(amount, balance + amount), this, accountId);
+        eventStream.append(new AccountEvent.MoneyDepositedEvent(amount, balance + amount), this, accountId);
     }
 
     public void withdraw(long amount) {
@@ -52,14 +53,14 @@ public class Account implements AccountEventsVisitor {
         if (balance < amount) {
             throw new IllegalArgumentException("Insufficient balance");
         }
-        eventStream.append(new MoneyWithdrawnEvent(amount, balance - amount), this, accountId);
+        eventStream.append(new AccountEvent.MoneyWithdrawnEvent(amount, balance - amount), this, accountId);
     }
 
     public void close() {
         if (balance != 0) {
             throw new IllegalStateException("Balance outstanding");
         }
-        eventStream.append(new AccountClosedEvent(), this, accountId);
+        eventStream.append(new AccountEvent.AccountClosedEvent(), this, accountId);
     }
 
     public UUID id() {
@@ -78,39 +79,28 @@ public class Account implements AccountEventsVisitor {
         return open;
     }
 
-    @Override
-    public void visit(AccountSnapshot snapshot) {
-        this.ownerId = snapshot.ownerId();
-        this.balance = snapshot.balance();
-        this.open = snapshot.open();
-    }
-
-    @Override
-    public void visit(AccountOpenedEvent event) {
-        this.ownerId = event.ownerId();
-        this.balance = 0;
-        this.open = true;
-    }
-
-    @Override
-    public void visit(MoneyDepositedEvent event) {
-        this.balance = event.balance();
-    }
-
-    @Override
-    public void visit(MoneyWithdrawnEvent event) {
-        this.balance = event.balance();
-    }
-
-    @Override
-    public void visit(AccountClosedEvent event) {
-        this.open = false;
-    }
-
     private void requireOpenAccount() {
         if (!open) {
             throw new IllegalStateException("Account not open");
         }
     }
 
+    @Override
+    public void visit(AccountEvent event) {
+        switch (event) {
+            case AccountEvent.AccountSnapshot snapshot -> {
+                this.ownerId = snapshot.ownerId();
+                this.balance = snapshot.balance();
+                this.open = snapshot.open();
+            }
+            case AccountEvent.AccountOpenedEvent accountOpened -> {
+                this.ownerId = accountOpened.ownerId();
+                this.balance = 0;
+                this.open = true;
+            }
+            case AccountEvent.AccountClosedEvent accountClosed -> this.open = false;
+            case AccountEvent.MoneyDepositedEvent moneyDeposited -> this.balance = moneyDeposited.balance();
+            case AccountEvent.MoneyWithdrawnEvent moneyWithdrawn -> this.balance = moneyWithdrawn.balance();
+        }
+    }
 }

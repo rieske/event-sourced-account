@@ -1,23 +1,17 @@
 package lt.rieske.accounts.api;
 
-import lt.rieske.accounts.domain.AccountClosedEvent;
-import lt.rieske.accounts.domain.AccountEventsVisitor;
-import lt.rieske.accounts.domain.AccountOpenedEvent;
-import lt.rieske.accounts.domain.AccountSnapshot;
-import lt.rieske.accounts.domain.MoneyDepositedEvent;
-import lt.rieske.accounts.domain.MoneyWithdrawnEvent;
-import lt.rieske.accounts.eventsourcing.Event;
+import lt.rieske.accounts.domain.AccountEvent;
 import lt.rieske.accounts.eventsourcing.SequencedEvent;
 
 import java.util.List;
 
 
 // not thread safe - do not reuse
-public class EventStreamJsonSerializer implements AccountEventsVisitor {
+public class EventStreamJsonSerializer {
 
     private StringBuilder sb;
 
-    String toJson(List<SequencedEvent<AccountEventsVisitor>> events) {
+    String toJson(List<SequencedEvent<AccountEvent>> events) {
         sb = new StringBuilder();
         sb.append("[");
         events.forEach(e -> {
@@ -25,7 +19,7 @@ public class EventStreamJsonSerializer implements AccountEventsVisitor {
             appendJsonLong("sequenceNumber", e.sequenceNumber());
             separateField();
             appendJsonString("transactionId", e.transactionId().toString());
-            e.event().accept(this);
+            serializeAccountEvent(e.event());
             sb.append("},");
         });
         if (!events.isEmpty()) {
@@ -33,6 +27,41 @@ public class EventStreamJsonSerializer implements AccountEventsVisitor {
         }
         sb.append("]");
         return sb.toString();
+    }
+
+    private void serializeAccountEvent(AccountEvent event) {
+        switch (event) {
+            case AccountEvent.AccountSnapshot accountSnapshot -> {
+                separateField();
+                appendJsonString("type", event.getClass().getSimpleName());
+            }
+            case AccountEvent.AccountOpenedEvent accountOpened -> {
+                separateField();
+                appendEventType(event);
+                separateField();
+                appendJsonString("ownerId", accountOpened.ownerId().toString());
+            }
+            case AccountEvent.AccountClosedEvent accountClosed -> {
+                separateField();
+                appendEventType(event);
+            }
+            case AccountEvent.MoneyDepositedEvent moneyDeposited -> {
+                separateField();
+                appendEventType(event);
+                separateField();
+                appendJsonLong("amountDeposited", moneyDeposited.amountDeposited());
+                separateField();
+                appendBalance(moneyDeposited.balance());
+            }
+            case AccountEvent.MoneyWithdrawnEvent moneyWithdrawn -> {
+                separateField();
+                appendEventType(event);
+                separateField();
+                appendJsonLong("amountWithdrawn", moneyWithdrawn.amountWithdrawn());
+                separateField();
+                appendBalance(moneyWithdrawn.balance());
+            }
+        }
     }
 
     private void appendJsonString(String name, String value) {
@@ -43,7 +72,7 @@ public class EventStreamJsonSerializer implements AccountEventsVisitor {
         sb.append("\"").append(name).append("\":").append(value);
     }
 
-    private void appendEventType(Event<AccountEventsVisitor> event) {
+    private void appendEventType(AccountEvent event) {
         appendJsonString("type", event.getClass().getSimpleName());
     }
 
@@ -53,45 +82,5 @@ public class EventStreamJsonSerializer implements AccountEventsVisitor {
 
     private void separateField() {
         sb.append(",");
-    }
-
-    @Override
-    public void visit(AccountSnapshot event) {
-        separateField();
-        appendJsonString("type", event.getClass().getSimpleName());
-    }
-
-    @Override
-    public void visit(AccountOpenedEvent event) {
-        separateField();
-        appendEventType(event);
-        separateField();
-        appendJsonString("ownerId", event.ownerId().toString());
-    }
-
-    @Override
-    public void visit(MoneyDepositedEvent event) {
-        separateField();
-        appendEventType(event);
-        separateField();
-        appendJsonLong("amountDeposited", event.amountDeposited());
-        separateField();
-        appendBalance(event.balance());
-    }
-
-    @Override
-    public void visit(MoneyWithdrawnEvent event) {
-        separateField();
-        appendEventType(event);
-        separateField();
-        appendJsonLong("amountWithdrawn", event.amountWithdrawn());
-        separateField();
-        appendBalance(event.balance());
-    }
-
-    @Override
-    public void visit(AccountClosedEvent event) {
-        separateField();
-        appendEventType(event);
     }
 }

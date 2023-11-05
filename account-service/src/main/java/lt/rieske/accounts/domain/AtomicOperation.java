@@ -4,7 +4,7 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public final class Operation {
+public final class AtomicOperation {
 
     public static Consumer<Account> open(UUID ownerId) {
         return a -> a.open(ownerId);

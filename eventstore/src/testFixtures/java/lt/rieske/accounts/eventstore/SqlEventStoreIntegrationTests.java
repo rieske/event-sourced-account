@@ -1,6 +1,6 @@
 package lt.rieske.accounts.eventstore;
 
-import lt.rieske.accounts.domain.AccountEventsVisitor;
+import lt.rieske.accounts.domain.AccountEvent;
 import lt.rieske.accounts.eventsourcing.AccountConsistencyTest;
 import lt.rieske.accounts.eventsourcing.AccountEventSourcingTest;
 import lt.rieske.accounts.eventsourcing.EventStore;
@@ -24,7 +24,7 @@ public abstract class SqlEventStoreIntegrationTests {
 
 
     private BlobEventStore blobEventStore;
-    private EventStore<AccountEventsVisitor> eventStore;
+    private EventStore<AccountEvent> eventStore;
 
     @BeforeEach
     void createEventStore() {
@@ -54,7 +54,7 @@ public abstract class SqlEventStoreIntegrationTests {
     class SqlAccountEventSourcingTest extends AccountEventSourcingTest {
 
         @Override
-        protected EventStore<AccountEventsVisitor> getEventStore() {
+        protected EventStore<AccountEvent> getEventStore() {
             return eventStore;
         }
     }
@@ -63,7 +63,7 @@ public abstract class SqlEventStoreIntegrationTests {
     class SqlMoneyTransferTest extends MoneyTransferTest {
 
         @Override
-        protected EventStore<AccountEventsVisitor> getEventStore() {
+        protected EventStore<AccountEvent> getEventStore() {
             return eventStore;
         }
 
@@ -73,7 +73,7 @@ public abstract class SqlEventStoreIntegrationTests {
     class SqlIdempotencyTest extends IdempotencyTest {
 
         @Override
-        protected EventStore<AccountEventsVisitor> getEventStore() {
+        protected EventStore<AccountEvent> getEventStore() {
             return eventStore;
         }
     }
@@ -82,7 +82,7 @@ public abstract class SqlEventStoreIntegrationTests {
     class SqlAccountConsistencyTest extends AccountConsistencyTest {
 
         @Override
-        protected EventStore<AccountEventsVisitor> getEventStore() {
+        protected EventStore<AccountEvent> getEventStore() {
             return eventStore;
         }
 

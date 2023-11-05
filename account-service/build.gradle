@@ -40,6 +40,10 @@ dependencies {
     blackBoxTestImplementation(libs.logback)
 }
 
+tasks.named("blackBoxTest").configure {
+    inputs.files("../infrastructure/").withPathSensitivity(PathSensitivity.RELATIVE)
+}
+
 application {
     mainClass = "lt.rieske.accounts.App"
 }

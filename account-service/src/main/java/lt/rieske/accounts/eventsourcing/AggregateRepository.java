@@ -5,7 +5,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 
-public class AggregateRepository<A extends E, E> {
+public class AggregateRepository<A extends EventVisitor<E>, E extends Event> {
     private final EventStore<E> eventStore;
     private final AggregateFactory<A, E> aggregateFactory;
     private final Snapshotter<A, E> snapshotter;

@@ -9,16 +9,6 @@ node:
   locality:
     zone: default-zone
 
-tracing:
-  http:
-    name: envoy.tracers.zipkin
-    typed_config:
-      "@type": type.googleapis.com/envoy.config.trace.v3.ZipkinConfig
-      collector_cluster: zipkin
-      collector_endpoint: /api/v2/spans
-      collector_endpoint_version: HTTP_JSON
-      shared_span_context: false
-
 static_resources:
   listeners:
     - name: service_listener
@@ -37,6 +27,14 @@ static_resources:
                       "@type": type.googleapis.com/envoy.extensions.access_loggers.file.v3.FileAccessLog
                       path: /dev/stdout
                 tracing:
+                  provider:
+                    name: envoy.tracers.zipkin
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.config.trace.v3.ZipkinConfig
+                      collector_cluster: zipkin
+                      collector_endpoint: /api/v2/spans
+                      collector_endpoint_version: HTTP_JSON
+                      shared_span_context: false
                   random_sampling:
                     value: 1
                 stat_prefix: ingress_http
@@ -53,6 +51,8 @@ static_resources:
                             cluster: account
                 http_filters:
                   - name: envoy.filters.http.router
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
 
   clusters:
     - name: account

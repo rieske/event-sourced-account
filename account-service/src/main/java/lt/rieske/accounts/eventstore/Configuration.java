@@ -3,7 +3,7 @@ package lt.rieske.accounts.eventstore;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import io.micrometer.core.instrument.MeterRegistry;
-import lt.rieske.accounts.domain.AccountEventsVisitor;
+import lt.rieske.accounts.domain.AccountEvent;
 import lt.rieske.accounts.eventsourcing.EventStore;
 import lt.rieske.accounts.infrastructure.TracingConfiguration;
 
@@ -11,7 +11,7 @@ import javax.sql.DataSource;
 
 public class Configuration {
 
-    public static EventStore<AccountEventsVisitor> accountEventStore(BlobEventStore blobEventStore) {
+    public static EventStore<AccountEvent> accountEventStore(BlobEventStore blobEventStore) {
         return new SerializingEventStore<>(new MessagePackAccountEventSerializer(), blobEventStore);
     }
 

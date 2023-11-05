@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 
 
-class TransactionalEventStream<A extends E, E> extends ReplayingEventStream<A, E> {
+class TransactionalEventStream<A extends EventVisitor<E>, E extends Event> extends ReplayingEventStream<A, E> {
 
     private final Snapshotter<A, E> snapshotter;
 
@@ -20,8 +20,8 @@ class TransactionalEventStream<A extends E, E> extends ReplayingEventStream<A, E
     }
 
     @Override
-    public void append(Event<E> event, A aggregate, UUID aggregateId) {
-        event.accept(aggregate);
+    public void append(E event, A aggregate, UUID aggregateId) {
+        aggregate.visit(event);
         long currentVersion = aggregateVersions.compute(aggregateId, (id, version) -> version != null ? version + 1 : 1);
         uncommittedEvents.add(new SequencedEvent<>(aggregateId, currentVersion, null, event));
         var snapshotEvent = snapshotter.takeSnapshot(aggregate, currentVersion);

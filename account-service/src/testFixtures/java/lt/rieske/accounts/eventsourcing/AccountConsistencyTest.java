@@ -2,8 +2,8 @@ package lt.rieske.accounts.eventsourcing;
 
 import lt.rieske.accounts.api.ApiConfiguration;
 import lt.rieske.accounts.domain.Account;
-import lt.rieske.accounts.domain.AccountEventsVisitor;
-import lt.rieske.accounts.domain.Operation;
+import lt.rieske.accounts.domain.AccountEvent;
+import lt.rieske.accounts.domain.AtomicOperation;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,15 +21,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class AccountConsistencyTest {
 
-    private AggregateRepository<Account, AccountEventsVisitor> accountRepository;
-    private AggregateRepository<Account, AccountEventsVisitor> snapshottingAccountRepository;
+    private AggregateRepository<Account, AccountEvent> accountRepository;
+    private AggregateRepository<Account, AccountEvent> snapshottingAccountRepository;
 
     private ExecutorService executor;
 
     private final Set<UUID> accountIds = new HashSet<>();
     private final UUID ownerId = UUID.randomUUID();
 
-    protected abstract EventStore<AccountEventsVisitor> getEventStore();
+    protected abstract EventStore<AccountEvent> getEventStore();
 
     protected int operationCount() {
         return 50;
@@ -86,7 +86,7 @@ public abstract class AccountConsistencyTest {
         accountRemainsConsistentWithConcurrentIdempotentDeposits(snapshottingAccountRepository);
     }
 
-    void accountRemainsConsistentWithConcurrentDeposits(AggregateRepository<Account, AccountEventsVisitor> repository)
+    void accountRemainsConsistentWithConcurrentDeposits(AggregateRepository<Account, AccountEvent> repository)
             throws InterruptedException {
         var accountId = openNewAccount(repository);
 
@@ -98,7 +98,7 @@ public abstract class AccountConsistencyTest {
             for (int j = 0; j < threadCount; j++) {
                 executor.submit(() -> {
                     withRetryOnConcurrentModification(() ->
-                            repository.transact(accountId, UUID.randomUUID(), Operation.deposit(1)));
+                            repository.transact(accountId, UUID.randomUUID(), AtomicOperation.deposit(1)));
                     latch.countDown();
                 });
             }
@@ -109,7 +109,7 @@ public abstract class AccountConsistencyTest {
         assertThat(snapshottingAccountRepository.query(accountId).balance()).isEqualTo(operationCount * threadCount);
     }
 
-    private void accountRemainsConsistentWithConcurrentIdempotentDeposits(AggregateRepository<Account, AccountEventsVisitor> repository)
+    private void accountRemainsConsistentWithConcurrentIdempotentDeposits(AggregateRepository<Account, AccountEvent> repository)
             throws InterruptedException {
         var accountId = openNewAccount(repository);
 
@@ -122,7 +122,7 @@ public abstract class AccountConsistencyTest {
             for (int j = 0; j < threadCount; j++) {
                 executor.submit(() -> {
                     withRetryOnConcurrentModification(() ->
-                            repository.transact(accountId, transactionId, Operation.deposit(1)));
+                            repository.transact(accountId, transactionId, AtomicOperation.deposit(1)));
                     latch.countDown();
                 });
             }
@@ -133,16 +133,16 @@ public abstract class AccountConsistencyTest {
         assertThat(snapshottingAccountRepository.query(accountId).balance()).isEqualTo(operationCount);
     }
 
-    private void accountsRemainConsistentWithConcurrentTransfers(AggregateRepository<Account, AccountEventsVisitor> repository)
+    private void accountsRemainConsistentWithConcurrentTransfers(AggregateRepository<Account, AccountEvent> repository)
             throws InterruptedException {
         var operationCount = operationCount();
         var threadCount = threadCount();
 
         var sourceAccountId = openNewAccount(repository);
-        repository.transact(sourceAccountId, UUID.randomUUID(), Operation.deposit(operationCount));
+        repository.transact(sourceAccountId, UUID.randomUUID(), AtomicOperation.deposit(operationCount));
 
         var targetAccountId = openNewAccount(repository);
-        repository.transact(targetAccountId, UUID.randomUUID(), Operation.deposit(operationCount));
+        repository.transact(targetAccountId, UUID.randomUUID(), AtomicOperation.deposit(operationCount));
 
         for (int i = 0; i < operationCount; i++) {
             var latch = new CountDownLatch(threadCount);
@@ -150,7 +150,7 @@ public abstract class AccountConsistencyTest {
             for (int j = 0; j < threadCount; j++) {
                 executor.submit(() -> {
                     withRetryOnConcurrentModification(() ->
-                            repository.transact(sourceAccountId, targetAccountId, transactionId, Operation.transfer(1)));
+                            repository.transact(sourceAccountId, targetAccountId, transactionId, AtomicOperation.transfer(1)));
                     latch.countDown();
                 });
             }
@@ -161,9 +161,9 @@ public abstract class AccountConsistencyTest {
         assertThat(snapshottingAccountRepository.query(targetAccountId).balance()).isEqualTo(operationCount * 2);
     }
 
-    private UUID openNewAccount(AggregateRepository<Account, AccountEventsVisitor> repository) {
+    private UUID openNewAccount(AggregateRepository<Account, AccountEvent> repository) {
         var accountId = UUID.randomUUID();
-        repository.create(accountId, UUID.randomUUID(), Operation.open(ownerId));
+        repository.create(accountId, UUID.randomUUID(), AtomicOperation.open(ownerId));
         accountIds.add(accountId);
         return accountId;
     }

@@ -1,8 +1,9 @@
 package lt.rieske.accounts.eventstore;
 
-import lt.rieske.accounts.domain.AccountEventsVisitor;
+import lt.rieske.accounts.domain.AccountEvent;
 import lt.rieske.accounts.eventsourcing.AccountConsistencyTest;
 import lt.rieske.accounts.eventsourcing.AccountEventSourcingTest;
+import lt.rieske.accounts.eventsourcing.Event;
 import lt.rieske.accounts.eventsourcing.EventStore;
 import lt.rieske.accounts.eventsourcing.IdempotencyTest;
 import lt.rieske.accounts.eventsourcing.MoneyTransferTest;
@@ -17,20 +18,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class InMemoryEventStoreTests {
 
-    private final InMemoryEventStore<AccountEventsVisitor> eventStore = new InMemoryEventStore<>();
+    private final InMemoryEventStore<AccountEvent> eventStore = new InMemoryEventStore<>();
 
     @Nested
     class InMemoryAccountEventSourcingTest extends AccountEventSourcingTest {
 
         @Override
-        protected EventStore<AccountEventsVisitor> getEventStore() {
+        protected EventStore<AccountEvent> getEventStore() {
             return eventStore;
         }
     }
@@ -39,7 +39,7 @@ class InMemoryEventStoreTests {
     class InMemoryMoneyTransferTest extends MoneyTransferTest {
 
         @Override
-        protected EventStore<AccountEventsVisitor> getEventStore() {
+        protected EventStore<AccountEvent> getEventStore() {
             return eventStore;
         }
     }
@@ -48,7 +48,7 @@ class InMemoryEventStoreTests {
     class InMemoryAccountConsistencyTest extends AccountConsistencyTest {
 
         @Override
-        protected EventStore<AccountEventsVisitor> getEventStore() {
+        protected EventStore<AccountEvent> getEventStore() {
             return eventStore;
         }
 
@@ -67,16 +67,16 @@ class InMemoryEventStoreTests {
     class InMemoryIdempotencyTest extends IdempotencyTest {
 
         @Override
-        protected EventStore<AccountEventsVisitor> getEventStore() {
+        protected EventStore<AccountEvent> getEventStore() {
             return eventStore;
         }
     }
 
 }
 
-class InMemoryEventStore<T> implements EventStore<T> {
-    private final List<SequencedEvent<T>> events = new ArrayList<>();
-    private final Map<UUID, SequencedEvent<T>> snapshots = new HashMap<>();
+class InMemoryEventStore<E extends Event> implements EventStore<E> {
+    private final List<SequencedEvent<E>> events = new ArrayList<>();
+    private final Map<UUID, SequencedEvent<E>> snapshots = new HashMap<>();
 
     private final Map<UUID, UUID> aggregateTransactions = new HashMap<>();
 
@@ -85,7 +85,7 @@ class InMemoryEventStore<T> implements EventStore<T> {
     // One way to ensure this in RDB - primary key on (aggregateId, sequenceNumber)
     // Event writes have to happen in a transaction - either all get written or none
     @Override
-    public synchronized void append(Collection<SequencedEvent<T>> uncommittedEvents, Collection<SequencedEvent<T>> uncommittedSnapshots,
+    public synchronized void append(Collection<SequencedEvent<E>> uncommittedEvents, Collection<SequencedEvent<E>> uncommittedSnapshots,
                                     UUID transactionId) {
         validateConsistency(uncommittedEvents, transactionId);
 
@@ -94,14 +94,14 @@ class InMemoryEventStore<T> implements EventStore<T> {
     }
 
     @Override
-    public Stream<SequencedEvent<T>> getEvents(UUID aggregateId, long fromVersion) {
+    public Stream<SequencedEvent<E>> getEvents(UUID aggregateId, long fromVersion) {
         return events
                 .stream()
                 .filter(e -> e.aggregateId().equals(aggregateId) && e.sequenceNumber() > fromVersion);
     }
 
     @Override
-    public SequencedEvent<T> loadSnapshot(UUID aggregateId) {
+    public SequencedEvent<E> loadSnapshot(UUID aggregateId) {
         return snapshots.get(aggregateId);
     }
 
@@ -110,22 +110,22 @@ class InMemoryEventStore<T> implements EventStore<T> {
         return transactionId.equals(aggregateTransactions.get(aggregateId));
     }
 
-    List<SequencedEvent<T>> getSequencedEvents(UUID aggregateId) {
+    List<SequencedEvent<E>> getSequencedEvents(UUID aggregateId) {
         return events
                 .stream()
                 .filter(e -> e.aggregateId().equals(aggregateId))
                 .toList();
     }
 
-    private void append(SequencedEvent<T> event, UUID transactionId) {
+    private void append(SequencedEvent<E> event, UUID transactionId) {
         events.add(new SequencedEvent<>(event.aggregateId(), event.sequenceNumber(), transactionId, event.event()));
         aggregateTransactions.put(event.aggregateId(), transactionId);
     }
 
-    private void validateConsistency(Collection<SequencedEvent<T>> uncomittedEvents, UUID transactionId) {
+    private void validateConsistency(Collection<SequencedEvent<E>> uncommittedEvents, UUID transactionId) {
         Map<UUID, Long> aggregateVersions = new HashMap<>();
 
-        uncomittedEvents.forEach(event -> {
+        uncommittedEvents.forEach(event -> {
             long currentVersion = aggregateVersions.getOrDefault(event.aggregateId(),
                     getLatestAggregateVersion(event.aggregateId()));
             if (transactionExists(event.aggregateId(), transactionId)) {
