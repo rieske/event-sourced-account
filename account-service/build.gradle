@@ -30,7 +30,7 @@ dependencies {
 
     testImplementation(libs.archunit)
     testImplementation(libs.restAssured)
-    testImplementation(libs.h2)
+    testImplementation(libs.dbTestH2)
 
     blackBoxTestImplementation(libs.junit)
     blackBoxTestImplementation(libs.assertj)

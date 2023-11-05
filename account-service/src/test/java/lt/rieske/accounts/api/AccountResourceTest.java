@@ -1,10 +1,11 @@
 package lt.rieske.accounts.api;
 
 import io.restassured.path.json.JsonPath;
-import lt.rieske.accounts.eventstore.H2;
+import lt.rieske.accounts.eventstore.H2EventStoreExtension;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.util.UUID;
 
@@ -15,8 +16,11 @@ import static org.hamcrest.Matchers.notNullValue;
 
 class AccountResourceTest {
 
+    @RegisterExtension
+    public static final H2EventStoreExtension EVENT_STORE = new H2EventStoreExtension();
+
     private static final Server SERVER = ApiConfiguration.server(
-            (t, m) -> H2.eventStore(), null);
+            (t, m) -> EVENT_STORE.getEventStore(), null);
     private static int serverPort;
 
     @BeforeAll

@@ -1,74 +1,44 @@
 package lt.rieske.accounts.eventstore;
 
-import com.mysql.cj.jdbc.MysqlDataSource;
-import org.junit.jupiter.api.AfterAll;
-import org.testcontainers.containers.MySQLContainer;
+import io.github.rieske.dbtest.extension.DatabaseTestExtension;
+import io.github.rieske.dbtest.extension.MySQLFastTestExtension;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
 class MySqlEventStoreIntegrationTests extends SqlEventStoreIntegrationTests {
 
-    private static final MySql MYSQL = new MySql();
+    static class MysqlEventStoreExtension extends MySQLFastTestExtension {
 
-    @AfterAll
-    static void stopDatabase() {
-        MYSQL.stop();
+        public MysqlEventStoreExtension() {
+            super("8.0.35", Mode.DATABASE_PER_EXECUTION);
+        }
+
+        @Override
+        protected void migrateDatabase(DataSource dataSource) {
+            EventStoreFactory.mysqlEventStore(dataSource, Function.identity());
+        }
     }
+
+    @RegisterExtension
+    public final DatabaseTestExtension database = new MysqlEventStoreExtension();
 
     @Override
     protected DataSource dataSource() {
-        return MYSQL.dataSource();
+        return database.getDataSource();
     }
 
     @Override
     protected BlobEventStore blobEventStore() {
-        return EventStoreFactory.mysqlEventStore(MYSQL.jdbcUrl(), MYSQL.username(), MYSQL.password(), Function.identity());
+        return new MySqlEventStore(dataSource());
     }
 
     @Override
     protected void setUUID(PreparedStatement statement, int column, UUID uuid) throws SQLException {
         statement.setBytes(column, MySqlEventStore.uuidToBytes(uuid));
-    }
-
-    static class MySql {
-
-        private final MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.0.35");
-
-        MySql() {
-            mysql.withTmpFs(Map.of("/var/lib/mysql", "rw"));
-
-            mysql.start();
-        }
-
-        void stop() {
-            mysql.stop();
-        }
-
-        DataSource dataSource() {
-            var dataSource = new MysqlDataSource();
-
-            dataSource.setUrl(jdbcUrl());
-            dataSource.setUser(username());
-            dataSource.setPassword(password());
-            dataSource.setDatabaseName(mysql.getDatabaseName());
-            return dataSource;
-        }
-
-        String jdbcUrl() {
-            return mysql.getJdbcUrl();
-        }
-
-        String username() {
-            return mysql.getUsername();
-        }
-
-        String password() {
-            return mysql.getPassword();
-        }
     }
 }

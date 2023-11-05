@@ -6,6 +6,7 @@ import lt.rieske.accounts.eventsourcing.AccountEventSourcingTest;
 import lt.rieske.accounts.eventsourcing.EventStore;
 import lt.rieske.accounts.eventsourcing.IdempotencyTest;
 import lt.rieske.accounts.eventsourcing.MoneyTransferTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 
 import javax.sql.DataSource;
@@ -21,7 +22,15 @@ public abstract class SqlEventStoreIntegrationTests {
 
     protected abstract void setUUID(PreparedStatement statement, int column, UUID uuid) throws SQLException;
 
-    private final EventStore<AccountEvent> eventStore = Configuration.accountEventStore(blobEventStore());
+
+    private BlobEventStore blobEventStore;
+    private EventStore<AccountEvent> eventStore;
+
+    @BeforeEach
+    void createEventStore() {
+        this.blobEventStore = blobEventStore();
+        this.eventStore = Configuration.accountEventStore(blobEventStore);
+    }
 
     @Nested
     class SpecificSqlEventStoreTest extends SqlEventStoreTest {
@@ -32,7 +41,7 @@ public abstract class SqlEventStoreIntegrationTests {
 
         @Override
         protected BlobEventStore blobEventStore() {
-            return SqlEventStoreIntegrationTests.this.blobEventStore();
+            return blobEventStore;
         }
 
         @Override

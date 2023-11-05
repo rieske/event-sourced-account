@@ -1,5 +1,6 @@
 package lt.rieske.accounts.eventstore;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
@@ -14,14 +15,20 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public abstract class SqlEventStoreTest {
 
-    private final DataSource dataSource = dataSource();
-    private final BlobEventStore eventStore = blobEventStore();
+    private DataSource dataSource;
+    private BlobEventStore eventStore;
 
     protected abstract DataSource dataSource();
 
     protected abstract BlobEventStore blobEventStore();
 
     protected abstract void setUUID(PreparedStatement statement, int column, UUID uuid) throws SQLException;
+
+    @BeforeEach
+    void setup() {
+        this.dataSource = dataSource();
+        this.eventStore = blobEventStore();
+    }
 
     @Test
     void shouldStoreAnEvent() throws SQLException {
