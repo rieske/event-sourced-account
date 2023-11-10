@@ -16,7 +16,7 @@ jobs:
       uses: gradle/gradle-build-action@v2
 
     - name: Build
-      run: ./gradlew build --stacktrace
+      run: ./gradlew build --stacktrace --scan
 
     - name: Upload test results
       uses: actions/upload-artifact@v3
