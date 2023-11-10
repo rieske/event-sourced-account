@@ -190,4 +190,3 @@ It is pretty cool to see how light the service is even when stressed:
 Zipkin on port 9411.
 ![sample trace](docs/zipkin_trace.png)
 
-
