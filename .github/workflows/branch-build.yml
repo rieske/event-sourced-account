@@ -1,7 +1,6 @@
 name: branch-build
 
-on:
-  pull_request:
+on: pull_request
 
 jobs:
   build:
@@ -13,11 +12,11 @@ jobs:
       with:
         java-version: 21
         distribution: temurin
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
 
     - name: Build
-      uses: burrunan/gradle-cache-action@v1
-      with:
-        arguments: build --stacktrace
+      run: ./gradlew build --stacktrace --scan
 
     - name: Upload test results
       uses: actions/upload-artifact@v3
