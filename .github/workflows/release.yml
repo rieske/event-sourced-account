@@ -20,9 +20,6 @@ jobs:
         distribution: temurin
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2
-      with:
-        gradle-home-cache-includes: |
-          caches/build-cache-1
     - name: Build
       run: ./gradlew build --stacktrace --scan
     - name: Upload code coverage report to coveralls
