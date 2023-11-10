@@ -4,6 +4,13 @@ dependencyResolutionManagement {
     }
 }
 
+gradleEnterprise {
+    buildScan {
+        termsOfServiceUrl = "https://gradle.com/terms-of-service"
+        termsOfServiceAgree = "yes"
+    }
+}
+
 rootProject.name = "account"
 includeBuild("gradle/build-logic")
 include("account-service")
