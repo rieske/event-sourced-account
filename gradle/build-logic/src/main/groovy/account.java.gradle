@@ -40,3 +40,9 @@ configurations {
 }
 
 tasks.named("check") { it.dependsOn(testing.suites.integrationTest) }
+
+// Make the build reproducible - this enables caching and reusing the artifacts
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}

@@ -42,14 +42,11 @@ dependencies {
 
 tasks.named("blackBoxTest").configure {
     inputs.files("../infrastructure/").withPathSensitivity(PathSensitivity.RELATIVE)
+    systemProperty("eventstore", eventstoreImpl.get())
 }
 
 application {
     mainClass = "lt.rieske.accounts.App"
-}
-
-tasks.named("blackBoxTest") {
-    it.systemProperty("eventstore", eventstoreImpl.get())
 }
 
 tasks.register("stressTest", JavaExec) {
