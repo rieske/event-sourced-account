@@ -2,12 +2,17 @@ name: branch-build
 
 on: pull_request
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 21
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Setup Java
       uses: actions/setup-java@v3
       with:
         java-version: 21
