@@ -9,7 +9,7 @@ dbtest = "0.0.5"
 sparkJava = "com.sparkjava:spark-core:2.9.4"
 msgpack = "org.msgpack:msgpack-core:0.9.6"
 slf4j = "org.slf4j:slf4j-api:2.0.9"
-logback = "ch.qos.logback:logback-classic:1.4.13"
+logback = "ch.qos.logback:logback-classic:1.4.14"
 micrometer = "io.micrometer:micrometer-registry-prometheus:1.12.0"
 hikari = "com.zaxxer:HikariCP:5.1.0"
 
