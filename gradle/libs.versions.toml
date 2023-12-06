@@ -20,7 +20,7 @@ zipkinSender = "io.zipkin.reporter2:zipkin-sender-urlconnection:2.16.4"
 flyway = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flywayMysql = { module = "org.flywaydb:flyway-mysql", version.ref = "flyway" }
 flywayPostgres = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
-postgres = "org.postgresql:postgresql:42.7.0"
+postgres = "org.postgresql:postgresql:42.7.1"
 mysql = "com.mysql:mysql-connector-j:8.2.0"
 
 # Test
