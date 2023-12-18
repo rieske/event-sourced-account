@@ -15,7 +15,7 @@ hikari = "com.zaxxer:HikariCP:5.1.0"
 
 zipkinSparkJava = { module = "io.zipkin.brave:brave-instrumentation-sparkjava", version.ref = "brave" }
 zipkinDatabase = { module = "io.zipkin.brave:brave-instrumentation-p6spy", version.ref = "brave" }
-zipkinSender = "io.zipkin.reporter2:zipkin-sender-urlconnection:2.17.0"
+zipkinSender = "io.zipkin.reporter2:zipkin-sender-urlconnection:2.17.1"
 
 flyway = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flywayMysql = { module = "org.flywaydb:flyway-mysql", version.ref = "flyway" }
