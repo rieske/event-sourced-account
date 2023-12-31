@@ -14,7 +14,7 @@ dependencies {
     }
 
     implementation(libs.msgpack)
-    implementation(libs.logback)
+    implementation(libs.bundles.logging)
     implementation(libs.micrometer)
     implementation(libs.hikari)
     implementation(libs.bundles.zipkin)
@@ -37,7 +37,7 @@ dependencies {
     blackBoxTestImplementation(libs.testcontainers)
     blackBoxTestImplementation(libs.apacheHttpClient)
     blackBoxTestImplementation(libs.apacheHttpAsyncClient)
-    blackBoxTestImplementation(libs.logback)
+    blackBoxTestImplementation(libs.bundles.logging)
 }
 
 tasks.named("blackBoxTest").configure {
