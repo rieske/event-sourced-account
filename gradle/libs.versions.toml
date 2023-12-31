@@ -9,7 +9,8 @@ dbtest = "0.0.5"
 sparkJava = "com.sparkjava:spark-core:2.9.4"
 msgpack = "org.msgpack:msgpack-core:0.9.6"
 slf4j = "org.slf4j:slf4j-api:2.0.10"
-logback = "ch.qos.logback:logback-classic:1.4.14"
+logbackBase = "ch.qos.logback:logback-classic:1.4.14"
+logbackLogstash = "net.logstash.logback:logstash-logback-encoder:7.4"
 micrometer = "io.micrometer:micrometer-registry-prometheus:1.12.1"
 hikari = "com.zaxxer:HikariCP:5.1.0"
 
@@ -41,3 +42,5 @@ dbTestMysql = { module = "io.github.rieske.dbtest:mysql", version.ref = "dbtest"
 
 [bundles]
 zipkin = ["zipkinSparkJava", "zipkinDatabase", "zipkinSender"]
+logging = ["logbackBase", "logbackLogstash"]
+
