@@ -24,7 +24,7 @@ services:
       ZIPKIN_URL: http://opentelemetry-collector:9411/api/v2/spans
     labels:
       logging: promtail
-      service: account
+      service: account-service
     mem_limit: 128M
     deploy:
       replicas: 2

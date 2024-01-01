@@ -15,7 +15,7 @@
       {
         "datasource": "Prometheus",
         "enable": true,
-        "expr": "resets(process_uptime{service_name=\"$application\", service_instance=\"$instance\"}[1m]) > 0",
+        "expr": "resets(process_uptime{service_name=\"$application\", service_instance_id=\"$instance\"}[1m]) > 0",
         "iconColor": "rgba(255, 96, 96, 1)",
         "name": "Restart Detection",
         "showIn": 0,
@@ -113,7 +113,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "process_uptime{service_name=\"$application\", service_instance=\"$instance\"}",
+          "expr": "process_uptime{service_name=\"$application\", service_instance_id=\"$instance\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "",
@@ -201,7 +201,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "process_start_time{service_name=\"$application\", service_instance=\"$instance\"}*1000",
+          "expr": "process_start_time{service_name=\"$application\", service_instance_id=\"$instance\"}*1000",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "",
@@ -288,7 +288,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "sum(jvm_memory_used{service_name=\"$application\", service_instance=\"$instance\", area=\"heap\"})*100/sum(jvm_memory_max{service_name=\"$application\",service_instance=\"$instance\", area=\"heap\"})",
+          "expr": "sum(jvm_memory_used{service_name=\"$application\", service_instance_id=\"$instance\", area=\"heap\"})*100/sum(jvm_memory_max{service_name=\"$application\",service_instance_id=\"$instance\", area=\"heap\"})",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "",
@@ -379,7 +379,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "sum(jvm_memory_used{service_name=\"$application\", service_instance=\"$instance\", area=\"nonheap\"})*100/sum(jvm_memory_max{service_name=\"$application\",service_instance=\"$instance\", area=\"nonheap\"})",
+          "expr": "sum(jvm_memory_used{service_name=\"$application\", service_instance_id=\"$instance\", area=\"nonheap\"})*100/sum(jvm_memory_max{service_name=\"$application\",service_instance_id=\"$instance\", area=\"nonheap\"})",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "",
@@ -468,7 +468,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(jvm_memory_used{service_name=\"$application\", service_instance=\"$instance\", area=\"heap\"})",
+          "expr": "sum(jvm_memory_used{service_name=\"$application\", service_instance_id=\"$instance\", area=\"heap\"})",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "used",
@@ -477,7 +477,7 @@
           "step": 2400
         },
         {
-          "expr": "sum(jvm_memory_committed{service_name=\"$application\", service_instance=\"$instance\", area=\"heap\"})",
+          "expr": "sum(jvm_memory_committed{service_name=\"$application\", service_instance_id=\"$instance\", area=\"heap\"})",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "committed",
@@ -485,7 +485,7 @@
           "step": 2400
         },
         {
-          "expr": "sum(jvm_memory_max{service_name=\"$application\", service_instance=\"$instance\", area=\"heap\"})",
+          "expr": "sum(jvm_memory_max{service_name=\"$application\", service_instance_id=\"$instance\", area=\"heap\"})",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "max",
@@ -590,7 +590,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(jvm_memory_used{service_name=\"$application\", service_instance=\"$instance\", area=\"nonheap\"})",
+          "expr": "sum(jvm_memory_used{service_name=\"$application\", service_instance_id=\"$instance\", area=\"nonheap\"})",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -600,7 +600,7 @@
           "step": 2400
         },
         {
-          "expr": "sum(jvm_memory_committed{service_name=\"$application\", service_instance=\"$instance\", area=\"nonheap\"})",
+          "expr": "sum(jvm_memory_committed{service_name=\"$application\", service_instance_id=\"$instance\", area=\"nonheap\"})",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "committed",
@@ -608,7 +608,7 @@
           "step": 2400
         },
         {
-          "expr": "sum(jvm_memory_max{service_name=\"$application\", service_instance=\"$instance\", area=\"nonheap\"})",
+          "expr": "sum(jvm_memory_max{service_name=\"$application\", service_instance_id=\"$instance\", area=\"nonheap\"})",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "max",
@@ -714,7 +714,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(jvm_memory_used{service_name=\"$application\", service_instance=\"$instance\"})",
+          "expr": "sum(jvm_memory_used{service_name=\"$application\", service_instance_id=\"$instance\"})",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "used",
@@ -723,7 +723,7 @@
           "step": 2400
         },
         {
-          "expr": "sum(jvm_memory_committed{service_name=\"$application\", service_instance=\"$instance\"})",
+          "expr": "sum(jvm_memory_committed{service_name=\"$application\", service_instance_id=\"$instance\"})",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "committed",
@@ -731,7 +731,7 @@
           "step": 2400
         },
         {
-          "expr": "sum(jvm_memory_max{service_name=\"$application\", service_instance=\"$instance\"})",
+          "expr": "sum(jvm_memory_max{service_name=\"$application\", service_instance_id=\"$instance\"})",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "max",
@@ -739,7 +739,7 @@
           "step": 2400
         },
         {
-          "expr": "process_memory_vss{service_name=\"$application\", service_instance=\"$instance\"}",
+          "expr": "process_memory_vss{service_name=\"$application\", service_instance_id=\"$instance\"}",
           "format": "time_series",
           "hide": true,
           "intervalFactor": 2,
@@ -749,7 +749,7 @@
           "step": 2400
         },
         {
-          "expr": "process_memory_rss{service_name=\"$application\", service_instance=\"$instance\"}",
+          "expr": "process_memory_rss{service_name=\"$application\", service_instance_id=\"$instance\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "rss",
@@ -757,7 +757,7 @@
           "step": 2400
         },
         {
-          "expr": "process_memory_pss{service_name=\"$application\", service_instance=\"$instance\"}",
+          "expr": "process_memory_pss{service_name=\"$application\", service_instance_id=\"$instance\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "pss",
@@ -765,7 +765,7 @@
           "step": 2400
         },
         {
-          "expr": "process_memory_swap{service_name=\"$application\", service_instance=\"$instance\"}",
+          "expr": "process_memory_swap{service_name=\"$application\", service_instance_id=\"$instance\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "swap",
@@ -773,7 +773,7 @@
           "step": 2400
         },
         {
-          "expr": "process_memory_swappss{service_name=\"$application\", service_instance=\"$instance\"}",
+          "expr": "process_memory_swappss{service_name=\"$application\", service_instance_id=\"$instance\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "swappss",
@@ -781,7 +781,7 @@
           "step": 2400
         },
         {
-          "expr": "process_memory_pss{service_name=\"$application\", service_instance=\"$instance\"} + process_memory_swap{service_name=\"$application\", service_instance=\"$instance\"}",
+          "expr": "process_memory_pss{service_name=\"$application\", service_instance_id=\"$instance\"} + process_memory_swap{service_name=\"$application\", service_instance_id=\"$instance\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "phys (pss+swap)",
@@ -886,7 +886,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "(process_memory_pss{service_name=\"$application\", service_instance=\"$instance\"} + process_memory_swap{service_name=\"$application\", service_instance=\"$instance\"}  - on(application,instance) sum(jvm_memory_committed{service_name=\"$application\", service_instance=\"$instance\"})  by(application,instance)) >= 0",
+          "expr": "(process_memory_pss{service_name=\"$application\", service_instance_id=\"$instance\"} + process_memory_swap{service_name=\"$application\", service_instance_id=\"$instance\"}  - on(application,instance) sum(jvm_memory_committed{service_name=\"$application\", service_instance_id=\"$instance\"})  by(application,instance)) >= 0",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 2,
@@ -1007,7 +1007,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "system_cpu_usage{service_name=\"$application\", service_instance=\"$instance\"}",
+          "expr": "system_cpu_usage{service_name=\"$application\", service_instance_id=\"$instance\"}",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,
@@ -1017,7 +1017,7 @@
           "step": 2400
         },
         {
-          "expr": "process_cpu_usage{service_name=\"$application\", service_instance=\"$instance\"}",
+          "expr": "process_cpu_usage{service_name=\"$application\", service_instance_id=\"$instance\"}",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,
@@ -1025,7 +1025,7 @@
           "refId": "B"
         },
         {
-          "expr": "avg_over_time(process_cpu_usage{service_name=\"$application\", service_instance=\"$instance\"}[1h])",
+          "expr": "avg_over_time(process_cpu_usage{service_name=\"$application\", service_instance_id=\"$instance\"}[1h])",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,
@@ -1131,7 +1131,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "system_load_average_1m{service_name=\"$application\", service_instance=\"$instance\"}",
+          "expr": "system_load_average_1m{service_name=\"$application\", service_instance_id=\"$instance\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "system-1m",
@@ -1146,7 +1146,7 @@
           "refId": "B"
         },
         {
-          "expr": "system_cpu_count{service_name=\"$application\", service_instance=\"$instance\"}",
+          "expr": "system_cpu_count{service_name=\"$application\", service_instance_id=\"$instance\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "cpu",
@@ -1251,7 +1251,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "jvm_threads_live{service_name=\"$application\", service_instance=\"$instance\"} or jvm_threads_live_threads{service_name=\"$application\", service_instance=\"$instance\"}",
+          "expr": "jvm_threads_live{service_name=\"$application\", service_instance_id=\"$instance\"} or jvm_threads_live_threads{service_name=\"$application\", service_instance_id=\"$instance\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "live",
@@ -1260,7 +1260,7 @@
           "step": 2400
         },
         {
-          "expr": "jvm_threads_daemon{service_name=\"$application\", service_instance=\"$instance\"} or jvm_threads_daemon_threads{service_name=\"$application\", service_instance=\"$instance\"}",
+          "expr": "jvm_threads_daemon{service_name=\"$application\", service_instance_id=\"$instance\"} or jvm_threads_daemon_threads{service_name=\"$application\", service_instance_id=\"$instance\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "daemon",
@@ -1269,7 +1269,7 @@
           "step": 2400
         },
         {
-          "expr": "jvm_threads_peak{service_name=\"$application\", service_instance=\"$instance\"} or jvm_threads_peak_threads{service_name=\"$application\", service_instance=\"$instance\"}",
+          "expr": "jvm_threads_peak{service_name=\"$application\", service_instance_id=\"$instance\"} or jvm_threads_peak_threads{service_name=\"$application\", service_instance_id=\"$instance\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "peak",
@@ -1277,7 +1277,7 @@
           "step": 2400
         },
         {
-          "expr": "process_threads{service_name=\"$application\", service_instance=\"$instance\"}",
+          "expr": "process_threads{service_name=\"$application\", service_instance_id=\"$instance\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -1383,7 +1383,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "jvm_threads_states_threads{service_name=\"$application\", service_instance=\"$instance\"}",
+          "expr": "jvm_threads_states_threads{service_name=\"$application\", service_instance_id=\"$instance\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "{{state}}",
@@ -1500,7 +1500,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(logback_events{service_name=\"$application\", service_instance=\"$instance\"}[1m])",
+          "expr": "increase(logback_events{service_name=\"$application\", service_instance_id=\"$instance\"}[1m])",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -1608,7 +1608,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "process_open_fds{service_name=\"$application\", service_instance=\"$instance\"}",
+          "expr": "process_open_fds{service_name=\"$application\", service_instance_id=\"$instance\"}",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 2,
@@ -1618,7 +1618,7 @@
           "step": 2400
         },
         {
-          "expr": "process_max_fds{service_name=\"$application\", service_instance=\"$instance\"}",
+          "expr": "process_max_fds{service_name=\"$application\", service_instance_id=\"$instance\"}",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 2,
@@ -1628,14 +1628,14 @@
           "step": 2400
         },
         {
-          "expr": "process_files_open{service_name=\"$application\", service_instance=\"$instance\"} or process_files_open_files{service_name=\"$application\", service_instance=\"$instance\"}",
+          "expr": "process_files_open{service_name=\"$application\", service_instance_id=\"$instance\"} or process_files_open_files{service_name=\"$application\", service_instance_id=\"$instance\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "open",
           "refId": "C"
         },
         {
-          "expr": "process_files_max{service_name=\"$application\", service_instance=\"$instance\"} or process_files_max_files{service_name=\"$application\", service_instance=\"$instance\"}",
+          "expr": "process_files_max{service_name=\"$application\", service_instance_id=\"$instance\"} or process_files_max_files{service_name=\"$application\", service_instance_id=\"$instance\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "max",
@@ -1765,7 +1765,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "jvm_memory_used{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_heap\"}",
+          "expr": "jvm_memory_used{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_heap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -1776,7 +1776,7 @@
           "step": 1800
         },
         {
-          "expr": "jvm_memory_committed{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_heap\"}",
+          "expr": "jvm_memory_committed{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_heap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -1787,7 +1787,7 @@
           "step": 1800
         },
         {
-          "expr": "jvm_memory_max{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_heap\"}",
+          "expr": "jvm_memory_max{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_heap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -1908,7 +1908,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "jvm_memory_used{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_heap\"}",
+          "expr": "jvm_memory_used{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_heap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -1919,7 +1919,7 @@
           "step": 1800
         },
         {
-          "expr": "jvm_memory_committed{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_heap\"}",
+          "expr": "jvm_memory_committed{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_heap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -1930,7 +1930,7 @@
           "step": 1800
         },
         {
-          "expr": "jvm_memory_max{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_heap\"}",
+          "expr": "jvm_memory_max{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_heap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -2051,7 +2051,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "jvm_memory_used{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_heap\"}",
+          "expr": "jvm_memory_used{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_heap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -2062,7 +2062,7 @@
           "step": 1800
         },
         {
-          "expr": "jvm_memory_committed{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_heap\"}",
+          "expr": "jvm_memory_committed{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_heap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -2073,7 +2073,7 @@
           "step": 1800
         },
         {
-          "expr": "jvm_memory_max{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_heap\"}",
+          "expr": "jvm_memory_max{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_heap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -2206,7 +2206,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "jvm_memory_used{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
+          "expr": "jvm_memory_used{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -2217,7 +2217,7 @@
           "step": 1800
         },
         {
-          "expr": "jvm_memory_committed{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
+          "expr": "jvm_memory_committed{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -2228,7 +2228,7 @@
           "step": 1800
         },
         {
-          "expr": "jvm_memory_max{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
+          "expr": "jvm_memory_max{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -2349,7 +2349,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "jvm_memory_used{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
+          "expr": "jvm_memory_used{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -2360,7 +2360,7 @@
           "step": 1800
         },
         {
-          "expr": "jvm_memory_committed{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
+          "expr": "jvm_memory_committed{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -2371,7 +2371,7 @@
           "step": 1800
         },
         {
-          "expr": "jvm_memory_max{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
+          "expr": "jvm_memory_max{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -2492,7 +2492,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "jvm_memory_used{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
+          "expr": "jvm_memory_used{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -2503,7 +2503,7 @@
           "step": 1800
         },
         {
-          "expr": "jvm_memory_committed{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
+          "expr": "jvm_memory_committed{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -2514,7 +2514,7 @@
           "step": 1800
         },
         {
-          "expr": "jvm_memory_max{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
+          "expr": "jvm_memory_max{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -2635,7 +2635,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "jvm_memory_used{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
+          "expr": "jvm_memory_used{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -2646,7 +2646,7 @@
           "step": 1800
         },
         {
-          "expr": "jvm_memory_committed{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
+          "expr": "jvm_memory_committed{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -2657,7 +2657,7 @@
           "step": 1800
         },
         {
-          "expr": "jvm_memory_max{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
+          "expr": "jvm_memory_max{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -2778,7 +2778,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "jvm_memory_used{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
+          "expr": "jvm_memory_used{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -2789,7 +2789,7 @@
           "step": 1800
         },
         {
-          "expr": "jvm_memory_committed{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
+          "expr": "jvm_memory_committed{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -2800,7 +2800,7 @@
           "step": 1800
         },
         {
-          "expr": "jvm_memory_max{service_name=\"$application\", service_instance=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
+          "expr": "jvm_memory_max{service_name=\"$application\", service_instance_id=\"$instance\", id=\"$jvm_memory_pool_nonheap\"}",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -2912,7 +2912,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(jvm_gc_pause_count{service_name=\"$application\", service_instance=\"$instance\"}[1m])",
+          "expr": "rate(jvm_gc_pause_count{service_name=\"$application\", service_instance_id=\"$instance\"}[1m])",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 2,
@@ -3000,7 +3000,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(jvm_gc_pause_sum{service_name=\"$application\", service_instance=\"$instance\"}[1m])/rate(jvm_gc_pause_count{service_name=\"$application\", service_instance=\"$instance\"}[1m])",
+          "expr": "rate(jvm_gc_pause_sum{service_name=\"$application\", service_instance_id=\"$instance\"}[1m])/rate(jvm_gc_pause_count{service_name=\"$application\", service_instance_id=\"$instance\"}[1m])",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -3009,7 +3009,7 @@
           "refId": "A"
         },
         {
-          "expr": "jvm_gc_pause_max{service_name=\"$application\", service_instance=\"$instance\"}",
+          "expr": "jvm_gc_pause_max{service_name=\"$application\", service_instance_id=\"$instance\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -3098,7 +3098,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(jvm_gc_memory_allocated_total{service_name=\"$application\", service_instance=\"$instance\"}[1m])",
+          "expr": "rate(jvm_gc_memory_allocated_total{service_name=\"$application\", service_instance_id=\"$instance\"}[1m])",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -3106,7 +3106,7 @@
           "refId": "A"
         },
         {
-          "expr": "rate(jvm_gc_memory_promoted_total{service_name=\"$application\", service_instance=\"$instance\"}[1m])",
+          "expr": "rate(jvm_gc_memory_promoted_total{service_name=\"$application\", service_instance_id=\"$instance\"}[1m])",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -3218,7 +3218,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "jvm_classes_loaded{service_name=\"$application\", service_instance=\"$instance\"} or jvm_classes_loaded_classes{service_name=\"$application\", service_instance=\"$instance\"}",
+          "expr": "jvm_classes_loaded{service_name=\"$application\", service_instance_id=\"$instance\"} or jvm_classes_loaded_classes{service_name=\"$application\", service_instance_id=\"$instance\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "loaded",
@@ -3324,7 +3324,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "delta(jvm_classes_loaded{service_name=\"$application\",service_instance=\"$instance\"}[5m]) or delta(jvm_classes_loaded_classes{service_name=\"$application\",service_instance=\"$instance\"}[5m])",
+          "expr": "delta(jvm_classes_loaded{service_name=\"$application\",service_instance_id=\"$instance\"}[5m]) or delta(jvm_classes_loaded_classes{service_name=\"$application\",service_instance_id=\"$instance\"}[5m])",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -3447,7 +3447,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "jvm_buffer_memory_used{service_name=\"$application\", service_instance=\"$instance\", id=\"direct\"}",
+          "expr": "jvm_buffer_memory_used{service_name=\"$application\", service_instance_id=\"$instance\", id=\"direct\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "used",
@@ -3456,7 +3456,7 @@
           "step": 2400
         },
         {
-          "expr": "jvm_buffer_total_capacity{service_name=\"$application\", service_instance=\"$instance\", id=\"direct\"}",
+          "expr": "jvm_buffer_total_capacity{service_name=\"$application\", service_instance_id=\"$instance\", id=\"direct\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "capacity",
@@ -3562,7 +3562,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "jvm_buffer_count{service_name=\"$application\", service_instance=\"$instance\", id=\"direct\"} or jvm_buffer_count_buffers{service_name=\"$application\", service_instance=\"$instance\", id=\"direct\"}",
+          "expr": "jvm_buffer_count{service_name=\"$application\", service_instance_id=\"$instance\", id=\"direct\"} or jvm_buffer_count_buffers{service_name=\"$application\", service_instance_id=\"$instance\", id=\"direct\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "count",
@@ -3669,7 +3669,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "jvm_buffer_memory_used{service_name=\"$application\", service_instance=\"$instance\", id=\"mapped\"}",
+          "expr": "jvm_buffer_memory_used{service_name=\"$application\", service_instance_id=\"$instance\", id=\"mapped\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "used",
@@ -3678,7 +3678,7 @@
           "step": 2400
         },
         {
-          "expr": "jvm_buffer_total_capacity{service_name=\"$application\", service_instance=\"$instance\", id=\"mapped\"}",
+          "expr": "jvm_buffer_total_capacity{service_name=\"$application\", service_instance_id=\"$instance\", id=\"mapped\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "capacity",
@@ -3784,7 +3784,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "jvm_buffer_count{service_name=\"$application\", service_instance=\"$instance\", id=\"mapped\"} or jvm_buffer_count_buffers{service_name=\"$application\", service_instance=\"$instance\", id=\"mapped\"}",
+          "expr": "jvm_buffer_count{service_name=\"$application\", service_instance_id=\"$instance\", id=\"mapped\"} or jvm_buffer_count_buffers{service_name=\"$application\", service_instance_id=\"$instance\", id=\"mapped\"}",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "count",
@@ -3882,7 +3882,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "hikaricp_connections_active{service_name=\"$application\", service_instance=~\"$instance\"}",
+          "expr": "hikaricp_connections_active{service_name=\"$application\", service_instance_id=~\"$instance\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -3890,7 +3890,7 @@
           "refId": "A"
         },
         {
-          "expr": "hikaricp_connections_idle{service_name=\"$application\", service_instance=~\"$instance\"}",
+          "expr": "hikaricp_connections_idle{service_name=\"$application\", service_instance_id=~\"$instance\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -3899,7 +3899,7 @@
           "refId": "B"
         },
         {
-          "expr": "hikaricp_connections_max{service_name=\"$application\", service_instance=~\"$instance\"}",
+          "expr": "hikaricp_connections_max{service_name=\"$application\", service_instance_id=~\"$instance\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -3907,7 +3907,7 @@
           "refId": "C"
         },
         {
-          "expr": "hikaricp_connections_min{service_name=\"$application\", service_instance=~\"$instance\"}",
+          "expr": "hikaricp_connections_min{service_name=\"$application\", service_instance_id=~\"$instance\"}",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -4005,7 +4005,7 @@
         "multiFormat": "glob",
         "name": "instance",
         "options": [],
-        "query": "label_values(jvm_memory_used{service_name=\"$application\"}, service_instance)",
+        "query": "label_values(jvm_memory_used{service_name=\"$application\"}, service_instance_id)",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -4032,7 +4032,7 @@
         "multiFormat": "glob",
         "name": "jvm_memory_pool_heap",
         "options": [],
-        "query": "label_values(jvm_memory_used{service_name=\"$application\", service_instance=\"$instance\", area=\"heap\"},id)",
+        "query": "label_values(jvm_memory_used{service_name=\"$application\", service_instance_id=\"$instance\", area=\"heap\"},id)",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -4059,7 +4059,7 @@
         "multiFormat": "glob",
         "name": "jvm_memory_pool_nonheap",
         "options": [],
-        "query": "label_values(jvm_memory_used{service_name=\"$application\", service_instance=\"$instance\", area=\"nonheap\"},id)",
+        "query": "label_values(jvm_memory_used{service_name=\"$application\", service_instance_id=\"$instance\", area=\"nonheap\"},id)",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,

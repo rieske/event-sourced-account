@@ -18,11 +18,6 @@ processors:
       - action: insert
         key: loki.format
         value: raw
-  transform:
-    metric_statements:
-      - context: datapoint
-        statements:
-          - set(attributes["service_instance"], resource.attributes["service.instance.id"])
 
 exporters:
   loki:
@@ -46,7 +41,7 @@ service:
       exporters: [loki]
     metrics:
       receivers: [otlp]
-      processors: [transform, batch]
+      processors: [batch]
       exporters: [prometheus]
     traces:
       receivers: [zipkin]

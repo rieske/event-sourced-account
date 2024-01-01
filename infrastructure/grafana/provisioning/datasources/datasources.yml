@@ -7,8 +7,12 @@ datasources:
     orgId: 1
     url: http://prometheus:9090
     isDefault: true
-    editable: false
+    editable: true
     uid: prometheus
+    jsonData:
+      exemplarTraceIdDestinations:
+        - datasourceUid: tempo
+          name: traceID
 
   - name: Loki
     type: loki
@@ -26,20 +30,18 @@ datasources:
     url: http://tempo:3200
     isDefault: false
     editable: true
+    uid: tempo
     jsonData:
       tracesToLogsV2:
         datasourceUid: 'loki'
-      #  spanStartTimeShift: '1h'
-      #  spanEndTimeShift: '-1h'
-      #  tags: [ 'job', 'instance', 'pod', 'namespace' ]
-      #  filterByTraceID: false
-      #  filterBySpanID: false
-      #  customQuery: true
-      #  query: 'method="${__span.tags.method}"'
+        customQuery: true
+        query: '{exporter="OTLP"} |= "$${__trace.traceId}"'
+        spanStartTimeShift: '5m'
+        spanEndTimeShift: '-5m'
       tracesToMetrics:
         datasourceUid: 'prometheus'
-      #  spanStartTimeShift: '1h'
-      #  spanEndTimeShift: '-1h'
+        spanStartTimeShift: '5m'
+        spanEndTimeShift: '-5m'
       #  tags: [ { key: 'service.name', value: 'service' }, { key: 'job' } ]
       #  queries:
       #    - name: 'Sample query'

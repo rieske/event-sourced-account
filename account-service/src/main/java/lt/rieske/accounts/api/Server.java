@@ -62,7 +62,6 @@ public class Server {
 
     private Route metered(Route delegate, String operation) {
         return (request, response) -> {
-            log.info("Request {} {}", request.requestMethod(), request.pathInfo());
             Observation observation = observabilityConfiguration.startApiOperationObservation(request, response)
                     .contextualName(operation)
                     .lowCardinalityKeyValue("operation", operation)
@@ -70,10 +69,14 @@ public class Server {
                     .lowCardinalityKeyValue("pathTemplate", request.matchedPath())
                     .highCardinalityKeyValue("path", request.pathInfo());
             try (Observation.Scope scope = observation.openScope()) {
-                return delegate.handle(request, response);
+                log.info("Request {} {}", request.requestMethod(), request.pathInfo());
+                try {
+                    return delegate.handle(request, response);
+                } finally {
+                    log.info("Responding with {}", response.status());
+                }
             } finally {
                 observation.stop();
-                log.info("Responding with {}", response.status());
             }
         };
     }
