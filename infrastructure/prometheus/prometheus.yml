@@ -1,7 +1,7 @@
 scrape_configs:
   - job_name: 'prometheus'
     static_configs:
-      - targets: ['127.0.0.1:9090']
+      - targets: ['127.0.0.1:9099']
 
   - job_name: 'envoy'
     metrics_path: '/stats'
@@ -12,13 +12,13 @@ scrape_configs:
       - targets: ['lb:9901']
 
   - job_name: 'java-services'
-    metrics_path: '/prometheus'
+    metrics_path: '/metrics'
     scrape_interval: 5s
     dns_sd_configs:
       - names:
-          - account
+          - opentelemetry-collector
         type: 'A'
-        port: 8080
+        port: 9099
     relabel_configs:
       - source_labels: ['__meta_dns_name']
         target_label: application

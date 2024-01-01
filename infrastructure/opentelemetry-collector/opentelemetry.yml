@@ -1,0 +1,46 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+  loki:
+    protocols:
+      http:
+    use_incoming_timestamp: true
+
+processors:
+  attributes:
+    actions:
+      - action: insert
+        key: loki.attribute.labels
+        value: service
+      - action: insert
+        key: loki.format
+        value: raw
+  transform:
+    metric_statements:
+      - context: datapoint
+        statements:
+          - set(attributes["service_instance"], resource.attributes["service.instance.id"])
+
+exporters:
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
+  prometheus:
+    endpoint: 0.0.0.0:9099
+    send_timestamps: true
+    metric_expiration: 180m
+    enable_open_metrics: true
+    add_metric_suffixes: false
+    resource_to_telemetry_conversion:
+      enabled: true
+
+service:
+  pipelines:
+    logs:
+      receivers: [loki]
+      processors: [attributes]
+      exporters: [loki]
+    metrics:
+      receivers: [otlp]
+      processors: [transform]
+      exporters: [prometheus]

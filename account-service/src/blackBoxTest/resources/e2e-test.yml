@@ -1,8 +1,4 @@
----
-version: '2.4'
-
 services:
-
   lb:
     build: ../../../../infrastructure/envoy
     depends_on:
@@ -21,7 +17,8 @@ services:
       DB_USER: test
       DB_PASSWORD: test
     mem_limit: 128M
-    scale: 2
+    deploy:
+      replicas: 2
 
   database:
     image: postgres:16.0
