@@ -5,7 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.micrometer.core.instrument.MeterRegistry;
 import lt.rieske.accounts.domain.AccountEvent;
 import lt.rieske.accounts.eventsourcing.EventStore;
-import lt.rieske.accounts.infrastructure.TracingConfiguration;
+import lt.rieske.accounts.infrastructure.ObservabilityConfiguration;
 
 import javax.sql.DataSource;
 
@@ -16,8 +16,8 @@ public class Configuration {
     }
 
     public static BlobEventStore blobEventStore(String jdbcUrl, String username, String password,
-                                                TracingConfiguration tracingConfiguration, MeterRegistry meterRegistry) {
-        return EventStoreFactory.makeEventStore(jdbcUrl, username, password, ds -> pooledMeteredDataSource(tracingConfiguration.decorate(ds), meterRegistry));
+                                                ObservabilityConfiguration observabilityConfiguration, MeterRegistry meterRegistry) {
+        return EventStoreFactory.makeEventStore(jdbcUrl, username, password, ds -> pooledMeteredDataSource(observabilityConfiguration.decorate(ds), meterRegistry));
     }
 
     private static DataSource pooledMeteredDataSource(DataSource dataSource, MeterRegistry meterRegistry) {

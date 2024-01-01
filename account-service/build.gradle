@@ -15,7 +15,7 @@ dependencies {
 
     implementation(libs.msgpack)
     implementation(libs.bundles.logging)
-    implementation(libs.micrometer)
+    implementation(libs.bundles.micrometer)
     implementation(libs.hikari)
     implementation(libs.bundles.zipkin)
 

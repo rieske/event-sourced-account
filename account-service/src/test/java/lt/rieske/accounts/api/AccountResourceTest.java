@@ -20,7 +20,7 @@ class AccountResourceTest {
     public static final H2EventStoreExtension EVENT_STORE = new H2EventStoreExtension();
 
     private static final Server SERVER = ApiConfiguration.server(
-            (t, m) -> EVENT_STORE.getEventStore(), null);
+            (t, m) -> EVENT_STORE.getEventStore(), null, null);
     private static int serverPort;
 
     @BeforeAll

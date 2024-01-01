@@ -75,19 +75,19 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": " histogram_quantile(0.99, sum(rate(request_latency_seconds_bucket{operation=\"open_account\"}[1m])) by (le, application))",
+          "expr": " histogram_quantile(0.99, sum(rate(api_operation_bucket{operation=\"open_account\"}[1m])) by (le, service_name))",
           "interval": "",
           "legendFormat": "99th percentile",
           "refId": "A"
         },
         {
-          "expr": " histogram_quantile(0.95, sum(rate(request_latency_seconds_bucket{operation=\"open_account\"}[1m])) by (le, application))",
+          "expr": " histogram_quantile(0.95, sum(rate(api_operation_bucket{operation=\"open_account\"}[1m])) by (le, service_name))",
           "interval": "",
           "legendFormat": "95th percentile",
           "refId": "B"
         },
         {
-          "expr": " histogram_quantile(0.90, sum(rate(request_latency_seconds_bucket{operation=\"open_account\"}[1m])) by (le, application))",
+          "expr": " histogram_quantile(0.90, sum(rate(api_operation_bucket{operation=\"open_account\"}[1m])) by (le, service_name))",
           "interval": "",
           "legendFormat": "90th percentile",
           "refId": "C"
@@ -179,19 +179,19 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": " histogram_quantile(0.99, sum(rate(request_latency_seconds_bucket{operation=\"query_account\"}[1m])) by (le, application))",
+          "expr": " histogram_quantile(0.99, sum(rate(api_operation_bucket{operation=\"query_account\"}[1m])) by (le, service_name))",
           "interval": "",
           "legendFormat": "99th percentile",
           "refId": "A"
         },
         {
-          "expr": " histogram_quantile(0.95, sum(rate(request_latency_seconds_bucket{operation=\"query_account\"}[1m])) by (le, application))",
+          "expr": " histogram_quantile(0.95, sum(rate(api_operation_bucket{operation=\"query_account\"}[1m])) by (le, service_name))",
           "interval": "",
           "legendFormat": "95th percentile",
           "refId": "B"
         },
         {
-          "expr": " histogram_quantile(0.90, sum(rate(request_latency_seconds_bucket{operation=\"query_account\"}[1m])) by (le, application))",
+          "expr": " histogram_quantile(0.90, sum(rate(api_operation_bucket{operation=\"query_account\"}[1m])) by (le, service_name))",
           "interval": "",
           "legendFormat": "90th percentile",
           "refId": "C"
@@ -283,19 +283,19 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": " histogram_quantile(0.99, sum(rate(request_latency_seconds_bucket{operation=\"query_account_events\"}[1m])) by (le, application))",
+          "expr": " histogram_quantile(0.99, sum(rate(api_operation_bucket{operation=\"query_account_events\"}[1m])) by (le, service_name))",
           "interval": "",
           "legendFormat": "99th percentile",
           "refId": "A"
         },
         {
-          "expr": " histogram_quantile(0.95, sum(rate(request_latency_seconds_bucket{operation=\"query_account_events\"}[1m])) by (le, application))",
+          "expr": " histogram_quantile(0.95, sum(rate(api_operation_bucket{operation=\"query_account_events\"}[1m])) by (le, service_name))",
           "interval": "",
           "legendFormat": "95th percentile",
           "refId": "B"
         },
         {
-          "expr": " histogram_quantile(0.90, sum(rate(request_latency_seconds_bucket{operation=\"query_account_events\"}[1m])) by (le, application))",
+          "expr": " histogram_quantile(0.90, sum(rate(api_operation_bucket{operation=\"query_account_events\"}[1m])) by (le, service_name))",
           "interval": "",
           "legendFormat": "90th percentile",
           "refId": "C"
@@ -387,19 +387,19 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": " histogram_quantile(0.99, sum(rate(request_latency_seconds_bucket{operation=\"deposit\"}[1m])) by (le, application))",
+          "expr": " histogram_quantile(0.99, sum(rate(api_operation_bucket{operation=\"deposit\"}[1m])) by (le, service_name))",
           "interval": "",
           "legendFormat": "99th percentile",
           "refId": "A"
         },
         {
-          "expr": " histogram_quantile(0.95, sum(rate(request_latency_seconds_bucket{operation=\"deposit\"}[1m])) by (le, application))",
+          "expr": " histogram_quantile(0.95, sum(rate(api_operation_bucket{operation=\"deposit\"}[1m])) by (le, service_name))",
           "interval": "",
           "legendFormat": "95th percentile",
           "refId": "B"
         },
         {
-          "expr": " histogram_quantile(0.90, sum(rate(request_latency_seconds_bucket{operation=\"deposit\"}[1m])) by (le, application))",
+          "expr": " histogram_quantile(0.90, sum(rate(api_operation_bucket{operation=\"deposit\"}[1m])) by (le, service_name))",
           "interval": "",
           "legendFormat": "90th percentile",
           "refId": "C"
@@ -491,19 +491,19 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": " histogram_quantile(0.99, sum(rate(request_latency_seconds_bucket{operation=\"withdraw\"}[1m])) by (le, application))",
+          "expr": " histogram_quantile(0.99, sum(rate(api_operation_bucket{operation=\"withdraw\"}[1m])) by (le, service_name))",
           "interval": "",
           "legendFormat": "99th percentile",
           "refId": "A"
         },
         {
-          "expr": " histogram_quantile(0.95, sum(rate(request_latency_seconds_bucket{operation=\"withdraw\"}[1m])) by (le, application))",
+          "expr": " histogram_quantile(0.95, sum(rate(api_operation_bucket{operation=\"withdraw\"}[1m])) by (le, service_name))",
           "interval": "",
           "legendFormat": "95th percentile",
           "refId": "B"
         },
         {
-          "expr": " histogram_quantile(0.90, sum(rate(request_latency_seconds_bucket{operation=\"withdraw\"}[1m])) by (le, application))",
+          "expr": " histogram_quantile(0.90, sum(rate(api_operation_bucket{operation=\"withdraw\"}[1m])) by (le, service_name))",
           "interval": "",
           "legendFormat": "90th percentile",
           "refId": "C"
@@ -595,19 +595,19 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": " histogram_quantile(0.99, sum(rate(request_latency_seconds_bucket{operation=\"transfer\"}[1m])) by (le, application))",
+          "expr": " histogram_quantile(0.99, sum(rate(api_operation_bucket{operation=\"transfer\"}[1m])) by (le, service_name))",
           "interval": "",
           "legendFormat": "99th percentile",
           "refId": "A"
         },
         {
-          "expr": " histogram_quantile(0.95, sum(rate(request_latency_seconds_bucket{operation=\"transfer\"}[1m])) by (le, application))",
+          "expr": " histogram_quantile(0.95, sum(rate(api_operation_bucket{operation=\"transfer\"}[1m])) by (le, service_name))",
           "interval": "",
           "legendFormat": "95th percentile",
           "refId": "B"
         },
         {
-          "expr": " histogram_quantile(0.90, sum(rate(request_latency_seconds_bucket{operation=\"transfer\"}[1m])) by (le, application))",
+          "expr": " histogram_quantile(0.90, sum(rate(api_operation_bucket{operation=\"transfer\"}[1m])) by (le, service_name))",
           "interval": "",
           "legendFormat": "90th percentile",
           "refId": "C"
@@ -699,19 +699,19 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": " histogram_quantile(0.99, sum(rate(request_latency_seconds_bucket{operation=\"close_account\"}[1m])) by (le, application))",
+          "expr": " histogram_quantile(0.99, sum(rate(api_operation_bucket{operation=\"close_account\"}[1m])) by (le, service_name))",
           "interval": "",
           "legendFormat": "99th percentile",
           "refId": "A"
         },
         {
-          "expr": " histogram_quantile(0.95, sum(rate(request_latency_seconds_bucket{operation=\"close_account\"}[1m])) by (le, application))",
+          "expr": " histogram_quantile(0.95, sum(rate(api_operation_bucket{operation=\"close_account\"}[1m])) by (le, service_name))",
           "interval": "",
           "legendFormat": "95th percentile",
           "refId": "B"
         },
         {
-          "expr": " histogram_quantile(0.90, sum(rate(request_latency_seconds_bucket{operation=\"close_account\"}[1m])) by (le, application))",
+          "expr": " histogram_quantile(0.90, sum(rate(api_operation_bucket{operation=\"close_account\"}[1m])) by (le, service_name))",
           "interval": "",
           "legendFormat": "90th percentile",
           "refId": "C"

@@ -10,11 +10,12 @@ sparkJava = "com.sparkjava:spark-core:2.9.4"
 msgpack = "org.msgpack:msgpack-core:0.9.6"
 slf4j = "org.slf4j:slf4j-api:2.0.10"
 logbackBase = "ch.qos.logback:logback-classic:1.4.14"
+logbackOpentelemetry = "io.opentelemetry.instrumentation:opentelemetry-logback-mdc-1.0:1.32.0-alpha"
 logbackLogstash = "net.logstash.logback:logstash-logback-encoder:7.4"
-micrometer = "io.micrometer:micrometer-registry-prometheus:1.12.1"
+micrometerMetrics = "io.micrometer:micrometer-registry-otlp:1.12.1"
+micrometerTracing = "io.micrometer:micrometer-tracing-bridge-brave:1.2.1"
 hikari = "com.zaxxer:HikariCP:5.1.0"
 
-zipkinSparkJava = { module = "io.zipkin.brave:brave-instrumentation-sparkjava", version.ref = "brave" }
 zipkinDatabase = { module = "io.zipkin.brave:brave-instrumentation-p6spy", version.ref = "brave" }
 zipkinSender = "io.zipkin.reporter2:zipkin-sender-urlconnection:2.17.1"
 
@@ -29,7 +30,6 @@ junit = "org.junit.jupiter:junit-jupiter:5.10.1"
 assertj = "org.assertj:assertj-core:3.25.0"
 archunit = "com.tngtech.archunit:archunit-junit5:1.2.1"
 restAssured = "io.rest-assured:rest-assured:5.4.0"
-h2 = "com.h2database:h2:2.2.224"
 
 apacheHttpClient = "org.apache.httpcomponents:httpclient:4.5.14"
 apacheHttpAsyncClient = "org.apache.httpcomponents:httpasyncclient:4.1.5"
@@ -41,6 +41,7 @@ dbTestPostgres = { module = "io.github.rieske.dbtest:postgresql", version.ref = 
 dbTestMysql = { module = "io.github.rieske.dbtest:mysql", version.ref = "dbtest" }
 
 [bundles]
-zipkin = ["zipkinSparkJava", "zipkinDatabase", "zipkinSender"]
-logging = ["logbackBase", "logbackLogstash"]
+zipkin = ["zipkinDatabase", "zipkinSender"]
+logging = ["logbackBase", "logbackOpentelemetry", "logbackLogstash"]
+micrometer = ["micrometerMetrics", "micrometerTracing"]
 
