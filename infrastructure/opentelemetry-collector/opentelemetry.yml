@@ -35,8 +35,8 @@ exporters:
     add_metric_suffixes: false
     resource_to_telemetry_conversion:
       enabled: true
-  zipkin:
-    endpoint: http://zipkin:9411/api/v2/spans
+  otlphttp/tempo:
+    endpoint: http://tempo:4318
 
 service:
   pipelines:
@@ -51,4 +51,4 @@ service:
     traces:
       receivers: [zipkin]
       processors: [batch]
-      exporters: [zipkin]
+      exporters: [otlphttp/tempo]

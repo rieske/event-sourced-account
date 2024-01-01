@@ -181,13 +181,12 @@ Grafana and a service/envoy dashboards can be accessed by spawning a composed en
 ```shell script
 ./gradlew composeUp
 ```
-Prometheus is exposed on port 9090.
+Prometheus is exposed on port 9090. Metrics go there.
+Logs are forwarded to Loki.
+Traces are sent to Tempo.
 
 Grafana is available on port 3000. Dashboards are available for basic service metrics, JVM metrics, and Envoy metrics.
 It is pretty cool to see how light the service is even when stressed:
 ![memory footprint](docs/memory_footprint.png)
 
-Zipkin on port 9411.
-![sample trace](docs/zipkin_trace.png)
-
-
+Logs and traces are available in Grafana via Loki and Tempo data sources.
