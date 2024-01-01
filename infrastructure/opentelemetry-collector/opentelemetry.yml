@@ -6,8 +6,10 @@ receivers:
     protocols:
       http:
     use_incoming_timestamp: true
+  zipkin:
 
 processors:
+  batch:
   attributes:
     actions:
       - action: insert
@@ -33,14 +35,20 @@ exporters:
     add_metric_suffixes: false
     resource_to_telemetry_conversion:
       enabled: true
+  zipkin:
+    endpoint: http://zipkin:9411/api/v2/spans
 
 service:
   pipelines:
     logs:
       receivers: [loki]
-      processors: [attributes]
+      processors: [attributes, batch]
       exporters: [loki]
     metrics:
       receivers: [otlp]
-      processors: [transform]
+      processors: [transform, batch]
       exporters: [prometheus]
+    traces:
+      receivers: [zipkin]
+      processors: [batch]
+      exporters: [zipkin]

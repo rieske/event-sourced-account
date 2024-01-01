@@ -31,7 +31,7 @@ static_resources:
                     name: envoy.tracers.zipkin
                     typed_config:
                       "@type": type.googleapis.com/envoy.config.trace.v3.ZipkinConfig
-                      collector_cluster: zipkin
+                      collector_cluster: otel
                       collector_endpoint: /api/v2/spans
                       collector_endpoint_version: HTTP_JSON
                       shared_span_context: false
@@ -69,16 +69,16 @@ static_resources:
                       address: account
                       port_value: 8080
 
-    - name: zipkin
+    - name: otel
       connect_timeout: 1s
       type: strict_dns
       lb_policy: round_robin
       load_assignment:
-        cluster_name: zipkin
+        cluster_name: otel
         endpoints:
           - lb_endpoints:
               - endpoint:
                   address:
                     socket_address:
-                      address: zipkin
+                      address: opentelemetry-collector
                       port_value: 9411

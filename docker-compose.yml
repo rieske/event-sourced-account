@@ -21,7 +21,7 @@ services:
       DB_USER: test
       DB_PASSWORD: test
       OPENTELEMETRY_URL: http://opentelemetry-collector:4318/v1/metrics
-      ZIPKIN_URL: http://zipkin:9411/api/v2/spans
+      ZIPKIN_URL: http://opentelemetry-collector:9411/api/v2/spans
     labels:
       logging: promtail
       service: account
@@ -57,9 +57,10 @@ services:
     volumes:
       - ./infrastructure/opentelemetry-collector/opentelemetry.yml:/etc/otelcol-contrib/config.yaml
     ports:
-      - 3500 # Loki ingest port
+      - 3500 # Loki receiver
       - 4318 # OTLP http receiver
-      - 9099:9099 # Prometheus scrape endpoint
+      - 9411 # Zipkin receiver
+      - 9099 # Prometheus scrape endpoint
       - 1888:1888 # pprof extension
       - 8888:8888 # Prometheus metrics exposed by the Collector
       - 8889:8889 # Prometheus exporter metrics
