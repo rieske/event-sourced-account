@@ -94,7 +94,7 @@ They use testcontainers to spawn real database instances. Integration tests live
 set and are executed using `integrationTest` task.
 
 Finally, a couple of end-to-end tests that focus mainly on sanity testing consistency in a distributed
-environment. `e2eTest` source set and a task with the same name.
+environment. `blackBoxTest` source set and a task with the same name.
 
 Since I was test driving this service from the domain up to the event sourcing infrastructure and lastly
 up to the API, some of the tests might be redundant and functionality might be tested several times.
@@ -143,7 +143,7 @@ require a running docker daemon.
 
 And another round of slow tests that test for consistency in a distributed environment:
 ```shell script
-./gradlew e2eTest
+./gradlew blackBoxTest
 ```
 Those will spawn a docker-composed environment with two service instances connected to
 a postgres container and a load balancer on top. Tests will be executed against the load balancer,
