@@ -44,7 +44,7 @@ services:
     volumes:
       - ./infrastructure/promtail/promtail.yml:/etc/promtail/config.yml
       - /var/run/docker.sock:/var/run/docker.sock
-    mem_limit: 512M
+    mem_limit: 64M
 
   loki:
     image: grafana/loki:2.9.3
@@ -63,7 +63,7 @@ services:
       - 4318 # OTLP http receiver
       - 9411 # Zipkin receiver
       - 9099 # Prometheus scrape endpoint
-    mem_limit: 512M
+    mem_limit: 128M
 
   prometheus:
     image: prom/prometheus:v2.48.1
@@ -82,7 +82,7 @@ services:
     ports:
       - 3200
       - 4318  # otlp http
-    mem_limit: 512M
+    mem_limit: 128M
 
   grafana:
     image: grafana/grafana:10.2.3

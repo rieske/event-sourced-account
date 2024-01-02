@@ -111,19 +111,18 @@ class ZipkinTracingConfiguration implements ObservabilityConfiguration {
                         new DefaultTracingObservationHandler(tracer))
                 );
 
-        meterRegistry.config().meterFilter(
-                new MeterFilter() {
-                    @Override
-                    public DistributionStatisticConfig configure(Meter.Id id, DistributionStatisticConfig config) {
-                        if (id.getName().equals(API_OPERATION_TAG)) {
-                            return DistributionStatisticConfig.builder()
-                                    .percentilesHistogram(true)
-                                    .build()
-                                    .merge(config);
-                        }
-                        return config;
-                    }
-                });
+        meterRegistry.config().meterFilter(new MeterFilter() {
+            @Override
+            public DistributionStatisticConfig configure(Meter.Id id, DistributionStatisticConfig config) {
+                if (id.getName().equals(API_OPERATION_TAG)) {
+                    return DistributionStatisticConfig.builder()
+                            .percentilesHistogram(true)
+                            .build()
+                            .merge(config);
+                }
+                return config;
+            }
+        });
     }
 
     @Override
