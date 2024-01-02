@@ -2,7 +2,6 @@ package lt.rieske.accounts.infrastructure;
 
 import brave.Tracing;
 import brave.context.slf4j.MDCScopeDecorator;
-import brave.propagation.B3Propagation;
 import brave.propagation.ThreadLocalCurrentTraceContext;
 import brave.sampler.Sampler;
 import com.p6spy.engine.spy.P6DataSource;

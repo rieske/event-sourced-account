@@ -10,7 +10,6 @@ sparkJava = "com.sparkjava:spark-core:2.9.4"
 msgpack = "org.msgpack:msgpack-core:0.9.6"
 slf4j = "org.slf4j:slf4j-api:2.0.10"
 logbackBase = "ch.qos.logback:logback-classic:1.4.14"
-logbackOpentelemetry = "io.opentelemetry.instrumentation:opentelemetry-logback-mdc-1.0:1.32.0-alpha"
 logbackLogstash = "net.logstash.logback:logstash-logback-encoder:7.4"
 micrometerMetrics = "io.micrometer:micrometer-registry-otlp:1.12.1"
 micrometerTracing = "io.micrometer:micrometer-tracing-bridge-brave:1.2.1"
@@ -42,6 +41,6 @@ dbTestMysql = { module = "io.github.rieske.dbtest:mysql", version.ref = "dbtest"
 
 [bundles]
 zipkin = ["zipkinDatabase", "zipkinSender"]
-logging = ["logbackBase", "logbackOpentelemetry", "logbackLogstash"]
+logging = ["logbackBase", "logbackLogstash"]
 micrometer = ["micrometerMetrics", "micrometerTracing"]
 

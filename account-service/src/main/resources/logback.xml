@@ -12,11 +12,8 @@
         <appender-ref ref="json"/>
         <neverBlock>true</neverBlock>
     </appender>
-    <appender name="otel" class="io.opentelemetry.instrumentation.logback.mdc.v1_0.OpenTelemetryAppender">
-        <appender-ref ref="asyncStdout"/>
-    </appender>
 
     <logger name="root" level="INFO">
-        <appender-ref ref="otel"/>
+        <appender-ref ref="asyncStdout"/>
     </logger>
 </configuration>
