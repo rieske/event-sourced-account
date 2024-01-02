@@ -60,6 +60,7 @@ services:
       - ./infrastructure/opentelemetry-collector/opentelemetry.yml:/etc/otelcol-contrib/config.yaml
     ports:
       - 3500 # Loki receiver
+      - 4317 # OTLP grpc receiver
       - 4318 # OTLP http receiver
       - 9411 # Zipkin receiver
       - 9099 # Prometheus scrape endpoint

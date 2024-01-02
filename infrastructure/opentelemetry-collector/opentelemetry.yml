@@ -2,6 +2,7 @@ receivers:
   otlp:
     protocols:
       http:
+      grpc:
   loki:
     protocols:
       http:
@@ -44,6 +45,6 @@ service:
       processors: [batch]
       exporters: [prometheus]
     traces:
-      receivers: [zipkin]
+      receivers: [otlp, zipkin]
       processors: [batch]
       exporters: [otlphttp/tempo]

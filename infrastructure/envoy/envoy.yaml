@@ -28,13 +28,14 @@ static_resources:
                       path: /dev/stdout
                 tracing:
                   provider:
-                    name: envoy.tracers.zipkin
+                    name: envoy.tracers.opentelemetry
                     typed_config:
-                      "@type": type.googleapis.com/envoy.config.trace.v3.ZipkinConfig
-                      collector_cluster: otel
-                      collector_endpoint: /api/v2/spans
-                      collector_endpoint_version: HTTP_JSON
-                      shared_span_context: false
+                      "@type": type.googleapis.com/envoy.config.trace.v3.OpenTelemetryConfig
+                      service_name: api-gateway
+                      grpc_service:
+                        envoy_grpc:
+                          cluster_name: otel
+                        timeout: 0.250s
                   random_sampling:
                     value: 1
                 stat_prefix: ingress_http
@@ -73,6 +74,11 @@ static_resources:
       connect_timeout: 1s
       type: strict_dns
       lb_policy: round_robin
+      typed_extension_protocol_options:
+        envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+          "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+          explicit_http_config:
+            http2_protocol_options: {}
       load_assignment:
         cluster_name: otel
         endpoints:
@@ -81,4 +87,4 @@ static_resources:
                   address:
                     socket_address:
                       address: opentelemetry-collector
-                      port_value: 9411
+                      port_value: 4317

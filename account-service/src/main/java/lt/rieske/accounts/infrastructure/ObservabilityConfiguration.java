@@ -21,6 +21,7 @@ import io.micrometer.tracing.Tracer;
 import io.micrometer.tracing.brave.bridge.BraveCurrentTraceContext;
 import io.micrometer.tracing.brave.bridge.BravePropagator;
 import io.micrometer.tracing.brave.bridge.BraveTracer;
+import io.micrometer.tracing.brave.bridge.W3CPropagation;
 import io.micrometer.tracing.contextpropagation.ObservationAwareSpanThreadLocalAccessor;
 import io.micrometer.tracing.handler.DefaultTracingObservationHandler;
 import io.micrometer.tracing.handler.PropagatingReceiverTracingObservationHandler;
@@ -93,7 +94,8 @@ class ZipkinTracingConfiguration implements ObservabilityConfiguration {
                 .currentTraceContext(braveCurrentTraceContext)
                 .supportsJoin(false)
                 .traceId128Bit(true)
-                .propagationFactory(B3Propagation.FACTORY)
+                // TODO: BaggageManager in W3CPropagation
+                .propagationFactory(new W3CPropagation())
                 .addSpanHandler(ZipkinSpanHandler.create(spanReporter))
                 .build();
 
