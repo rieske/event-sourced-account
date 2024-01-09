@@ -16,7 +16,7 @@ micrometerTracing = "io.micrometer:micrometer-tracing-bridge-brave:1.2.1"
 hikari = "com.zaxxer:HikariCP:5.1.0"
 
 zipkinDatabase = { module = "io.zipkin.brave:brave-instrumentation-p6spy", version.ref = "brave" }
-zipkinSender = "io.zipkin.reporter2:zipkin-sender-urlconnection:3.0.1"
+zipkinSender = "io.zipkin.reporter2:zipkin-sender-urlconnection:3.0.2"
 
 flyway = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flywayMysql = { module = "org.flywaydb:flyway-mysql", version.ref = "flyway" }
