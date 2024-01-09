@@ -11,7 +11,7 @@ msgpack = "org.msgpack:msgpack-core:0.9.6"
 slf4j = "org.slf4j:slf4j-api:2.0.11"
 logbackBase = "ch.qos.logback:logback-classic:1.4.14"
 logbackLogstash = "net.logstash.logback:logstash-logback-encoder:7.4"
-micrometerMetrics = "io.micrometer:micrometer-registry-otlp:1.12.1"
+micrometerMetrics = "io.micrometer:micrometer-registry-otlp:1.12.2"
 micrometerTracing = "io.micrometer:micrometer-tracing-bridge-brave:1.2.2"
 hikari = "com.zaxxer:HikariCP:5.1.0"
 
