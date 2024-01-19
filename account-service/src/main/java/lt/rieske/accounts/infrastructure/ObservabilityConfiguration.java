@@ -2,6 +2,7 @@ package lt.rieske.accounts.infrastructure;
 
 import brave.Tracing;
 import brave.context.slf4j.MDCScopeDecorator;
+import brave.propagation.Propagation;
 import brave.propagation.ThreadLocalCurrentTraceContext;
 import brave.sampler.Sampler;
 import com.p6spy.engine.spy.P6DataSource;
@@ -77,6 +78,14 @@ class ZipkinTracingConfiguration implements ObservabilityConfiguration {
     private final AsyncReporter<zipkin2.Span> spanReporter;
     private final ObservationRegistry observationRegistry;
 
+    static class W3CPropagationBridge extends W3CPropagation {
+
+        @Override
+        public Propagation<String> get() {
+            return create(KeyFactory.STRING);
+        }
+    }
+
     public ZipkinTracingConfiguration(MeterRegistry meterRegistry, String zipkinUrl) {
         this.sender = URLConnectionSender.create(zipkinUrl);
         this.spanReporter = AsyncReporter.create(sender);
@@ -94,7 +103,7 @@ class ZipkinTracingConfiguration implements ObservabilityConfiguration {
                 .supportsJoin(false)
                 .traceId128Bit(true)
                 // TODO: BaggageManager in W3CPropagation
-                .propagationFactory(new W3CPropagation())
+                .propagationFactory(new W3CPropagationBridge())
                 .addSpanHandler(ZipkinSpanHandler.create(spanReporter))
                 .build();
 
