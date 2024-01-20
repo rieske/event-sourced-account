@@ -22,20 +22,54 @@ static_resources:
                 "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
                 generate_request_id: true
                 access_log:
-                  - name: envoy.access_loggers.file
+                  - name: envoy.access_loggers.open_telemetry
                     typed_config:
-                      "@type": type.googleapis.com/envoy.extensions.access_loggers.file.v3.FileAccessLog
-                      path: /dev/stdout
-                      typed_json_format:
-                        timestamp: "%START_TIME%"
-                        protocol: "%PROTOCOL%"
-                        request: "%REQ(:METHOD)% %REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%"
-                        traceparent: "%REQ(TRACEPARENT)%"
-                        duration: "%DURATION%"
-                        bytesReceived: "%BYTES_RECEIVED%"
-                        upstreamCluster: "%UPSTREAM_CLUSTER%"
-                        responseCode: "%RESPONSE_CODE%"
-                        bytesSent: "%BYTES_SENT%"
+                      "@type": type.googleapis.com/envoy.extensions.access_loggers.open_telemetry.v3.OpenTelemetryAccessLogConfig
+                      body:
+                        kvlist_value:
+                          values:
+                            - key: timestamp
+                              value:
+                                string_value: "%START_TIME%"
+                            - key: protocol
+                              value:
+                                string_value: "%PROTOCOL%"
+                            - key: request
+                              value:
+                                string_value: "%REQ(:METHOD)% %REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%"
+                            - key: traceparent
+                              value:
+                                string_value: "%REQ(TRACEPARENT)%"
+                            - key: duration
+                              value:
+                                string_value: "%DURATION%"
+                            - key: bytesReceived
+                              value:
+                                string_value: "%BYTES_RECEIVED%"
+                            - key: upstreamCluster
+                              value:
+                                string_value: "%UPSTREAM_CLUSTER%"
+                            - key: responseCode
+                              value:
+                                string_value: "%RESPONSE_CODE%"
+                            - key: bytesSent
+                              value:
+                                string_value: "%BYTES_SENT%"
+                      attributes:
+                        values:
+                          - key: "service"
+                            value:
+                              string_value: "api-gateway"
+                          - key: "level"
+                            value:
+                              string_value: "INFO"
+                      common_config:
+                        log_name: api-gateway
+                        transport_api_version: V3
+                        grpc_service:
+                          envoy_grpc:
+                            cluster_name: otel
+                          timeout: 0.250s
                 tracing:
                   provider:
                     name: envoy.tracers.opentelemetry

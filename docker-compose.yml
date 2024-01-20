@@ -7,9 +7,6 @@ services:
     ports:
       - 9901:9901
       - 8080:10000
-    labels:
-      logging: promtail
-      service: envoy
     mem_limit: 32M
 
   account:

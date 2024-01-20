@@ -15,7 +15,7 @@ processors:
     actions:
       - action: insert
         key: loki.attribute.labels
-        value: service
+        value: service,level
       - action: insert
         key: loki.format
         value: raw
@@ -37,7 +37,7 @@ exporters:
 service:
   pipelines:
     logs:
-      receivers: [loki]
+      receivers: [otlp, loki]
       processors: [attributes, batch]
       exporters: [loki]
     metrics:
