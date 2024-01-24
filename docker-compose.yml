@@ -37,7 +37,7 @@ services:
     mem_limit: 512M
 
   promtail:
-    image: grafana/promtail:2.9.3
+    image: grafana/promtail:2.9.4
     volumes:
       - ./infrastructure/promtail/promtail.yml:/etc/promtail/config.yml
       - /var/run/docker.sock:/var/run/docker.sock
