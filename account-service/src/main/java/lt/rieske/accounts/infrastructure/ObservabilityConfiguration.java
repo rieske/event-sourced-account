@@ -2,10 +2,8 @@ package lt.rieske.accounts.infrastructure;
 
 import brave.Tracing;
 import brave.context.slf4j.MDCScopeDecorator;
-import brave.propagation.Propagation;
 import brave.propagation.ThreadLocalCurrentTraceContext;
 import brave.sampler.Sampler;
-import com.p6spy.engine.spy.P6DataSource;
 import io.micrometer.context.ContextRegistry;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -28,6 +26,12 @@ import io.micrometer.tracing.handler.PropagatingReceiverTracingObservationHandle
 import io.micrometer.tracing.handler.PropagatingSenderTracingObservationHandler;
 import io.micrometer.tracing.handler.TracingAwareMeterObservationHandler;
 import io.micrometer.tracing.propagation.Propagator;
+import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
+import net.ttddyy.observation.tracing.ConnectionTracingObservationHandler;
+import net.ttddyy.observation.tracing.DataSourceObservationListener;
+import net.ttddyy.observation.tracing.HikariJdbcObservationFilter;
+import net.ttddyy.observation.tracing.QueryTracingObservationHandler;
+import net.ttddyy.observation.tracing.ResultSetTracingObservationHandler;
 import spark.Request;
 import spark.Response;
 import zipkin2.reporter.AsyncReporter;
@@ -78,14 +82,6 @@ class ZipkinTracingConfiguration implements ObservabilityConfiguration {
     private final AsyncReporter<zipkin2.Span> spanReporter;
     private final ObservationRegistry observationRegistry;
 
-    static class W3CPropagationBridge extends W3CPropagation {
-
-        @Override
-        public Propagation<String> get() {
-            return create(KeyFactory.STRING);
-        }
-    }
-
     public ZipkinTracingConfiguration(MeterRegistry meterRegistry, String zipkinUrl) {
         this.sender = URLConnectionSender.create(zipkinUrl);
         this.spanReporter = AsyncReporter.create(sender);
@@ -103,7 +99,7 @@ class ZipkinTracingConfiguration implements ObservabilityConfiguration {
                 .supportsJoin(false)
                 .traceId128Bit(true)
                 // TODO: BaggageManager in W3CPropagation
-                .propagationFactory(new W3CPropagationBridge())
+                .propagationFactory(new W3CPropagation())
                 .addSpanHandler(ZipkinSpanHandler.create(spanReporter))
                 .build();
 
@@ -115,11 +111,15 @@ class ZipkinTracingConfiguration implements ObservabilityConfiguration {
         this.observationRegistry = ObservationRegistry.create();
         observationRegistry.observationConfig()
                 .observationHandler(new TracingAwareMeterObservationHandler<>(new DefaultMeterObservationHandler(meterRegistry), tracer))
+                .observationHandler(new ConnectionTracingObservationHandler(tracer))
+                .observationHandler(new QueryTracingObservationHandler(tracer))
+                .observationHandler(new ResultSetTracingObservationHandler(tracer))
                 .observationHandler(new ObservationHandler.FirstMatchingCompositeObservationHandler(
                         new PropagatingSenderTracingObservationHandler<>(tracer, propagator),
                         new PropagatingReceiverTracingObservationHandler<>(tracer, propagator),
-                        new DefaultTracingObservationHandler(tracer))
-                );
+                        new DefaultTracingObservationHandler(tracer)))
+                .observationFilter(new HikariJdbcObservationFilter())
+        ;
 
         meterRegistry.config().meterFilter(new MeterFilter() {
             @Override
@@ -147,7 +147,13 @@ class ZipkinTracingConfiguration implements ObservabilityConfiguration {
 
     @Override
     public DataSource decorate(DataSource dataSource) {
-        return new P6DataSource(dataSource);
+        DataSourceObservationListener listener = new DataSourceObservationListener(observationRegistry);
+        return ProxyDataSourceBuilder.create(dataSource)
+                .name("event-store")
+                .listener(listener)
+                .methodListener(listener)
+                .proxyResultSet()
+                .build();
     }
 
     @Override

@@ -1,5 +1,4 @@
 [versions]
-brave = "5.18.1"
 flyway = "10.7.1"
 testcontainers = "1.19.4"
 dbtest = "0.0.5"
@@ -13,9 +12,11 @@ logbackBase = "ch.qos.logback:logback-classic:1.4.14"
 logbackLogstash = "net.logstash.logback:logstash-logback-encoder:7.4"
 micrometerMetrics = "io.micrometer:micrometer-registry-otlp:1.12.2"
 micrometerTracing = "io.micrometer:micrometer-tracing-bridge-brave:1.2.2"
+micrometerDataSource = "net.ttddyy.observation:datasource-micrometer:1.0.3"
 hikari = "com.zaxxer:HikariCP:5.1.0"
 
-zipkinDatabase = { module = "io.zipkin.brave:brave-instrumentation-p6spy", version.ref = "brave" }
+zipkin = "io.zipkin.zipkin2:zipkin:2.11.3"
+zipkinBrave = "io.zipkin.reporter2:zipkin-reporter-brave:3.2.1"
 zipkinSender = "io.zipkin.reporter2:zipkin-sender-urlconnection:3.2.1"
 
 flyway = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
@@ -40,7 +41,7 @@ dbTestPostgres = { module = "io.github.rieske.dbtest:postgresql", version.ref = 
 dbTestMysql = { module = "io.github.rieske.dbtest:mysql", version.ref = "dbtest" }
 
 [bundles]
-zipkin = ["zipkinDatabase", "zipkinSender"]
+zipkin = ["zipkin", "zipkinBrave", "zipkinSender"]
 logging = ["logbackBase", "logbackLogstash"]
-micrometer = ["micrometerMetrics", "micrometerTracing"]
+micrometer = ["micrometerMetrics", "micrometerTracing", "micrometerDataSource"]
 
