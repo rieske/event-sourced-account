@@ -15,7 +15,7 @@ micrometerTracing = "io.micrometer:micrometer-tracing-bridge-brave:1.2.2"
 micrometerDataSource = "net.ttddyy.observation:datasource-micrometer:1.0.3"
 hikari = "com.zaxxer:HikariCP:5.1.0"
 
-zipkin = "io.zipkin.zipkin2:zipkin:2.11.3"
+zipkin = "io.zipkin.zipkin2:zipkin:3.0.5"
 zipkinBrave = "io.zipkin.reporter2:zipkin-reporter-brave:3.2.1"
 zipkinSender = "io.zipkin.reporter2:zipkin-sender-urlconnection:3.2.1"
 
