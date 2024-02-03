@@ -28,5 +28,8 @@ public final class AtomicOperation {
     public static Consumer<Account> close() {
         return Account::close;
     }
+
+    private AtomicOperation() {
+    }
 }
 

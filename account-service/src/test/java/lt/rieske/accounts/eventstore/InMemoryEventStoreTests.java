@@ -132,8 +132,8 @@ class InMemoryEventStore<E extends Event> implements EventStore<E> {
                 throw new ConcurrentModificationException("Duplicate transaction");
             }
             if (event.sequenceNumber() <= currentVersion) {
-                throw new ConcurrentModificationException("Event out of sync, last: " +
-                        currentVersion + ", trying to append: " + event.sequenceNumber());
+                throw new ConcurrentModificationException("Event out of sync, last: "
+                        + currentVersion + ", trying to append: " + event.sequenceNumber());
             }
             aggregateVersions.put(event.aggregateId(), event.sequenceNumber());
         });

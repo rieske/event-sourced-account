@@ -76,12 +76,12 @@ class ConsistencyTest {
         var accountId = newAccount(ownerId);
 
         var accountJson = client.queryAccount(accountId);
-        assertThat(accountJson).isEqualTo("{" +
-                "\"accountId\":\"" + accountId + "\"," +
-                "\"ownerId\":\"" + ownerId + "\"," +
-                "\"balance\":0," +
-                "\"open\":true" +
-                "}");
+        assertThat(accountJson).isEqualTo("{"
+                + "\"accountId\":\"" + accountId + "\","
+                + "\"ownerId\":\"" + ownerId + "\","
+                + "\"balance\":0,"
+                + "\"open\":true"
+                + "}");
     }
 
     @Test

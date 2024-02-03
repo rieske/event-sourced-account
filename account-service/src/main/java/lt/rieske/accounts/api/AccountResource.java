@@ -123,12 +123,12 @@ class AccountResource {
     }
 
     private static String accountJson(AccountEvent.AccountSnapshot account) {
-        return "{" +
-                "\"accountId\":\"" + account.accountId() + "\"," +
-                "\"ownerId\":\"" + account.ownerId() + "\"," +
-                "\"balance\":" + account.balance() + "," +
-                "\"open\":" + account.open() +
-                "}";
+        return "{"
+                + "\"accountId\":\"" + account.accountId() + "\","
+                + "\"ownerId\":\"" + account.ownerId() + "\","
+                + "\"balance\":" + account.balance() + ","
+                + "\"open\":" + account.open()
+                + "}";
     }
 
     private static void errorJson(Response response, int status, String message) {

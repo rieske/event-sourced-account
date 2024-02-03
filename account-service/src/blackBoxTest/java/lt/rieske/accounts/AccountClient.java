@@ -86,8 +86,7 @@ class AccountClient {
 
     private static String read(InputStream inputStream) {
         var textBuilder = new StringBuilder();
-        try (var reader = new BufferedReader(new InputStreamReader
-                (inputStream, StandardCharsets.UTF_8))) {
+        try (var reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
             int c;
             while ((c = reader.read()) != -1) {
                 textBuilder.append((char) c);

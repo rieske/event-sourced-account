@@ -38,4 +38,7 @@ public class Configuration {
         config.setMetricRegistry(meterRegistry);
         return new HikariDataSource(config);
     }
+
+    private Configuration() {
+    }
 }

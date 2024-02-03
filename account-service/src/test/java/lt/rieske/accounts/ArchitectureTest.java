@@ -6,6 +6,10 @@ import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.library.Architectures;
+import lt.rieske.accounts.api.ApiConfiguration;
+import lt.rieske.accounts.api.Server;
+import lt.rieske.accounts.eventstore.BlobEventStore;
+import lt.rieske.accounts.eventstore.Configuration;
 
 import java.util.regex.Pattern;
 
@@ -21,12 +25,12 @@ class ArchitectureTest {
             .adapter("eventstore", "lt.rieske.accounts.eventstore")
             .adapter("api", "lt.rieske.accounts.api")
             .applicationServices("lt.rieske.accounts", "lt.rieske.accounts.infrastructure")
-            .ignoreDependency(App.class, lt.rieske.accounts.eventstore.Configuration.class)
-            .ignoreDependency(App.class, lt.rieske.accounts.eventstore.BlobEventStore.class)
-            .ignoreDependency(App.class, lt.rieske.accounts.api.ApiConfiguration.class)
-            .ignoreDependency(App.class, lt.rieske.accounts.api.Server.class)
-            .ignoreDependency(lt.rieske.accounts.api.ApiConfiguration.class, lt.rieske.accounts.eventstore.Configuration.class)
-            .ignoreDependency(lt.rieske.accounts.api.ApiConfiguration.EventStoreSupplier.class, lt.rieske.accounts.eventstore.BlobEventStore.class)
+            .ignoreDependency(App.class, Configuration.class)
+            .ignoreDependency(App.class, BlobEventStore.class)
+            .ignoreDependency(App.class, ApiConfiguration.class)
+            .ignoreDependency(App.class, Server.class)
+            .ignoreDependency(ApiConfiguration.class, Configuration.class)
+            .ignoreDependency(ApiConfiguration.EventStoreSupplier.class, BlobEventStore.class)
             .withOptionalLayers(true);
 
     @ArchTest
@@ -70,6 +74,9 @@ class ArchitectureTest {
             }
             return !location.matches(TEST_FIXTURES_PATTERN);
         }
+    }
+
+    private ArchitectureTest() {
     }
 }
 

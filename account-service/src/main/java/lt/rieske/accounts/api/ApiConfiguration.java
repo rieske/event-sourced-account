@@ -61,4 +61,7 @@ public class ApiConfiguration {
         return new AggregateRepository<>(eventStore, Account::new, new AccountSnapshotter(snapshottingFrequency));
     }
 
+    private ApiConfiguration() {
+    }
+
 }

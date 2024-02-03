@@ -34,6 +34,7 @@ import net.ttddyy.observation.tracing.QueryTracingObservationHandler;
 import net.ttddyy.observation.tracing.ResultSetTracingObservationHandler;
 import spark.Request;
 import spark.Response;
+import zipkin2.Span;
 import zipkin2.reporter.AsyncReporter;
 import zipkin2.reporter.BytesMessageSender;
 import zipkin2.reporter.brave.ZipkinSpanHandler;
@@ -79,7 +80,7 @@ class ZipkinTracingConfiguration implements ObservabilityConfiguration {
     private static final String API_OPERATION_TAG = "api_operation";
 
     private final BytesMessageSender sender;
-    private final AsyncReporter<zipkin2.Span> spanReporter;
+    private final AsyncReporter<Span> spanReporter;
     private final ObservationRegistry observationRegistry;
 
     public ZipkinTracingConfiguration(MeterRegistry meterRegistry, String zipkinUrl) {

@@ -72,12 +72,12 @@ public class AsyncStressTests {
         CLIENT.queryAccount(accountId, future);
         var response = future.get();
         assertThat(response.code()).isEqualTo(200);
-        assertThat(response.body()).isEqualTo("{" +
-                "\"accountId\":\"" + accountId + "\"," +
-                "\"ownerId\":\"" + ownerId + "\"," +
-                "\"balance\":0," +
-                "\"open\":true" +
-                "}");
+        assertThat(response.body()).isEqualTo("{"
+                + "\"accountId\":\"" + accountId + "\","
+                + "\"ownerId\":\"" + ownerId + "\","
+                + "\"balance\":0,"
+                + "\"open\":true"
+                + "}");
     }
 
     // N threads performing M deposits to N accounts.

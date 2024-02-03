@@ -46,8 +46,8 @@ public class AggregateRepository<A extends EventVisitor<E>, E extends Event> {
         var aggregate1 = loadAggregate(eventStream, aggregateId1);
         var aggregate2 = loadAggregate(eventStream, aggregateId2);
 
-        if (eventStore.transactionExists(aggregateId1, transactionId) ||
-                eventStore.transactionExists(aggregateId2, transactionId)) {
+        if (eventStore.transactionExists(aggregateId1, transactionId)
+                || eventStore.transactionExists(aggregateId2, transactionId)) {
             return;
         }
 
