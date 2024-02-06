@@ -6,7 +6,7 @@ dbtest = "0.0.5"
 # Production
 sparkJava = "com.sparkjava:spark-core:2.9.4"
 msgpack = "org.msgpack:msgpack-core:0.9.8"
-slf4j = "org.slf4j:slf4j-api:2.0.11"
+slf4j = "org.slf4j:slf4j-api:2.0.12"
 logbackBase = "ch.qos.logback:logback-classic:1.4.14"
 logbackLogstash = "net.logstash.logback:logstash-logback-encoder:7.4"
 micrometerMetrics = "io.micrometer:micrometer-registry-otlp:1.12.2"
