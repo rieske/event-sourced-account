@@ -17,11 +17,7 @@ services:
       JDBC_URL: jdbc:postgresql://database:5432/event_store
       DB_USER: test
       DB_PASSWORD: test
-      OPENTELEMETRY_URL: http://opentelemetry-collector:4318/v1/metrics
-      ZIPKIN_URL: http://opentelemetry-collector:9411/api/v2/spans
-    labels:
-      logging: promtail
-      service: account-service
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://opentelemetry-collector:4317
     mem_limit: 128M
     deploy:
       replicas: 2
@@ -36,13 +32,6 @@ services:
       - data:/var/lib/postgresql/data
     mem_limit: 512M
 
-  promtail:
-    image: grafana/promtail:2.9.4
-    volumes:
-      - ./infrastructure/promtail/promtail.yml:/etc/promtail/config.yml
-      - /var/run/docker.sock:/var/run/docker.sock
-    mem_limit: 64M
-
   loki:
     image: grafana/loki:2.9.4
     volumes:
@@ -52,16 +41,13 @@ services:
     mem_limit: 512M
 
   opentelemetry-collector:
-    image: otel/opentelemetry-collector-contrib:0.93.0
+    image: otel/opentelemetry-collector-contrib:0.94.0
     volumes:
       - ./infrastructure/opentelemetry-collector/opentelemetry.yml:/etc/otelcol-contrib/config.yaml
     ports:
-      - 3500 # Loki receiver
       - 4317 # OTLP grpc receiver
-      - 4318 # OTLP http receiver
-      - 9411 # Zipkin receiver
       - 9099 # Prometheus scrape endpoint
-    mem_limit: 128M
+    mem_limit: 512M
 
   prometheus:
     image: prom/prometheus:v2.49.1

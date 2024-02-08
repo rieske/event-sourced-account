@@ -2,10 +2,8 @@ package lt.rieske.accounts.eventstore;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import io.micrometer.core.instrument.MeterRegistry;
 import lt.rieske.accounts.domain.AccountEvent;
 import lt.rieske.accounts.eventsourcing.EventStore;
-import lt.rieske.accounts.infrastructure.ObservabilityConfiguration;
 
 import javax.sql.DataSource;
 
@@ -15,12 +13,11 @@ public class Configuration {
         return new SerializingEventStore<>(new MessagePackAccountEventSerializer(), blobEventStore);
     }
 
-    public static BlobEventStore blobEventStore(String jdbcUrl, String username, String password,
-                                                ObservabilityConfiguration observabilityConfiguration, MeterRegistry meterRegistry) {
-        return EventStoreFactory.makeEventStore(jdbcUrl, username, password, ds -> pooledMeteredDataSource(observabilityConfiguration.decorate(ds), meterRegistry));
+    public static BlobEventStore blobEventStore(String jdbcUrl, String username, String password) {
+        return EventStoreFactory.makeEventStore(jdbcUrl, username, password, Configuration::pooledDataSource);
     }
 
-    private static DataSource pooledMeteredDataSource(DataSource dataSource, MeterRegistry meterRegistry) {
+    private static DataSource pooledDataSource(DataSource dataSource) {
         var config = new HikariConfig();
         config.setPoolName("eventStore");
         config.setMaximumPoolSize(5);
@@ -35,7 +32,6 @@ public class Configuration {
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
         config.setDataSource(dataSource);
-        config.setMetricRegistry(meterRegistry);
         return new HikariDataSource(config);
     }
 

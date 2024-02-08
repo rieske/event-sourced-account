@@ -30,7 +30,7 @@ class ArchitectureTest {
             .ignoreDependency(App.class, ApiConfiguration.class)
             .ignoreDependency(App.class, Server.class)
             .ignoreDependency(ApiConfiguration.class, Configuration.class)
-            .ignoreDependency(ApiConfiguration.EventStoreSupplier.class, BlobEventStore.class)
+            .ignoreDependency(ApiConfiguration.class, BlobEventStore.class)
             .withOptionalLayers(true);
 
     @ArchTest

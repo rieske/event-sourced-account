@@ -14,16 +14,16 @@ dependencies {
     }
 
     implementation(libs.msgpack)
-    implementation(libs.bundles.logging)
-    implementation(libs.bundles.micrometer)
+    implementation(libs.logback)
     implementation(libs.hikari)
-    implementation(libs.bundles.zipkin)
 
     runtimeOnly(project(":eventstore")) {
         capabilities {
             it.requireCapability("account:eventstore-${eventstoreImpl.get()}")
         }
     }
+
+    agent(libs.opentelemetryAgent)
 
     testFixturesApi(libs.junit)
     testFixturesApi(libs.assertj)
@@ -37,7 +37,7 @@ dependencies {
     blackBoxTestImplementation(libs.testcontainers)
     blackBoxTestImplementation(libs.apacheHttpClient)
     blackBoxTestImplementation(libs.apacheHttpAsyncClient)
-    blackBoxTestImplementation(libs.bundles.logging)
+    blackBoxTestImplementation(libs.logback)
 }
 
 tasks.named("blackBoxTest").configure {

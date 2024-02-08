@@ -7,17 +7,10 @@ dbtest = "0.0.5"
 sparkJava = "com.sparkjava:spark-core:2.9.4"
 msgpack = "org.msgpack:msgpack-core:0.9.8"
 slf4j = "org.slf4j:slf4j-api:2.0.12"
-logbackBase = "ch.qos.logback:logback-classic:1.4.14"
-logbackLogstash = "net.logstash.logback:logstash-logback-encoder:7.4"
-micrometerMetrics = "io.micrometer:micrometer-registry-otlp:1.12.2"
-micrometerTracing = "io.micrometer:micrometer-tracing-bridge-brave:1.2.2"
-micrometerDataSource = "net.ttddyy.observation:datasource-micrometer:1.0.3"
+logback = "ch.qos.logback:logback-classic:1.4.14"
 hikari = "com.zaxxer:HikariCP:5.1.0"
 
-zipkin = "io.zipkin.zipkin2:zipkin:3.0.6"
-zipkinBrave = "io.zipkin.reporter2:zipkin-reporter-brave:3.2.1"
-zipkinSender = "io.zipkin.reporter2:zipkin-sender-urlconnection:3.2.1"
-
+# TODO: flyway now drags in Jackson+Gson. Thisis not acceptable. Look for alternatives.
 flyway = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flywayMysql = { module = "org.flywaydb:flyway-mysql", version.ref = "flyway" }
 flywayPostgres = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
@@ -39,8 +32,5 @@ dbTestH2 = { module = "io.github.rieske.dbtest:h2", version.ref = "dbtest" }
 dbTestPostgres = { module = "io.github.rieske.dbtest:postgresql", version.ref = "dbtest" }
 dbTestMysql = { module = "io.github.rieske.dbtest:mysql", version.ref = "dbtest" }
 
-[bundles]
-zipkin = ["zipkin", "zipkinBrave", "zipkinSender"]
-logging = ["logbackBase", "logbackLogstash"]
-micrometer = ["micrometerMetrics", "micrometerTracing", "micrometerDataSource"]
-
+# Telemetry
+opentelemetryAgent = "io.opentelemetry.javaagent:opentelemetry-javaagent:2.0.0"

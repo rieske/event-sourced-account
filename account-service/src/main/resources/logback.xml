@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <appender name="json" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <fieldNames>
-                <timestamp>timestamp</timestamp>
-                <message>message</message>
-            </fieldNames>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5p %c - %m%n</pattern>
         </encoder>
     </appender>
     <appender name="asyncStdout" class="ch.qos.logback.classic.AsyncAppender">

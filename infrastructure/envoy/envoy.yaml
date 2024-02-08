@@ -57,7 +57,7 @@ static_resources:
                                 string_value: "%BYTES_SENT%"
                       attributes:
                         values:
-                          - key: "service"
+                          - key: "service.name"
                             value:
                               string_value: "api-gateway"
                           - key: "level"
