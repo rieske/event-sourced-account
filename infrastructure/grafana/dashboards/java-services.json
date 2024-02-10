@@ -1776,7 +1776,7 @@
       "panels": [],
       "repeat": "http_endpoint",
       "repeatDirection": "h",
-      "title": "HTTP API",
+      "title": "HTTP API $http_endpoint",
       "type": "row"
     },
     {
@@ -1969,7 +1969,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "(histogram_quantile(0.95, sum by(le, host_name, http_request_method, http_route) (rate(http_server_request_duration_bucket{service_name=\"$application\", http_route=\"$http_endpoint\"}[5m]))))",
+          "expr": "(histogram_quantile(0.95, sum by(le, host_name, http_request_method, http_route) (rate(http_server_request_duration_bucket{service_name=\"$application\", http_route=\"$http_endpoint\"}[2m]))))",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "instant": false,
@@ -2019,8 +2019,8 @@
         "allFormat": "glob",
         "current": {
           "selected": false,
-          "text": "0a522bdf96e3",
-          "value": "0a522bdf96e3"
+          "text": "41ab31b6f495",
+          "value": "41ab31b6f495"
         },
         "datasource": {
           "type": "prometheus",
@@ -2117,8 +2117,8 @@
       {
         "current": {
           "selected": false,
-          "text": "/api/account/:accountId",
-          "value": "/api/account/:accountId"
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": {
           "type": "prometheus",
@@ -2138,7 +2138,7 @@
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
-        "sort": 0,
+        "sort": 1,
         "type": "query"
       }
     ]
