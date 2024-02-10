@@ -1,6 +1,7 @@
 package lt.rieske.accounts.api;
 
 import lt.rieske.accounts.domain.AccountEvent;
+import org.slf4j.MDC;
 import spark.Request;
 import spark.Response;
 
@@ -11,6 +12,10 @@ class AccountResource {
 
     private static final String APPLICATION_JSON = "application/json";
 
+    private static final String MDC_ACCOUNT_ID_KEY = "accountId";
+    private static final String MDC_SOURCE_ACCOUNT_ID_KEY = "sourceAccountId";
+    private static final String MDC_TARGET_ACCOUNT_ID_KEY = "targetAccountId";
+
     private final AccountService accountService;
 
     AccountResource(AccountService accountService) {
@@ -20,6 +25,7 @@ class AccountResource {
     String openAccount(Request request, Response response) {
         var accountId = accountIdPathParam(request);
         var ownerId = UUID.fromString(getMandatoryQueryParameter(request, "owner"));
+        MDC.put(MDC_ACCOUNT_ID_KEY, accountId.toString());
 
         accountService.openAccount(accountId, ownerId);
 
@@ -30,6 +36,7 @@ class AccountResource {
 
     String getAccount(Request request, Response response) {
         var accountId = accountIdPathParam(request);
+        MDC.put(MDC_ACCOUNT_ID_KEY, accountId.toString());
 
         var account = accountService.queryAccount(accountId);
 
@@ -39,6 +46,7 @@ class AccountResource {
 
     String deposit(Request request, Response response) {
         var accountId = accountIdPathParam(request);
+        MDC.put(MDC_ACCOUNT_ID_KEY, accountId.toString());
         long amount = amountQueryParam(request);
         var transactionId = transactionIdQueryParam(request);
 
@@ -50,6 +58,7 @@ class AccountResource {
 
     String withdraw(Request request, Response response) {
         var accountId = accountIdPathParam(request);
+        MDC.put(MDC_ACCOUNT_ID_KEY, accountId.toString());
         long amount = amountQueryParam(request);
         var transactionId = transactionIdQueryParam(request);
 
@@ -61,7 +70,9 @@ class AccountResource {
 
     String transfer(Request request, Response response) {
         var sourceAccountId = accountIdPathParam(request);
+        MDC.put(MDC_SOURCE_ACCOUNT_ID_KEY, sourceAccountId.toString());
         var targetAccountId = UUID.fromString(getMandatoryQueryParameter(request, "targetAccount"));
+        MDC.put(MDC_TARGET_ACCOUNT_ID_KEY, targetAccountId.toString());
         long amount = amountQueryParam(request);
         var transactionId = transactionIdQueryParam(request);
 

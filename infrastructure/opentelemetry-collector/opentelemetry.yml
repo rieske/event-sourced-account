@@ -1,24 +1,22 @@
 receivers:
   otlp:
     protocols:
-      http:
       grpc:
-  loki:
-    protocols:
-      http:
-    use_incoming_timestamp: true
-  zipkin:
 
 processors:
-  batch:
+  memory_limiter: # https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor/memorylimiterprocessor
+    check_interval: 1s
+    limit_percentage: 80
+    spike_limit_percentage: 40
+  batch: # https://github.com/open-telemetry/opentelemetry-collector/blob/main/processor/batchprocessor
   attributes:
     actions:
       - action: insert
         key: loki.attribute.labels
-        value: service,level
+        value: service.name,level
       - action: insert
-        key: loki.format
-        value: raw
+        key: loki.resource.labels
+        value: service.name
 
 exporters:
   loki:
@@ -37,14 +35,14 @@ exporters:
 service:
   pipelines:
     logs:
-      receivers: [otlp, loki]
-      processors: [attributes, batch]
+      receivers: [otlp]
+      processors: [memory_limiter, attributes, batch]
       exporters: [loki]
     metrics:
       receivers: [otlp]
-      processors: [batch]
+      processors: [memory_limiter, batch]
       exporters: [prometheus]
     traces:
-      receivers: [otlp, zipkin]
-      processors: [batch]
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
       exporters: [otlphttp/tempo]

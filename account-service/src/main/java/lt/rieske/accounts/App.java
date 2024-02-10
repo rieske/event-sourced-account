@@ -14,11 +14,10 @@ public class App {
 
     public static void main(String[] args) {
         var port = ApiConfiguration.server(
-                (tracing, metrics) -> Configuration.blobEventStore(
+                () -> Configuration.blobEventStore(
                         getRequiredEnvVariable("JDBC_URL"), getRequiredEnvVariable("DB_USER"),
-                        getRequiredEnvVariable("DB_PASSWORD"), tracing, metrics),
-                System.getenv("OPENTELEMETRY_URL"),
-                System.getenv("ZIPKIN_URL")).start(8080);
+                        getRequiredEnvVariable("DB_PASSWORD"))
+                ).start(8080);
         log.info("Server started on port: {}", port);
     }
 

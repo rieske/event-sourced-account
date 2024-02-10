@@ -3,3 +3,18 @@ plugins {
     id("account.code-coverage-aggregation")
     id("io.github.rieske.java-service")
 }
+
+configurations {
+    agent
+    runtimeClasspath.extendsFrom(agent)
+}
+
+tasks.named("startScripts").configure {
+    File agent = configurations.agent.resolvedConfiguration.resolvedArtifacts.first().file
+    // TODO: instead of modifying the start script, can I set the agent via DEFAULT_JVM_OPTS here instead?
+    doLast {
+        String unixRegex = $/exec "$$JAVACMD" /$
+        String unixReplacement = $/exec "$$JAVACMD" -javaagent:"$$APP_HOME/lib${"/"}${agent.name}" /$
+        unixScript.text = unixScript.text.replace(unixRegex, unixReplacement)
+    }
+}

@@ -1,8 +1,6 @@
 package lt.rieske.accounts.api;
 
-import io.micrometer.observation.Observation;
 import lt.rieske.accounts.eventsourcing.AggregateNotFoundException;
-import lt.rieske.accounts.infrastructure.ObservabilityConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Route;
@@ -25,24 +23,21 @@ public class Server {
 
     private final AccountResource accountResource;
 
-    private final ObservabilityConfiguration observabilityConfiguration;
-
-    Server(AccountResource accountResource, ObservabilityConfiguration observabilityConfiguration) {
+    Server(AccountResource accountResource) {
         this.accountResource = accountResource;
-        this.observabilityConfiguration = observabilityConfiguration;
     }
 
     public int start(int port) {
         port(port);
 
         path("/api", () -> path("/account/:accountId", () -> {
-            post("", metered(accountResource::openAccount, "open_account"));
-            get("", metered(accountResource::getAccount, "query_account"));
-            get("/events", metered(accountResource::getEvents, "query_account_events"));
-            put("/deposit", metered(accountResource::deposit, "deposit"));
-            put("/withdraw", metered(accountResource::withdraw, "withdraw"));
-            put("/transfer", metered(accountResource::transfer, "transfer"));
-            delete("", metered(accountResource::close, "close_account"));
+            post("", metered(accountResource::openAccount));
+            get("", metered(accountResource::getAccount));
+            get("/events", metered(accountResource::getEvents));
+            put("/deposit", metered(accountResource::deposit));
+            put("/withdraw", metered(accountResource::withdraw));
+            put("/transfer", metered(accountResource::transfer));
+            delete("", metered(accountResource::close));
         }));
 
         get("/ping", (req, res) -> "");
@@ -56,27 +51,16 @@ public class Server {
     }
 
     public void stop() {
-        observabilityConfiguration.closeResources();
         Spark.stop();
     }
 
-    private Route metered(Route delegate, String operation) {
+    private Route metered(Route delegate) {
         return (request, response) -> {
-            Observation observation = observabilityConfiguration.startApiOperationObservation(request, response)
-                    .contextualName(operation)
-                    .lowCardinalityKeyValue("operation", operation)
-                    .lowCardinalityKeyValue("method", request.requestMethod())
-                    .lowCardinalityKeyValue("pathTemplate", request.matchedPath())
-                    .highCardinalityKeyValue("path", request.pathInfo());
-            try (Observation.Scope scope = observation.openScope()) {
-                log.info("Request {} {}", request.requestMethod(), request.pathInfo());
-                try {
-                    return delegate.handle(request, response);
-                } finally {
-                    log.info("Responding with {}", response.status());
-                }
+            log.info("Request {} {}", request.requestMethod(), request.pathInfo());
+            try {
+                return delegate.handle(request, response);
             } finally {
-                observation.stop();
+                log.info("Responding with {}", response.status());
             }
         };
     }

@@ -36,12 +36,12 @@ datasources:
         datasourceUid: 'loki'
         customQuery: true
         query: '{exporter="OTLP"} |= "$${__trace.traceId}"'
-        spanStartTimeShift: '5m'
-        spanEndTimeShift: '-5m'
+        spanStartTimeShift: '-5m'
+        spanEndTimeShift: '5m'
       tracesToMetrics:
         datasourceUid: 'prometheus'
-        spanStartTimeShift: '5m'
-        spanEndTimeShift: '-5m'
+        spanStartTimeShift: '-5m'
+        spanEndTimeShift: '5m'
       #  tags: [ { key: 'service.name', value: 'service' }, { key: 'job' } ]
       #  queries:
       #    - name: 'Sample query'
