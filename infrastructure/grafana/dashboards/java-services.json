@@ -373,6 +373,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
+          "exemplar": true,
           "expr": "sum(jvm_memory_used{service_name=\"$application\", host_name=\"$instance\", jvm_memory_type=\"heap\"})",
           "format": "time_series",
           "intervalFactor": 2,
@@ -388,6 +389,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
+          "exemplar": true,
           "expr": "sum(jvm_memory_committed{service_name=\"$application\", host_name=\"$instance\", jvm_memory_type=\"heap\"})",
           "format": "time_series",
           "intervalFactor": 2,
@@ -402,6 +404,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
+          "exemplar": true,
           "expr": "sum(jvm_memory_limit{service_name=\"$application\", host_name=\"$instance\", jvm_memory_type=\"heap\"})",
           "format": "time_series",
           "intervalFactor": 2,
@@ -507,6 +510,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
+          "exemplar": true,
           "expr": "sum(jvm_memory_used{service_name=\"$application\", host_name=\"$instance\", jvm_memory_type=\"non_heap\"})",
           "format": "time_series",
           "interval": "",
@@ -523,6 +527,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
+          "exemplar": true,
           "expr": "sum(jvm_memory_committed{service_name=\"$application\", host_name=\"$instance\", jvm_memory_type=\"non_heap\"})",
           "format": "time_series",
           "intervalFactor": 2,
@@ -537,6 +542,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
+          "exemplar": true,
           "expr": "sum(jvm_memory_limit{service_name=\"$application\", host_name=\"$instance\", jvm_memory_type=\"non_heap\"})",
           "format": "time_series",
           "intervalFactor": 2,
@@ -642,6 +648,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
+          "exemplar": true,
           "expr": "sum(jvm_memory_used{service_name=\"$application\", host_name=\"$instance\"})",
           "format": "time_series",
           "intervalFactor": 2,
@@ -657,6 +664,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
+          "exemplar": true,
           "expr": "sum(jvm_memory_committed{service_name=\"$application\", host_name=\"$instance\"})",
           "format": "time_series",
           "intervalFactor": 2,
@@ -671,6 +679,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
+          "exemplar": true,
           "expr": "sum(jvm_memory_limit{service_name=\"$application\", host_name=\"$instance\"})",
           "format": "time_series",
           "intervalFactor": 2,
@@ -803,6 +812,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
+          "exemplar": true,
           "expr": "jvm_memory_used{service_name=\"$application\", host_name=\"$instance\", jvm_memory_type=\"heap\", jvm_memory_pool_name=\"$jvm_memory_pool_heap\"}",
           "format": "time_series",
           "hide": false,
@@ -820,6 +830,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
+          "exemplar": true,
           "expr": "jvm_memory_committed{service_name=\"$application\", host_name=\"$instance\", jvm_memory_type=\"heap\", jvm_memory_pool_name=\"$jvm_memory_pool_heap\"}",
           "format": "time_series",
           "hide": false,
@@ -837,6 +848,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
+          "exemplar": true,
           "expr": "jvm_memory_limit{service_name=\"$application\", host_name=\"$instance\", jvm_memory_type=\"heap\", jvm_memory_pool_name=\"$jvm_memory_pool_heap\"}",
           "format": "time_series",
           "hide": false,
@@ -959,6 +971,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
+          "exemplar": true,
           "expr": "jvm_memory_used{service_name=\"$application\", host_name=\"$instance\", jvm_memory_type=\"non_heap\", jvm_memory_pool_name=\"$jvm_memory_pool_nonheap\"}",
           "format": "time_series",
           "hide": false,
@@ -976,6 +989,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
+          "exemplar": true,
           "expr": "jvm_memory_committed{service_name=\"$application\", host_name=\"$instance\", jvm_memory_type=\"non_heap\", jvm_memory_pool_name=\"$jvm_memory_pool_nonheap\"}",
           "format": "time_series",
           "hide": false,
@@ -993,6 +1007,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
+          "exemplar": true,
           "expr": "jvm_memory_limit{service_name=\"$application\", host_name=\"$instance\", jvm_memory_type=\"non_heap\", jvm_memory_pool_name=\"$jvm_memory_pool_nonheap\"}",
           "format": "time_series",
           "hide": false,
@@ -1018,7 +1033,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 29
       },
       "id": 128,
       "panels": [],
@@ -1102,7 +1117,7 @@
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 37
+        "y": 30
       },
       "id": 106,
       "links": [],
@@ -1129,6 +1144,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
+          "exemplar": true,
           "expr": "jvm_cpu_recent_utilization{service_name=\"$application\", host_name=\"$instance\"}",
           "format": "time_series",
           "hide": false,
@@ -1210,7 +1226,7 @@
         "h": 7,
         "w": 8,
         "x": 8,
-        "y": 37
+        "y": 30
       },
       "id": 32,
       "links": [],
@@ -1237,7 +1253,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "exemplar": false,
+          "exemplar": true,
           "expr": "jvm_thread_count{service_name=\"$application\", host_name=\"$instance\", jvm_thread_daemon=\"false\"}",
           "format": "time_series",
           "intervalFactor": 2,
@@ -1253,6 +1269,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
+          "exemplar": true,
           "expr": "jvm_threads_daemon{service_name=\"$application\", host_name=\"$instance\", jvm_thread_daemon=\"true\"}",
           "format": "time_series",
           "intervalFactor": 2,
@@ -1332,7 +1349,7 @@
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 37
+        "y": 30
       },
       "id": 98,
       "links": [],
@@ -1356,6 +1373,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
+          "exemplar": true,
           "expr": "rate(jvm_gc_duration_count{service_name=\"$application\", host_name=\"$instance\"}[5m])",
           "format": "time_series",
           "hide": false,
@@ -1378,7 +1396,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 37
       },
       "id": 132,
       "panels": [],
@@ -1460,7 +1478,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 45
+        "y": 38
       },
       "id": 37,
       "links": [],
@@ -1484,6 +1502,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
+          "exemplar": true,
           "expr": "jvm_class_loaded{service_name=\"$application\", host_name=\"$instance\"}",
           "format": "time_series",
           "intervalFactor": 2,
@@ -1499,6 +1518,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
+          "exemplar": true,
           "expr": "jvm_class_unloaded{service_name=\"$application\", host_name=\"$instance\"}",
           "format": "time_series",
           "hide": false,
@@ -1578,7 +1598,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 45
+        "y": 38
       },
       "id": 38,
       "links": [],
@@ -1602,6 +1622,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
+          "exemplar": true,
           "expr": "delta(jvm_class_loaded{service_name=\"$application\",host_name=\"$instance\"}[5m])",
           "format": "time_series",
           "hide": false,
@@ -1623,7 +1644,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 52
+        "y": 45
       },
       "id": 146,
       "panels": [],
@@ -1694,7 +1715,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 53
+        "y": 46
       },
       "id": 160,
       "options": {
@@ -1717,6 +1738,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
+          "exemplar": true,
           "expr": "db_client_connections_max{service_name=\"$application\", host_name=\"$instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -1733,6 +1755,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
+          "exemplar": true,
           "expr": "db_client_connections_usage{service_name=\"$application\", host_name=\"$instance\", state=\"used\"}",
           "fullMetaSearch": false,
           "hide": false,
@@ -1750,6 +1773,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
+          "exemplar": true,
           "expr": "db_client_connections_usage{service_name=\"$application\", host_name=\"$instance\", state=\"idle\"}",
           "fullMetaSearch": false,
           "hide": false,
@@ -1770,7 +1794,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 62
+        "y": 55
       },
       "id": 153,
       "panels": [],
@@ -1845,7 +1869,7 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 63
+        "y": 56
       },
       "id": 167,
       "options": {
@@ -1868,6 +1892,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
+          "exemplar": true,
           "expr": "sum by (host_name, http_request_method, http_route) (rate(http_server_request_duration_count{service_name=\"$application\", http_route=\"$http_endpoint\"}[5m]))",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
@@ -1946,7 +1971,7 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 63
+        "y": 56
       },
       "id": 168,
       "options": {
@@ -1969,6 +1994,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
+          "exemplar": true,
           "expr": "(histogram_quantile(0.95, sum by(le, host_name, http_request_method, http_route) (rate(http_server_request_duration_bucket{service_name=\"$application\", http_route=\"$http_endpoint\"}[2m]))))",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
@@ -1990,9 +2016,10 @@
     "list": [
       {
         "current": {
+          "isNone": true,
           "selected": false,
-          "text": "account-service",
-          "value": "account-service"
+          "text": "None",
+          "value": ""
         },
         "datasource": {
           "type": "prometheus",
@@ -2018,9 +2045,10 @@
       {
         "allFormat": "glob",
         "current": {
+          "isNone": true,
           "selected": false,
-          "text": "f11e83caddc8",
-          "value": "f11e83caddc8"
+          "text": "None",
+          "value": ""
         },
         "datasource": {
           "type": "prometheus",

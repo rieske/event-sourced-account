@@ -12,7 +12,7 @@ datasources:
     jsonData:
       exemplarTraceIdDestinations:
         - datasourceUid: tempo
-          name: traceID
+          name: trace_id
 
   - name: Loki
     type: loki
