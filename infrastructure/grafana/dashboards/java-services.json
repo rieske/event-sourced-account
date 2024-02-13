@@ -1662,7 +1662,7 @@
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "auto",
+            "showPoints": "never",
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1812,7 +1812,7 @@
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "auto",
+            "showPoints": "never",
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1913,7 +1913,7 @@
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "auto",
+            "showPoints": "never",
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -2019,8 +2019,8 @@
         "allFormat": "glob",
         "current": {
           "selected": false,
-          "text": "41ab31b6f495",
-          "value": "41ab31b6f495"
+          "text": "f11e83caddc8",
+          "value": "f11e83caddc8"
         },
         "datasource": {
           "type": "prometheus",
