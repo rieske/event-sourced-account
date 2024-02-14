@@ -172,21 +172,17 @@ To stop:
 ./gradlew composeDown
 ```
 
-### Monitoring
+### Observability
 
-Tracing instrumentation with Zipkin is provided if the service is started with ZIPKIN_URL environment
-variable set. It is preconfigured in the composed environment.
-Basic metrics are exposed to Prometheus and sample configuration of Prometheus together with
-Grafana and a service/envoy dashboards can be accessed by spawning a composed environment using
-```shell script
-./gradlew composeUp
-```
-Prometheus is exposed on port 9090. Metrics go there.
-Logs are forwarded to Loki.
-Traces are sent to Tempo.
+The service is configured to run with an opentelemetry-java agent which collects and forwards telemetry (metrics, logs, traces)
+to a configured opentelemetry-collector service (via OTEL_EXPORTER_OTLP_ENDPOINT environment variable).
+
+The provided docker-compose.yml configures the environment with fully provisioned observability stack that
+contains the opentelemetry-collector which in turn routes logs to Loki, metrics to Prometheus, and traces to Tempo.
 
 Grafana is available on port 3000. Dashboards are available for basic service metrics, JVM metrics, and Envoy metrics.
 It is pretty cool to see how light the service is even when stressed:
 ![memory footprint](docs/memory_footprint.png)
 
-Logs and traces are available in Grafana via Loki and Tempo data sources.
+Logs and traces are available in Grafana via Loki and Tempo data sources - use the Explore view.
+
