@@ -14,7 +14,7 @@ hikari = "com.zaxxer:HikariCP:5.1.0"
 flyway = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flywayMysql = { module = "org.flywaydb:flyway-mysql", version.ref = "flyway" }
 flywayPostgres = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
-postgres = "org.postgresql:postgresql:42.7.1"
+postgres = "org.postgresql:postgresql:42.7.2"
 mysql = "com.mysql:mysql-connector-j:8.3.0"
 
 # Test
