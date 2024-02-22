@@ -26,6 +26,7 @@ jobs:
       uses: gradle/actions/setup-gradle@v3
       with:
         cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+        # TODO: create a separate job that would submit the dependency graph. Having this here prevents config cache reuse in branch builds.
         dependency-graph: generate-and-submit
     - name: Build
       run: ./gradlew build --stacktrace --scan
