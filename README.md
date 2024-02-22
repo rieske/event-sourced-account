@@ -186,3 +186,4 @@ It is pretty cool to see how light the service is even when stressed:
 
 Logs and traces are available in Grafana via Loki and Tempo data sources - use the Explore view.
 
+
