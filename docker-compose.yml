@@ -33,7 +33,7 @@ services:
     mem_limit: 512M
 
   loki:
-    image: grafana/loki:2.9.4
+    image: grafana/loki:2.9.5
     volumes:
       - ./infrastructure/loki/loki.yml:/etc/loki/local-config.yaml
     ports:
