@@ -2,8 +2,6 @@ plugins {
     id("account.service")
 }
 
-def eventstoreImpl = providers.gradleProperty("eventstore").orElse("postgres")
-
 dependencies {
     implementation(project(":eventstore"))
 
@@ -16,12 +14,6 @@ dependencies {
     implementation(libs.msgpack)
     implementation(libs.logback)
     implementation(libs.hikari)
-
-    runtimeOnly(project(":eventstore")) {
-        capabilities {
-            it.requireCapability("account:eventstore-${eventstoreImpl.get()}")
-        }
-    }
 
     agent(libs.opentelemetryAgent)
 
@@ -42,7 +34,6 @@ dependencies {
 
 tasks.named("blackBoxTest").configure {
     inputs.files("../infrastructure/").withPathSensitivity(PathSensitivity.RELATIVE)
-    systemProperty("eventstore", eventstoreImpl.get())
 }
 
 application {
@@ -61,14 +52,13 @@ tasks.register("asyncStressTest", JavaExec) {
 
 tasks.register("composeUp", Exec) {
     it.dependsOn("build")
-    def composeFile = eventstoreImpl.get() == "mysql" ? "docker-compose-mysql.yml" : "docker-compose.yml"
+    def composeFile = "docker-compose.yml"
     it.inputs.files(file("${rootProject.projectDir}/$composeFile")).withPathSensitivity(PathSensitivity.RELATIVE)
     it.workingDir(rootProject.projectDir)
     it.executable("docker")
     it.args("compose", "-f", "$composeFile", "up", "--build", "-d")
     it.doLast {
         println("\n\n")
-        println("Eventstore backend: ${eventstoreImpl.get()}\n")
         println("Zipkin:\t\t\t\thttp://localhost:9411")
         println("Grafana:\t\t\thttp://localhost:3000")
         println("Prometheus:\t\t\thttp://localhost:9090")

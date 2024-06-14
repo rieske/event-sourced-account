@@ -2,15 +2,6 @@ plugins {
     id("account.library")
 }
 
-java {
-    registerFeature("mysql") {
-        usingSourceSet(sourceSets.main)
-    }
-    registerFeature("postgres") {
-        usingSourceSet(sourceSets.main)
-    }
-}
-
 configurations {
     integrationTestImplementation.extendsFrom(mysqlImplementation, postgresImplementation)
 }
@@ -21,17 +12,11 @@ dependencies {
 
     testFixturesApi(testFixtures(project(":account-service")))
 
-    postgresImplementation(libs.postgres)
-    postgresImplementation(libs.flywayPostgres)
-
-    mysqlImplementation(libs.mysql) {
-        exclude(group: "com.google.protobuf", module: "protobuf-java")
-    }
-    mysqlImplementation(libs.flywayMysql)
+    implementation(libs.postgres)
+    implementation(libs.flywayPostgres)
 
     testImplementation(libs.dbTestH2)
 
     integrationTestImplementation(testFixtures(project(":eventstore")))
     integrationTestImplementation(libs.dbTestPostgres)
-    integrationTestImplementation(libs.dbTestMysql)
 }

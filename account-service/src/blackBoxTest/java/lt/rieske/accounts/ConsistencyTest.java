@@ -33,9 +33,6 @@ class ConsistencyTest {
 
     static {
         String composeFile = "e2e-test.yml";
-        if ("mysql".equals(System.getProperty("eventstore"))) {
-            composeFile = "e2e-test-mysql.yml";
-        }
         environment = new DockerComposeContainer<>(new File("src/blackBoxTest/resources/" + composeFile))
                 .withLocalCompose(true)
                 .withOptions("--compatibility")
