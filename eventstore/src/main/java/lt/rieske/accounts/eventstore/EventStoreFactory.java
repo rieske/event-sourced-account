@@ -1,6 +1,5 @@
 package lt.rieske.accounts.eventstore;
 
-import com.mysql.cj.jdbc.MysqlDataSource;
 import org.flywaydb.core.Flyway;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
@@ -19,37 +18,17 @@ public final class EventStoreFactory {
     }
 
     public static BlobEventStore makeEventStore(String jdbcUrl, String username, String password, Function<DataSource, DataSource> initializer) {
-        try {
-            Class.forName("org.postgresql.ds.PGSimpleDataSource");
-            return postgresEventStore(jdbcUrl, username, password, initializer);
-        } catch (ClassNotFoundException e) {
-            try {
-                Class.forName("com.mysql.cj.jdbc.MysqlDataSource");
-                return mysqlEventStore(jdbcUrl, username, password, initializer);
-            } catch (ClassNotFoundException classNotFoundException) {
-                throw new IllegalStateException("None of supported eventstore drivers found on classpath. This is a build configuration error.");
-            }
-        }
+        return postgresEventStore(jdbcUrl, username, password, initializer);
     }
 
     static BlobEventStore postgresEventStore(String jdbcUrl, String username, String password, Function<DataSource, DataSource> initializer) {
         return postgresEventStore(postgresDataSource(jdbcUrl, username, password), initializer);
     }
 
-    static BlobEventStore mysqlEventStore(String jdbcUrl, String username, String password, Function<DataSource, DataSource> initializer) {
-        return mysqlEventStore(mysqlDataSource(jdbcUrl, username, password), initializer);
-    }
-
     static BlobEventStore postgresEventStore(DataSource dataSource, Function<DataSource, DataSource> initializer) {
         log.info("Creating PostgreSQL event store");
-        migrateDatabase(dataSource, "db/migration/postgres");
+        migrateDatabase(dataSource);
         return new PostgresEventStore(initializer.apply(dataSource));
-    }
-
-    static BlobEventStore mysqlEventStore(DataSource dataSource, Function<DataSource, DataSource> initializer) {
-        log.info("Creating MySQL event store");
-        migrateDatabase(dataSource, "db/migration/mysql");
-        return new MySqlEventStore(initializer.apply(dataSource));
     }
 
     private static DataSource postgresDataSource(String jdbcUrl, String username, String password) {
@@ -60,19 +39,10 @@ public final class EventStoreFactory {
         return dataSource;
     }
 
-    private static DataSource mysqlDataSource(String jdbcUrl, String username, String password) {
-        var dataSource = new MysqlDataSource();
-        dataSource.setUrl(jdbcUrl);
-        dataSource.setUser(username);
-        dataSource.setPassword(password);
-        return dataSource;
-    }
-
-    private static void migrateDatabase(DataSource dataSource, String migrationResourcesLocation) {
+    private static void migrateDatabase(DataSource dataSource) {
         waitForDatabaseToBeAvailable(dataSource);
         Flyway.configure()
                 .dataSource(dataSource)
-                .locations(migrationResourcesLocation)
                 .load()
                 .migrate();
     }

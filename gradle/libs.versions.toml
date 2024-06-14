@@ -12,10 +12,8 @@ hikari = "com.zaxxer:HikariCP:5.1.0"
 
 # TODO: flyway now drags in Jackson+Gson. Thisis not acceptable. Look for alternatives.
 flyway = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
-flywayMysql = { module = "org.flywaydb:flyway-mysql", version.ref = "flyway" }
 flywayPostgres = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 postgres = "org.postgresql:postgresql:42.7.3"
-mysql = "com.mysql:mysql-connector-j:8.4.0"
 
 # Test
 junit = "org.junit.jupiter:junit-jupiter:5.10.2"
@@ -30,7 +28,6 @@ testcontainers = "org.testcontainers:testcontainers:1.19.8"
 
 dbTestH2 = { module = "io.github.rieske.dbtest:h2", version.ref = "dbtest" }
 dbTestPostgres = { module = "io.github.rieske.dbtest:postgresql", version.ref = "dbtest" }
-dbTestMysql = { module = "io.github.rieske.dbtest:mysql", version.ref = "dbtest" }
 
 # Telemetry
 opentelemetryAgent = "io.opentelemetry.javaagent:opentelemetry-javaagent:2.4.0"

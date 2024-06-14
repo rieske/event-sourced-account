@@ -15,7 +15,7 @@ public class H2EventStoreExtension extends H2FastTestExtension {
     }
 
     private H2EventStoreExtension(BlobEventStoreProvider provider) {
-        super(provider.h2Mode, DatabaseTestExtension.Mode.DATABASE_PER_EXECUTION);
+        super(H2Mode.POSTGRESQL, DatabaseTestExtension.Mode.DATABASE_PER_EXECUTION);
         this.migrator = provider.eventStoreProvider;
     }
 
@@ -29,28 +29,9 @@ public class H2EventStoreExtension extends H2FastTestExtension {
 }
 
 class BlobEventStoreProvider {
-    final H2Mode h2Mode;
     final Function<DataSource, BlobEventStore> eventStoreProvider;
 
     BlobEventStoreProvider() {
-        this.h2Mode = getH2Mode();
-        this.eventStoreProvider = switch (h2Mode) {
-            case POSTGRESQL -> dataSource -> EventStoreFactory.postgresEventStore(dataSource, Function.identity());
-            case MYSQL -> dataSource -> EventStoreFactory.mysqlEventStore(dataSource, Function.identity());
-        };
-    }
-
-    private H2Mode getH2Mode() {
-        try {
-            Class.forName("org.postgresql.ds.PGSimpleDataSource");
-            return H2Mode.POSTGRESQL;
-        } catch (ClassNotFoundException e) {
-            try {
-                Class.forName("com.mysql.cj.jdbc.MysqlDataSource");
-                return H2Mode.MYSQL;
-            } catch (ClassNotFoundException classNotFoundException) {
-                throw new IllegalStateException("None of supported eventstore drivers found on classpath. This is a build configuration error.");
-            }
-        }
+        this.eventStoreProvider = dataSource -> EventStoreFactory.postgresEventStore(dataSource, Function.identity());
     }
 }
