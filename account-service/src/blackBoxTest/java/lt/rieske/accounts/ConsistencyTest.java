@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -24,18 +25,17 @@ class ConsistencyTest {
 
     private static final int SERVICE_PORT = 8080;
 
-    private static final String LB_CONTAINER = "lb_1";
+    private static final String LB_CONTAINER = "lb-1";
     private static final int LB_PORT = 10000;
 
     private static final Logger log = LoggerFactory.getLogger(ConsistencyTest.class);
 
-    private static final DockerComposeContainer<?> environment;
+    private static final ComposeContainer environment;
 
     static {
         String composeFile = "e2e-test.yml";
-        environment = new DockerComposeContainer<>(new File("src/blackBoxTest/resources/" + composeFile))
+        environment = new ComposeContainer(new File("src/blackBoxTest/resources/" + composeFile))
                 .withLocalCompose(true)
-                .withOptions("--compatibility")
                 .withLogConsumer(SERVICE_CONTAINER, new Slf4jLogConsumer(log).withPrefix(SERVICE_CONTAINER))
                 .withLogConsumer(LB_CONTAINER, new Slf4jLogConsumer(log).withPrefix(LB_CONTAINER))
                 .withExposedService(SERVICE_CONTAINER, 1, SERVICE_PORT, Wait.forListeningPort())
@@ -126,8 +126,11 @@ class ConsistencyTest {
         while (true) {
             int response = s.get();
             switch (response) {
-                case 204 -> { break concurrentModificationRetryLoop; }
-                case 409 -> {}
+                case 204 -> {
+                    break concurrentModificationRetryLoop;
+                }
+                case 409 -> {
+                }
                 default -> throw new IllegalStateException("Unexpected response from server: " + response);
             }
         }
