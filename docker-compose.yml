@@ -41,7 +41,7 @@ services:
     mem_limit: 512M
 
   opentelemetry-collector:
-    image: otel/opentelemetry-collector-contrib:0.103.0
+    image: otel/opentelemetry-collector-contrib:0.103.1
     volumes:
       - ./infrastructure/opentelemetry-collector/opentelemetry.yml:/etc/otelcol-contrib/config.yaml
     ports:
