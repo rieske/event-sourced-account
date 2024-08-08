@@ -6,7 +6,7 @@ dbtest = "0.0.5"
 # Production
 sparkJava = "com.sparkjava:spark-core:2.9.4"
 msgpack = "org.msgpack:msgpack-core:0.9.8"
-slf4j = "org.slf4j:slf4j-api:2.0.14"
+slf4j = "org.slf4j:slf4j-api:2.0.15"
 logback = "ch.qos.logback:logback-classic:1.5.6"
 hikari = "com.zaxxer:HikariCP:5.1.0"
 
