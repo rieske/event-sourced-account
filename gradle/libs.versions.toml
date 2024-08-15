@@ -7,7 +7,7 @@ dbtest = "0.0.5"
 sparkJava = "com.sparkjava:spark-core:2.9.4"
 msgpack = "org.msgpack:msgpack-core:0.9.8"
 slf4j = "org.slf4j:slf4j-api:2.0.16"
-logback = "ch.qos.logback:logback-classic:1.5.6"
+logback = "ch.qos.logback:logback-classic:1.5.7"
 hikari = "com.zaxxer:HikariCP:5.1.0"
 
 # TODO: flyway now drags in Jackson+Gson. Thisis not acceptable. Look for alternatives.
