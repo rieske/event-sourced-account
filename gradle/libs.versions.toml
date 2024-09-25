@@ -16,7 +16,7 @@ flywayPostgres = { module = "org.flywaydb:flyway-database-postgresql", version.r
 postgres = "org.postgresql:postgresql:42.7.4"
 
 # Test
-junit = "org.junit.jupiter:junit-jupiter:5.11.0"
+junit = "org.junit.jupiter:junit-jupiter:5.11.1"
 assertj = "org.assertj:assertj-core:3.26.3"
 archunit = "com.tngtech.archunit:archunit-junit5:1.3.0"
 restAssured = "io.rest-assured:rest-assured:5.5.0"
