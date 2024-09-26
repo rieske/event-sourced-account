@@ -1,5 +1,5 @@
 [versions]
-flyway = "10.18.1"
+flyway = "10.18.2"
 dbtest = "0.0.5"
 
 [libraries]
