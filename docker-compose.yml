@@ -50,7 +50,7 @@ services:
     mem_limit: 512M
 
   prometheus:
-    image: prom/prometheus:v3.0.0
+    image: prom/prometheus:v3.0.1
     command: [ "--web.enable-remote-write-receiver", "--enable-feature=exemplar-storage", "--config.file=/etc/prometheus/prometheus.yml" ]
     ports:
       - 9090:9090
