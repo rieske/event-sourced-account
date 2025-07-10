@@ -30,4 +30,4 @@ dbTestH2 = { module = "io.github.rieske.dbtest:h2", version.ref = "dbtest" }
 dbTestPostgres = { module = "io.github.rieske.dbtest:postgresql", version.ref = "dbtest" }
 
 # Telemetry
-opentelemetryAgent = "io.opentelemetry.javaagent:opentelemetry-javaagent:2.17.0"
+opentelemetryAgent = "io.opentelemetry.javaagent:opentelemetry-javaagent:2.17.1"
