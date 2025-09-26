@@ -23,7 +23,7 @@ services:
       replicas: 2
 
   database:
-    image: postgres:17.6
+    image: postgres:18.0
     environment:
       POSTGRES_USER: test
       POSTGRES_PASSWORD: test
