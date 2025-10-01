@@ -23,7 +23,7 @@ jobs:
         java-version: 21
         distribution: temurin
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v4
+      uses: gradle/actions/setup-gradle@v5
       with:
         cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
         # TODO: create a separate job that would submit the dependency graph. Having this here prevents config cache reuse in branch builds.
