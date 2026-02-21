@@ -32,11 +32,6 @@ jobs:
       run: ./gradlew build --stacktrace --scan
       env:
         DEPENDENCY_GRAPH_INCLUDE_CONFIGURATIONS: runtimeClasspath
-    - name: Upload code coverage report to coveralls
-      run: ./gradlew codeCoverageReport coveralls --no-configuration-cache
-      env:
-        COVERALLS_REPO_TOKEN: ${{secrets.COVERALLS_REPO_TOKEN}}
-        GITHUB_DEPENDENCY_GRAPH_ENABLED: false
 
 # TODO: below need refactoring to not use ::set-output
     - name: Prepare Release
