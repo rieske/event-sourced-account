@@ -32,7 +32,3 @@ jobs:
         name: Test results
         path: "**/build/reports/tests/"
 
-    - name: Upload code coverage report to coveralls
-      env:
-        COVERALLS_REPO_TOKEN: ${{secrets.COVERALLS_REPO_TOKEN}}
-      run: ./gradlew codeCoverageReport coveralls --no-configuration-cache

@@ -1,8 +1,7 @@
 ## Event Sourced Account
 
 [![Actions Status](https://github.com/rieske/event-sourced-account/workflows/build/badge.svg)](https://github.com/rieske/event-sourced-account/actions)
-[![Maintainability](https://api.codeclimate.com/v1/badges/96dc8be9575d50c439fd/maintainability)](https://codeclimate.com/github/rieske/event-sourced-account/maintainability)
-[![Test Coverage](https://coveralls.io/repos/github/rieske/event-sourced-account/badge.svg?branch=master)](https://coveralls.io/github/rieske/event-sourced-account?branch=master)
+[![Maintainability](https://qlty.sh/gh/rieske/projects/event-sourced-account/maintainability.svg)](https://qlty.sh/gh/rieske/projects/event-sourced-account)
 
 A lightweight, frameworkless event sourced Account implementation.
 

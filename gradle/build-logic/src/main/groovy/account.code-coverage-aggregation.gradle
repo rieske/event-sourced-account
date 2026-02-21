@@ -1,6 +1,5 @@
 plugins {
     id("jacoco-report-aggregation")
-    id("com.github.kt3k.coveralls")
 }
 
 // Task to aggregate code coverage reports from test and integrationTest reports
@@ -19,16 +18,4 @@ def codeCoverageReport = tasks.register("codeCoverageReport", JacocoReport) {
 
 tasks.named("check") {
     it.dependsOn(codeCoverageReport)
-}
-
-coveralls {
-    jacocoReportPath = "build/reports/jacoco/codeCoverageReport/codeCoverageReport.xml"
-}
-
-tasks.named("coveralls") {
-    doFirst {
-        coveralls {
-            sourceDirs += tasks.named("testCodeCoverageReport").map { it.allSourceDirs }.get().files
-        }
-    }
 }
