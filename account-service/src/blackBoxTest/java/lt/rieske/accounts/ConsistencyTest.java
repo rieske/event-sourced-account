@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.ComposeContainer;
-import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
@@ -35,7 +34,6 @@ class ConsistencyTest {
     static {
         String composeFile = "e2e-test.yml";
         environment = new ComposeContainer(new File("src/blackBoxTest/resources/" + composeFile))
-                .withLocalCompose(true)
                 .withLogConsumer(SERVICE_CONTAINER, new Slf4jLogConsumer(log).withPrefix(SERVICE_CONTAINER))
                 .withLogConsumer(LB_CONTAINER, new Slf4jLogConsumer(log).withPrefix(LB_CONTAINER))
                 .withExposedService(SERVICE_CONTAINER, 1, SERVICE_PORT, Wait.forListeningPort())
