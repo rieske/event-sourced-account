@@ -2,6 +2,7 @@
 
 [![Actions Status](https://github.com/rieske/event-sourced-account/workflows/build/badge.svg)](https://github.com/rieske/event-sourced-account/actions)
 [![Maintainability](https://qlty.sh/gh/rieske/projects/event-sourced-account/maintainability.svg)](https://qlty.sh/gh/rieske/projects/event-sourced-account)
+[![Code Coverage](https://qlty.sh/gh/rieske/projects/event-sourced-account/coverage.svg)](https://qlty.sh/gh/rieske/projects/event-sourced-account)
 
 A lightweight, frameworkless event sourced Account implementation.
 
