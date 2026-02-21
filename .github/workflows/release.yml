@@ -42,7 +42,7 @@ jobs:
         JACOCO_SOURCE_PATH: account-service/src/main/java eventstore/src/main/java
       with:
         token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
-        files: account-service/build/reports/jacoco/testCodeCoverageReport/jacocoTestReport.xml,eventstore/build/reports/jacoco/testCodeCoverageReport/jacocoTestReport.xml
+        files: account-service/build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml,eventstore/build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml
 
 # TODO: below need refactoring to not use ::set-output
     - name: Prepare Release
