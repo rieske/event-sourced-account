@@ -32,6 +32,17 @@ jobs:
       run: ./gradlew build --stacktrace --scan
       env:
         DEPENDENCY_GRAPH_INCLUDE_CONFIGURATIONS: runtimeClasspath
+    - name: Generate code coverage reports
+      run: ./gradlew codeCoverageReport
+      env:
+        DEPENDENCY_GRAPH_INCLUDE_CONFIGURATIONS: false
+    - name: Upload code coverate reports
+      uses: qltysh/qlty-action/coverage@v2
+      env:
+        JACOCO_SOURCE_PATH: account-service/src/main/java eventstore/src/main/java
+      with:
+        token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
+        files: account-service/build/reports/jacoco/test/jacocoTestReport.xml eventstore/build/reports/jacoco/test/jacocoTestReport.xml
 
 # TODO: below need refactoring to not use ::set-output
     - name: Prepare Release
