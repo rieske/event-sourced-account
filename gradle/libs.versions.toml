@@ -18,7 +18,7 @@ postgres = "org.postgresql:postgresql:42.7.10"
 # Test
 junit = "org.junit.jupiter:junit-jupiter:6.0.3"
 assertj = "org.assertj:assertj-core:3.27.7"
-archunit = "com.tngtech.archunit:archunit-junit5:1.4.1"
+archunit = "com.tngtech.archunit:archunit-junit5:1.4.2"
 restAssured = "io.rest-assured:rest-assured:6.0.0"
 
 apacheHttpClient = "org.apache.httpcomponents:httpclient:4.5.14"
