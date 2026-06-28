@@ -48,9 +48,14 @@ class PostgresEventStore implements BlobEventStore {
 
         try (var connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
-            insertEvents(connection, serializedEvents);
-            updateSnapshots(connection, serializedSnapshots);
-            connection.commit();
+            try {
+                insertEvents(connection, serializedEvents);
+                updateSnapshots(connection, serializedSnapshots);
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+                throw e;
+            }
         } catch (SQLIntegrityConstraintViolationException e) {
             throw new ConcurrentModificationException(e);
         } catch (PSQLException e) {

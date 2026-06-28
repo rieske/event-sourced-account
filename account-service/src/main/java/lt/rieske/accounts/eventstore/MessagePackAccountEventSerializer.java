@@ -1,8 +1,6 @@
 package lt.rieske.accounts.eventstore;
 
 import lt.rieske.accounts.domain.AccountEvent;
-import lt.rieske.accounts.eventsourcing.Event;
-import lt.rieske.accounts.eventsourcing.EventVisitor;
 import org.msgpack.core.MessageBufferPacker;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
@@ -22,15 +20,13 @@ class MessagePackAccountEventSerializer implements EventSerializer<AccountEvent>
     private static final int ACCOUNT_CLOSED = 4;
 
     @Override
-    public byte[] serialize(Event event) {
-        var packer = MessagePack.newDefaultBufferPacker();
-        var serializer = new Serializer(packer);
-        if (event instanceof AccountEvent accountEvent) {
-            serializer.visit(accountEvent);
-        } else {
-            throw new IllegalArgumentException("Can not serialize " + event.getClass());
+    public byte[] serialize(AccountEvent event) {
+        try (var packer = MessagePack.newDefaultBufferPacker()) {
+            pack(packer, event);
+            return packer.toByteArray();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        return packer.toByteArray();
     }
 
     @Override
@@ -40,6 +36,29 @@ class MessagePackAccountEventSerializer implements EventSerializer<AccountEvent>
             return deserializeEvent(eventType, unpacker);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    private static void pack(MessageBufferPacker packer, AccountEvent event) throws IOException {
+        switch (event) {
+            case AccountEvent.AccountSnapshot snapshot -> {
+                packer.packInt(ACCOUNT_SNAPSHOT);
+                packUUID(packer, snapshot.accountId());
+                packUUID(packer, snapshot.ownerId());
+                packer.packLong(snapshot.balance())
+                        .packBoolean(snapshot.open());
+            }
+            case AccountEvent.AccountOpenedEvent accountOpened -> {
+                packer.packInt(ACCOUNT_OPENED);
+                packUUID(packer, accountOpened.ownerId());
+            }
+            case AccountEvent.AccountClosedEvent accountClosed -> packer.packInt(ACCOUNT_CLOSED);
+            case AccountEvent.MoneyDepositedEvent moneyDeposited -> packer.packInt(MONEY_DEPOSITED)
+                    .packLong(moneyDeposited.amountDeposited())
+                    .packLong(moneyDeposited.balance());
+            case AccountEvent.MoneyWithdrawnEvent moneyWithdrawn -> packer.packInt(MONEY_WITHDRAWN)
+                    .packLong(moneyWithdrawn.amountWithdrawn())
+                    .packLong(moneyWithdrawn.balance());
         }
     }
 
@@ -60,68 +79,5 @@ class MessagePackAccountEventSerializer implements EventSerializer<AccountEvent>
 
     private static UUID unpackUUID(MessageUnpacker unpacker) throws IOException {
         return new UUID(unpacker.unpackLong(), unpacker.unpackLong());
-    }
-
-    private static class Serializer implements EventVisitor<AccountEvent> {
-
-        private final MessageBufferPacker packer;
-
-        private Serializer(MessageBufferPacker packer) {
-            this.packer = packer;
-        }
-
-        @Override
-        public void visit(AccountEvent event) {
-            switch (event) {
-                case AccountEvent.AccountSnapshot snapshot -> {
-                    try {
-                        packer.packInt(ACCOUNT_SNAPSHOT);
-                        packUUID(packer, snapshot.accountId());
-                        packUUID(packer, snapshot.ownerId());
-                        packer.packLong(snapshot.balance())
-                                .packBoolean(snapshot.open())
-                                .close();
-                    } catch (IOException e) {
-                        throw new UncheckedIOException(e);
-                    }
-                }
-                case AccountEvent.AccountOpenedEvent accountOpened -> {
-                    try {
-                        packer.packInt(ACCOUNT_OPENED);
-                        packUUID(packer, accountOpened.ownerId());
-                        packer.close();
-                    } catch (IOException e) {
-                        throw new UncheckedIOException(e);
-                    }
-                }
-                case AccountEvent.AccountClosedEvent accountClosed -> {
-                    try {
-                        packer.packInt(ACCOUNT_CLOSED).close();
-                    } catch (IOException e) {
-                        throw new UncheckedIOException(e);
-                    }
-                }
-                case AccountEvent.MoneyDepositedEvent moneyDeposited -> {
-                    try {
-                        packer.packInt(MONEY_DEPOSITED)
-                                .packLong(moneyDeposited.amountDeposited())
-                                .packLong(moneyDeposited.balance())
-                                .close();
-                    } catch (IOException e) {
-                        throw new UncheckedIOException(e);
-                    }
-                }
-                case AccountEvent.MoneyWithdrawnEvent moneyWithdrawn -> {
-                    try {
-                        packer.packInt(MONEY_WITHDRAWN)
-                                .packLong(moneyWithdrawn.amountWithdrawn())
-                                .packLong(moneyWithdrawn.balance())
-                                .close();
-                    } catch (IOException e) {
-                        throw new UncheckedIOException(e);
-                    }
-                }
-            }
-        }
     }
 }

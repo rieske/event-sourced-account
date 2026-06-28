@@ -56,10 +56,15 @@ public class AggregateRepository<A extends EventVisitor<E>, E extends Event> {
     }
 
     public A query(UUID aggregateId) {
-        return loadAggregate(readOnlyEventStream(), aggregateId);
+        EventStream<A, E> readOnlyStream = (event, aggregate, id) -> {
+            throw new UnsupportedOperationException("Can not append to read only event stream");
+        };
+        var aggregate = aggregateFactory.makeAggregate(readOnlyStream, aggregateId);
+        new EventReplayer<>(eventStore).replay(aggregate, aggregateId);
+        return aggregate;
     }
 
-    private A loadAggregate(ReplayingEventStream<A, E> eventStream, UUID aggregateId) {
+    private A loadAggregate(TransactionalEventStream<A, E> eventStream, UUID aggregateId) {
         var aggregate = aggregateFactory.makeAggregate(eventStream, aggregateId);
         eventStream.replay(aggregate, aggregateId);
         return aggregate;
@@ -68,10 +73,4 @@ public class AggregateRepository<A extends EventVisitor<E>, E extends Event> {
     private TransactionalEventStream<A, E> transactionalEventStream() {
         return new TransactionalEventStream<>(eventStore, snapshotter);
     }
-
-    private ReplayingEventStream<A, E> readOnlyEventStream() {
-        return new ReplayingEventStream<>(eventStore);
-    }
 }
-
-
