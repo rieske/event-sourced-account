@@ -49,17 +49,21 @@ public final class EventStoreFactory {
 
     private static void waitForDatabaseToBeAvailable(DataSource dataSource) {
         var retryPeriod = Duration.ofSeconds(1);
+        SQLException lastFailure = null;
         for (int i = 0; i < 20; i++) {
             try (var conn = dataSource.getConnection()) {
-                break;
+                return;
             } catch (SQLException e) {
+                lastFailure = e;
                 log.info("Could not establish connection to the database: attempt {}, sleeping for {}ms", i, retryPeriod.toMillis());
                 try {
                     Thread.sleep(retryPeriod.toMillis());
                 } catch (InterruptedException interruptedException) {
                     Thread.currentThread().interrupt();
+                    throw new IllegalStateException("Interrupted while waiting for database to become available", interruptedException);
                 }
             }
         }
+        throw new IllegalStateException("Could not establish connection to the database after retries", lastFailure);
     }
 }
