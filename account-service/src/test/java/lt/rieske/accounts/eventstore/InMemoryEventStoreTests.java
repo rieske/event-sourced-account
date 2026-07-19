@@ -15,8 +15,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -78,7 +80,8 @@ class InMemoryEventStore<E extends Event> implements EventStore<E> {
     private final List<SequencedEvent<E>> events = new ArrayList<>();
     private final Map<UUID, SequencedEvent<E>> snapshots = new HashMap<>();
 
-    private final Map<UUID, UUID> aggregateTransactions = new HashMap<>();
+    // All (aggregateId, transactionId) pairs - mirrors the DB index, not just the latest tx per aggregate.
+    private final Set<TxKey> transactions = new HashSet<>();
 
     // Synchronized block here simulates what a persistence engine of choice should do - ensure consistency
     // Events can only be written in sequence per aggregate.
@@ -94,32 +97,36 @@ class InMemoryEventStore<E extends Event> implements EventStore<E> {
     }
 
     @Override
-    public Stream<SequencedEvent<E>> getEvents(UUID aggregateId, long fromVersion) {
-        return events
-                .stream()
-                .filter(e -> e.aggregateId().equals(aggregateId) && e.sequenceNumber() > fromVersion);
+    public synchronized Stream<SequencedEvent<E>> getEvents(UUID aggregateId, long fromVersion) {
+        // Stream is lazy: filter/iteration runs after this method returns and releases the lock.
+        // Materialize with toList() first so we copy under the lock; then stream the snapshot.
+        // Do not "fix" to return events.stream().filter(...) - concurrent append mutates the
+        // live ArrayList and readers can see null elements (NPE) or miss events (stale balance).
+        return events.stream()
+                .filter(e -> e.aggregateId().equals(aggregateId) && e.sequenceNumber() > fromVersion)
+                .toList()
+                .stream();
     }
 
     @Override
-    public SequencedEvent<E> loadSnapshot(UUID aggregateId) {
+    public synchronized SequencedEvent<E> loadSnapshot(UUID aggregateId) {
         return snapshots.get(aggregateId);
     }
 
     @Override
-    public boolean transactionExists(UUID aggregateId, UUID transactionId) {
-        return transactionId.equals(aggregateTransactions.get(aggregateId));
+    public synchronized boolean transactionExists(UUID aggregateId, UUID transactionId) {
+        return transactions.contains(new TxKey(aggregateId, transactionId));
     }
 
-    List<SequencedEvent<E>> getSequencedEvents(UUID aggregateId) {
-        return events
-                .stream()
+    synchronized List<SequencedEvent<E>> getSequencedEvents(UUID aggregateId) {
+        return events.stream()
                 .filter(e -> e.aggregateId().equals(aggregateId))
                 .toList();
     }
 
     private void append(SequencedEvent<E> event, UUID transactionId) {
         events.add(new SequencedEvent<>(event.aggregateId(), event.sequenceNumber(), transactionId, event.event()));
-        aggregateTransactions.put(event.aggregateId(), transactionId);
+        transactions.add(new TxKey(event.aggregateId(), transactionId));
     }
 
     private void validateConsistency(Collection<SequencedEvent<E>> uncommittedEvents, UUID transactionId) {
@@ -146,5 +153,8 @@ class InMemoryEventStore<E extends Event> implements EventStore<E> {
             return 0L;
         }
         return aggregateEvents.get(aggregateEvents.size() - 1).sequenceNumber();
+    }
+
+    private record TxKey(UUID aggregateId, UUID transactionId) {
     }
 }
