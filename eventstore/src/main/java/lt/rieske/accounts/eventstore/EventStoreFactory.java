@@ -36,6 +36,8 @@ public final class EventStoreFactory {
         dataSource.setUrl(jdbcUrl);
         dataSource.setUser(username);
         dataSource.setPassword(password);
+        // Collapse multi-row INSERT batches into a single multi-VALUES statement.
+        dataSource.setReWriteBatchedInserts(true);
         return dataSource;
     }
 

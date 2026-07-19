@@ -12,4 +12,17 @@ public interface BlobEventStore {
     SerializedEvent loadLatestSnapshot(UUID aggregateId);
 
     boolean transactionExists(UUID aggregateId, UUID transactionId);
+
+    /**
+     * Load latest snapshot (if any) and events after it in one go.
+     * Default chains the two reads; stores may override to use a single connection.
+     */
+    default AggregateRead load(UUID aggregateId) {
+        var snapshot = loadLatestSnapshot(aggregateId);
+        long fromVersion = snapshot == null ? 0L : snapshot.sequenceNumber();
+        return new AggregateRead(snapshot, getEvents(aggregateId, fromVersion));
+    }
+
+    record AggregateRead(SerializedEvent snapshot, List<SerializedEvent> events) {
+    }
 }
