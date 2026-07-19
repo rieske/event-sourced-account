@@ -1,10 +1,13 @@
 package lt.rieske.accounts.api;
 
+import io.undertow.server.HttpServerExchange;
+import io.undertow.util.Headers;
+import io.undertow.util.HttpString;
+import io.undertow.util.PathTemplateMatch;
 import lt.rieske.accounts.domain.AccountEvent;
 import org.slf4j.MDC;
-import spark.Request;
-import spark.Response;
 
+import java.util.Deque;
 import java.util.UUID;
 
 
@@ -22,115 +25,121 @@ class AccountResource {
         this.accountService = accountService;
     }
 
-    String openAccount(Request request, Response response) {
-        var accountId = accountIdPathParam(request);
-        var ownerId = UUID.fromString(getMandatoryQueryParameter(request, "owner"));
+    void openAccount(HttpServerExchange exchange) {
+        var accountId = accountIdPathParam(exchange);
+        var ownerId = UUID.fromString(getMandatoryQueryParameter(exchange, "owner"));
         MDC.put(MDC_ACCOUNT_ID_KEY, accountId.toString());
 
         accountService.openAccount(accountId, ownerId);
 
-        response.header("Location", "/account/" + accountId);
-        response.status(201);
-        return "";
+        exchange.setStatusCode(201);
+        exchange.getResponseHeaders().put(new HttpString("Location"), "/account/" + accountId);
     }
 
-    String getAccount(Request request, Response response) {
-        var accountId = accountIdPathParam(request);
+    void getAccount(HttpServerExchange exchange) {
+        var accountId = accountIdPathParam(exchange);
         MDC.put(MDC_ACCOUNT_ID_KEY, accountId.toString());
 
         var account = accountService.queryAccount(accountId);
 
-        response.type(APPLICATION_JSON);
-        return accountJson(account);
+        exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, APPLICATION_JSON);
+        exchange.getResponseSender().send(accountJson(account));
     }
 
-    String deposit(Request request, Response response) {
-        var accountId = accountIdPathParam(request);
+    void deposit(HttpServerExchange exchange) {
+        var accountId = accountIdPathParam(exchange);
         MDC.put(MDC_ACCOUNT_ID_KEY, accountId.toString());
-        long amount = amountQueryParam(request);
-        var transactionId = transactionIdQueryParam(request);
+        long amount = amountQueryParam(exchange);
+        var transactionId = transactionIdQueryParam(exchange);
 
         accountService.deposit(accountId, amount, transactionId);
 
-        response.status(204);
-        return "";
+        exchange.setStatusCode(204);
     }
 
-    String withdraw(Request request, Response response) {
-        var accountId = accountIdPathParam(request);
+    void withdraw(HttpServerExchange exchange) {
+        var accountId = accountIdPathParam(exchange);
         MDC.put(MDC_ACCOUNT_ID_KEY, accountId.toString());
-        long amount = amountQueryParam(request);
-        var transactionId = transactionIdQueryParam(request);
+        long amount = amountQueryParam(exchange);
+        var transactionId = transactionIdQueryParam(exchange);
 
         accountService.withdraw(accountId, amount, transactionId);
 
-        response.status(204);
-        return "";
+        exchange.setStatusCode(204);
     }
 
-    String transfer(Request request, Response response) {
-        var sourceAccountId = accountIdPathParam(request);
+    void transfer(HttpServerExchange exchange) {
+        var sourceAccountId = accountIdPathParam(exchange);
         MDC.put(MDC_SOURCE_ACCOUNT_ID_KEY, sourceAccountId.toString());
-        var targetAccountId = UUID.fromString(getMandatoryQueryParameter(request, "targetAccount"));
+        var targetAccountId = UUID.fromString(getMandatoryQueryParameter(exchange, "targetAccount"));
         MDC.put(MDC_TARGET_ACCOUNT_ID_KEY, targetAccountId.toString());
-        long amount = amountQueryParam(request);
-        var transactionId = transactionIdQueryParam(request);
+        long amount = amountQueryParam(exchange);
+        var transactionId = transactionIdQueryParam(exchange);
 
         accountService.transfer(sourceAccountId, targetAccountId, amount, transactionId);
 
-        response.status(204);
-        return "";
+        exchange.setStatusCode(204);
     }
 
-    String close(Request request, Response response) {
-        var accountId = accountIdPathParam(request);
+    void close(HttpServerExchange exchange) {
+        var accountId = accountIdPathParam(exchange);
 
         accountService.close(accountId);
 
-        response.status(204);
-        return "";
+        exchange.setStatusCode(204);
     }
 
-    String getEvents(Request request, Response response) {
-        var accountId = accountIdPathParam(request);
+    void getEvents(HttpServerExchange exchange) {
+        var accountId = accountIdPathParam(exchange);
 
         var events = accountService.getEvents(accountId);
 
-        response.type(APPLICATION_JSON);
-        return new EventStreamJsonSerializer().toJson(events);
+        exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, APPLICATION_JSON);
+        exchange.getResponseSender().send(new EventStreamJsonSerializer().toJson(events));
     }
 
-    <T extends Exception> void badRequest(T e, Request request, Response response) {
-        errorJson(response, 400, e.getMessage());
+    void badRequest(Exception e, HttpServerExchange exchange) {
+        errorJson(exchange, 400, e.getMessage());
     }
 
-    <T extends Exception> void notFound(T e, Request request, Response response) {
-        errorJson(response, 404, e.getMessage());
+    void notFound(Exception e, HttpServerExchange exchange) {
+        errorJson(exchange, 404, e.getMessage());
     }
 
-    <T extends Exception> void conflict(T e, Request request, Response response) {
-        response.status(409);
-        response.body("");
+    void conflict(Exception e, HttpServerExchange exchange) {
+        exchange.setStatusCode(409);
     }
 
-    private static UUID accountIdPathParam(Request request) {
-        return UUID.fromString(request.params("accountId"));
+    private static UUID accountIdPathParam(HttpServerExchange exchange) {
+        return UUID.fromString(pathParam(exchange, "accountId"));
     }
 
-    private static long amountQueryParam(Request request) {
-        return Long.parseLong(getMandatoryQueryParameter(request, "amount"));
+    private static String pathParam(HttpServerExchange exchange, String name) {
+        PathTemplateMatch match = exchange.getAttachment(PathTemplateMatch.ATTACHMENT_KEY);
+        if (match == null) {
+            throw new IllegalArgumentException("Missing path parameter: " + name);
+        }
+        String value = match.getParameters().get(name);
+        if (value == null) {
+            throw new IllegalArgumentException("Missing path parameter: " + name);
+        }
+        return value;
     }
 
-    private static UUID transactionIdQueryParam(Request request) {
-        return UUID.fromString(getMandatoryQueryParameter(request, "transactionId"));
+    private static long amountQueryParam(HttpServerExchange exchange) {
+        return Long.parseLong(getMandatoryQueryParameter(exchange, "amount"));
     }
 
-    private static String getMandatoryQueryParameter(Request request, String paramName) {
-        var param = request.queryParams(paramName);
-        if (param == null) {
+    private static UUID transactionIdQueryParam(HttpServerExchange exchange) {
+        return UUID.fromString(getMandatoryQueryParameter(exchange, "transactionId"));
+    }
+
+    private static String getMandatoryQueryParameter(HttpServerExchange exchange, String paramName) {
+        Deque<String> values = exchange.getQueryParameters().get(paramName);
+        if (values == null || values.isEmpty()) {
             throw new IllegalArgumentException(String.format("'%s' query parameter is required", paramName));
         }
-        return param;
+        return values.getFirst();
     }
 
     private static String accountJson(AccountEvent.AccountSnapshot account) {
@@ -142,10 +151,9 @@ class AccountResource {
                 + "}";
     }
 
-    private static void errorJson(Response response, int status, String message) {
-        response.status(status);
-        response.type(APPLICATION_JSON);
-        response.body("{\"message\":\"" + message.replaceAll("\"", "'") + "\"}");
+    private static void errorJson(HttpServerExchange exchange, int status, String message) {
+        exchange.setStatusCode(status);
+        exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, APPLICATION_JSON);
+        exchange.getResponseSender().send("{\"message\":\"" + message.replace("\"", "'") + "\"}");
     }
-
 }
