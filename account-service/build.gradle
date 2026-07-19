@@ -5,11 +5,7 @@ plugins {
 dependencies {
     implementation(project(":eventstore"))
 
-    implementation(libs.sparkJava) {
-        exclude(group: "org.eclipse.jetty.websocket", module: "websocket-server")
-        exclude(group: "org.eclipse.jetty.websocket", module: "websocket-servlet")
-        exclude(group: "org.eclipse.jetty", module: "jetty-webapp")
-    }
+    implementation(libs.undertowCore)
 
     implementation(libs.msgpack)
     implementation(libs.logback)
