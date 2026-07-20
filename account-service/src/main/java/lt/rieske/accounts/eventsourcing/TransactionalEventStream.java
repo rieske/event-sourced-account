@@ -37,6 +37,14 @@ class TransactionalEventStream<A extends EventVisitor<E>, E extends Event> imple
         replayer.replay(aggregate, aggregateId);
     }
 
+    boolean containsTransaction(UUID transactionId) {
+        return replayer.containsTransaction(transactionId);
+    }
+
+    boolean mustCheckTransactionInStore() {
+        return replayer.mustCheckTransactionInStore();
+    }
+
     void commit(UUID transactionId) {
         eventStore.append(uncommittedEvents, uncommittedSnapshots.values(), transactionId);
         uncommittedEvents.clear();
