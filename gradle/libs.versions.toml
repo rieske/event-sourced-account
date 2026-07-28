@@ -7,7 +7,7 @@ dbtest = "0.0.5"
 undertowCore = "io.undertow:undertow-core:2.4.2.Final"
 msgpack = "org.msgpack:msgpack-core:0.9.12"
 slf4j = "org.slf4j:slf4j-api:2.0.18"
-logback = "ch.qos.logback:logback-classic:1.6.0"
+logback = "ch.qos.logback:logback-classic:1.6.1"
 hikari = "com.zaxxer:HikariCP:7.1.0"
 
 # TODO: flyway now drags in Jackson+Gson. Thisis not acceptable. Look for alternatives.
