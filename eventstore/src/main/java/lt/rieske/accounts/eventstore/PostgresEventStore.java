@@ -5,6 +5,7 @@ import org.postgresql.util.PSQLException;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
@@ -24,15 +25,16 @@ class PostgresEventStore implements BlobEventStore {
     private static final String SELECT_EVENTS_SQL =
             "SELECT sequenceNumber, transactionId, payload FROM Event WHERE aggregateId = ? AND sequenceNumber > ? ORDER BY sequenceNumber ASC";
 
-    private static final String REMOVE_SNAPSHOT_SQL =
-            "DELETE FROM Snapshot WHERE aggregateId = ?";
-    private static final String STORE_SNAPSHOT_SQL =
+    // Portable upsert (H2 + Postgres): UPDATE then INSERT if missing. Avoids ON CONFLICT (H2).
+    private static final String UPDATE_SNAPSHOT_SQL =
+            "UPDATE Snapshot SET sequenceNumber = ?, payload = ? WHERE aggregateId = ?";
+    private static final String INSERT_SNAPSHOT_SQL =
             "INSERT INTO Snapshot(aggregateId, sequenceNumber, payload) VALUES(?, ?, ?)";
     private static final String SELECT_SNAPSHOT_SQL =
             "SELECT sequenceNumber, payload FROM Snapshot WHERE aggregateId = ?";
 
     private static final String SELECT_TRANSACTION_SQL =
-            "SELECT aggregateId FROM Event WHERE aggregateId = ? AND transactionId = ?";
+            "SELECT 1 FROM Event WHERE aggregateId = ? AND transactionId = ? LIMIT 1";
 
     private final DataSource dataSource;
 
@@ -56,22 +58,68 @@ class PostgresEventStore implements BlobEventStore {
                 connection.rollback();
                 throw e;
             }
-        } catch (SQLIntegrityConstraintViolationException e) {
-            throw new ConcurrentModificationException(e);
-        } catch (PSQLException e) {
-            if (e.getSQLState().equals(UNIQUE_CONSTRAINT_VIOLATION_SQLSTATE)) {
+        } catch (SQLException e) {
+            if (isUniqueConstraintViolation(e)) {
                 throw new ConcurrentModificationException(e);
             }
             throw new UncheckedIOException(new IOException(e));
+        }
+    }
+
+    private static boolean isUniqueConstraintViolation(SQLException e) {
+        for (SQLException current = e; current != null; current = current.getNextException()) {
+            if (current instanceof SQLIntegrityConstraintViolationException) {
+                return true;
+            }
+            if (UNIQUE_CONSTRAINT_VIOLATION_SQLSTATE.equals(current.getSQLState())) {
+                return true;
+            }
+            // Batched inserts surface as BatchUpdateException (H2) or PSQLException (Postgres)
+            if (current instanceof BatchUpdateException || current instanceof PSQLException) {
+                if (UNIQUE_CONSTRAINT_VIOLATION_SQLSTATE.equals(current.getSQLState())) {
+                    return true;
+                }
+            }
+        }
+        Throwable cause = e.getCause();
+        if (cause instanceof SQLException sqlException) {
+            return isUniqueConstraintViolation(sqlException);
+        }
+        return false;
+    }
+
+    @Override
+    public List<SerializedEvent> getEvents(UUID aggregateId, long fromVersion) {
+        try (var connection = dataSource.getConnection()) {
+            return getEvents(connection, aggregateId, fromVersion);
         } catch (SQLException e) {
             throw new UncheckedIOException(new IOException(e));
         }
     }
 
     @Override
-    public List<SerializedEvent> getEvents(UUID aggregateId, long fromVersion) {
-        try (var connection = dataSource.getConnection();
-             var statement = connection.prepareStatement(SELECT_EVENTS_SQL)) {
+    public SerializedEvent loadLatestSnapshot(UUID aggregateId) {
+        try (var connection = dataSource.getConnection()) {
+            return loadLatestSnapshot(connection, aggregateId);
+        } catch (SQLException e) {
+            throw new UncheckedIOException(new IOException(e));
+        }
+    }
+
+    @Override
+    public AggregateRead load(UUID aggregateId) {
+        try (var connection = dataSource.getConnection()) {
+            var snapshot = loadLatestSnapshot(connection, aggregateId);
+            long fromVersion = snapshot == null ? 0L : snapshot.sequenceNumber();
+            return new AggregateRead(snapshot, getEvents(connection, aggregateId, fromVersion));
+        } catch (SQLException e) {
+            throw new UncheckedIOException(new IOException(e));
+        }
+    }
+
+    private static List<SerializedEvent> getEvents(Connection connection, UUID aggregateId, long fromVersion)
+            throws SQLException {
+        try (var statement = connection.prepareStatement(SELECT_EVENTS_SQL)) {
             statement.setObject(1, aggregateId);
             statement.setLong(2, fromVersion);
             try (var resultSet = statement.executeQuery()) {
@@ -84,15 +132,11 @@ class PostgresEventStore implements BlobEventStore {
                 }
                 return eventPayloads;
             }
-        } catch (SQLException e) {
-            throw new UncheckedIOException(new IOException(e));
         }
     }
 
-    @Override
-    public SerializedEvent loadLatestSnapshot(UUID aggregateId) {
-        try (var connection = dataSource.getConnection();
-             var statement = connection.prepareStatement(SELECT_SNAPSHOT_SQL)) {
+    private static SerializedEvent loadLatestSnapshot(Connection connection, UUID aggregateId) throws SQLException {
+        try (var statement = connection.prepareStatement(SELECT_SNAPSHOT_SQL)) {
             statement.setObject(1, aggregateId);
             try (var resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
@@ -100,12 +144,9 @@ class PostgresEventStore implements BlobEventStore {
                             resultSet.getLong(1),
                             null,
                             resultSet.getBytes(2));
-                } else {
-                    return null;
                 }
+                return null;
             }
-        } catch (SQLException e) {
-            throw new UncheckedIOException(new IOException(e));
         }
     }
 
@@ -130,8 +171,9 @@ class PostgresEventStore implements BlobEventStore {
                 statement.setLong(2, e.sequenceNumber());
                 statement.setObject(3, e.transactionId());
                 statement.setBytes(4, e.payload());
-                statement.executeUpdate();
+                statement.addBatch();
             }
+            statement.executeBatch();
         }
     }
 
@@ -139,15 +181,18 @@ class PostgresEventStore implements BlobEventStore {
         if (events.isEmpty()) {
             return;
         }
-        try (var deleteStatement = connection.prepareStatement(REMOVE_SNAPSHOT_SQL);
-             var storeStatement = connection.prepareStatement(STORE_SNAPSHOT_SQL)) {
+        try (var update = connection.prepareStatement(UPDATE_SNAPSHOT_SQL);
+             var insert = connection.prepareStatement(INSERT_SNAPSHOT_SQL)) {
             for (var e : events) {
-                deleteStatement.setObject(1, e.aggregateId());
-                deleteStatement.executeUpdate();
-                storeStatement.setObject(1, e.aggregateId());
-                storeStatement.setLong(2, e.sequenceNumber());
-                storeStatement.setBytes(3, e.payload());
-                storeStatement.executeUpdate();
+                update.setLong(1, e.sequenceNumber());
+                update.setBytes(2, e.payload());
+                update.setObject(3, e.aggregateId());
+                if (update.executeUpdate() == 0) {
+                    insert.setObject(1, e.aggregateId());
+                    insert.setLong(2, e.sequenceNumber());
+                    insert.setBytes(3, e.payload());
+                    insert.executeUpdate();
+                }
             }
         }
     }
