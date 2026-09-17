@@ -17,4 +17,17 @@ public interface EventStore<E extends Event> {
     SequencedEvent<E> loadSnapshot(UUID aggregateId);
 
     boolean transactionExists(UUID aggregateId, UUID transactionId);
+
+    /**
+     * Snapshot (nullable) plus events after it. Default implementation issues two reads;
+     * stores may collapse them into one round-trip.
+     */
+    default AggregateHistory<E> loadHistory(UUID aggregateId) {
+        var snapshot = loadSnapshot(aggregateId);
+        long fromVersion = snapshot == null ? 0L : snapshot.sequenceNumber();
+        return new AggregateHistory<>(snapshot, getEvents(aggregateId, fromVersion).toList());
+    }
+
+    record AggregateHistory<E extends Event>(SequencedEvent<E> snapshot, java.util.List<SequencedEvent<E>> events) {
+    }
 }

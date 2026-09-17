@@ -62,7 +62,9 @@ public class Server {
     private HttpHandler handle(Consumer<HttpServerExchange> action) {
         return exchange -> {
             try {
-                log.info("Request {} {}", exchange.getRequestMethod(), exchange.getRequestPath());
+                if (log.isDebugEnabled()) {
+                    log.debug("Request {} {}", exchange.getRequestMethod(), exchange.getRequestPath());
+                }
                 action.accept(exchange);
             } catch (IllegalArgumentException e) {
                 accountResource.badRequest(e, exchange);
@@ -71,7 +73,9 @@ public class Server {
             } catch (ConcurrentModificationException e) {
                 accountResource.conflict(e, exchange);
             } finally {
-                log.info("Responding with {}", exchange.getStatusCode());
+                if (log.isDebugEnabled()) {
+                    log.debug("Responding with {}", exchange.getStatusCode());
+                }
                 MDC.clear();
             }
         };
