@@ -1,7 +1,9 @@
 package lt.rieske.accounts.eventsourcing;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 
@@ -9,14 +11,29 @@ class EventReplayer<A extends EventVisitor<E>, E extends Event> {
 
     private final EventStore<E> eventStore;
     private final Map<UUID, Long> aggregateVersions = new HashMap<>();
+    private final Set<UUID> seenTransactionIds = new HashSet<>();
+    // True when a snapshot was applied: event history before the snapshot was not loaded.
+    private boolean usedSnapshot;
 
     EventReplayer(EventStore<E> eventStore) {
         this.eventStore = eventStore;
     }
 
     void replay(A aggregate, UUID aggregateId) {
-        long currentVersion = applySnapshot(aggregate, aggregateId);
-        currentVersion = replayEvents(aggregate, currentVersion, aggregateId);
+        var history = eventStore.loadHistory(aggregateId);
+        long currentVersion = 0;
+        if (history.snapshot() != null) {
+            usedSnapshot = true;
+            aggregate.visit(history.snapshot().event());
+            currentVersion = history.snapshot().sequenceNumber();
+        }
+        for (var event : history.events()) {
+            if (event.transactionId() != null) {
+                seenTransactionIds.add(event.transactionId());
+            }
+            aggregate.visit(event.event());
+            currentVersion = event.sequenceNumber();
+        }
 
         if (currentVersion == 0) {
             throw new AggregateNotFoundException(aggregateId);
@@ -29,22 +46,15 @@ class EventReplayer<A extends EventVisitor<E>, E extends Event> {
         return aggregateVersions.compute(aggregateId, (id, version) -> version != null ? version + 1 : 1);
     }
 
-    private long applySnapshot(A aggregate, UUID aggregateId) {
-        SequencedEvent<E> snapshot = eventStore.loadSnapshot(aggregateId);
-        if (snapshot != null) {
-            aggregate.visit(snapshot.event());
-            return snapshot.sequenceNumber();
-        }
-        return 0;
+    boolean containsTransaction(UUID transactionId) {
+        return seenTransactionIds.contains(transactionId);
     }
 
-    private long replayEvents(A aggregate, long startingVersion, UUID aggregateId) {
-        long currentVersion = startingVersion;
-        for (var iterator = eventStore.getEvents(aggregateId, startingVersion).iterator(); iterator.hasNext(); ) {
-            var event = iterator.next();
-            aggregate.visit(event.event());
-            currentVersion = event.sequenceNumber();
-        }
-        return currentVersion;
+    /**
+     * When false, {@link #containsTransaction} observed the full event history (no snapshot),
+     * so a separate store lookup is unnecessary.
+     */
+    boolean mustCheckTransactionInStore() {
+        return usedSnapshot;
     }
 }
