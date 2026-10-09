@@ -13,6 +13,9 @@ import java.util.UUID;
 
 class AccountService {
 
+    // Under high contention, more optimistic retries avoid HTTP 409 + client round-trips.
+    private static final int MAX_CONCURRENT_MODIFICATION_RETRIES = 32;
+
     private final AggregateRepository<Account, AccountEvent> accountRepository;
     private final EventStore<AccountEvent> eventStore;
 
@@ -54,7 +57,7 @@ class AccountService {
 
     private static void withRetryOnConcurrentModification(Runnable r) {
         ConcurrentModificationException concurrentModification = null;
-        for (int attempt = 0; attempt < 3; attempt++) {
+        for (int attempt = 0; attempt < MAX_CONCURRENT_MODIFICATION_RETRIES; attempt++) {
             try {
                 r.run();
                 return;

@@ -20,7 +20,9 @@ public class Configuration {
     private static DataSource pooledDataSource(DataSource dataSource) {
         var config = new HikariConfig();
         config.setPoolName("eventStore");
-        config.setMaximumPoolSize(5);
+        // Stress tests drive 8 concurrent clients; each deposit does several short DB ops.
+        config.setMaximumPoolSize(Math.max(16, Runtime.getRuntime().availableProcessors() * 2));
+        config.setMinimumIdle(4);
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("useServerPrepStmts", "true");
         config.addDataSourceProperty("useLocalSessionState", "true");
