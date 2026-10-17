@@ -32,7 +32,7 @@ public class AggregateRepository<A extends EventVisitor<E>, E extends Event> {
         var eventStream = transactionalEventStream();
         var aggregate = loadAggregate(eventStream, aggregateId);
 
-        if (eventStore.transactionExists(aggregateId, transactionId)) {
+        if (isDuplicateTransaction(eventStream, aggregateId, transactionId)) {
             return;
         }
 
@@ -46,13 +46,25 @@ public class AggregateRepository<A extends EventVisitor<E>, E extends Event> {
         var aggregate1 = loadAggregate(eventStream, aggregateId1);
         var aggregate2 = loadAggregate(eventStream, aggregateId2);
 
-        if (eventStore.transactionExists(aggregateId1, transactionId)
-                || eventStore.transactionExists(aggregateId2, transactionId)) {
+        if (isDuplicateTransaction(eventStream, aggregateId1, transactionId)
+                || isDuplicateTransaction(eventStream, aggregateId2, transactionId)) {
             return;
         }
 
         transaction.accept(aggregate1, aggregate2);
         eventStream.commit(transactionId);
+    }
+
+    /**
+     * Prefer transaction ids already observed while replaying events (no extra DB round-trip).
+     * Fall back to the store only when a snapshot truncated history.
+     */
+    private boolean isDuplicateTransaction(TransactionalEventStream<A, E> eventStream, UUID aggregateId, UUID transactionId) {
+        if (eventStream.containsTransaction(transactionId)) {
+            return true;
+        }
+        return eventStream.mustCheckTransactionInStore()
+                && eventStore.transactionExists(aggregateId, transactionId);
     }
 
     public A query(UUID aggregateId) {

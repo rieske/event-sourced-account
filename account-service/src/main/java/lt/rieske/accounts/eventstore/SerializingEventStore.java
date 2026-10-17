@@ -36,7 +36,7 @@ class SerializingEventStore<E extends Event> implements EventStore<E> {
     @Override
     public Stream<SequencedEvent<E>> getEvents(UUID aggregateId, long fromVersion) {
         var serializedEvents = blobStore.getEvents(aggregateId, fromVersion);
-        return deserialize(serializedEvents);
+        return deserialize(serializedEvents).stream();
     }
 
     @Override
@@ -48,9 +48,17 @@ class SerializingEventStore<E extends Event> implements EventStore<E> {
         return deserialize(serializedSnapshot);
     }
 
-    private Stream<SequencedEvent<E>> deserialize(List<SerializedEvent> serializedEvents) {
+    @Override
+    public AggregateHistory<E> loadHistory(UUID aggregateId) {
+        var read = blobStore.load(aggregateId);
+        SequencedEvent<E> snapshot = read.snapshot() == null ? null : deserialize(read.snapshot());
+        return new AggregateHistory<>(snapshot, deserialize(read.events()));
+    }
+
+    private List<SequencedEvent<E>> deserialize(List<SerializedEvent> serializedEvents) {
         return serializedEvents.stream()
-                .map(this::deserialize);
+                .map(this::deserialize)
+                .toList();
     }
 
     private SequencedEvent<E> deserialize(SerializedEvent serializedEvent) {
